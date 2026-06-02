@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="24dp"
+    android:viewportWidth="36"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#E2E7FF"
+        android:pathData="M2,2h32a2,2 0 0 1 2,2v16a2,2 0 0 1 -2,2H2a2,2 0 0 1 -2,-2V4a2,2 0 0 1 2,-2z" />
+    <!-- Magnetic stripe -->
+    <path
+        android:fillColor="#5B4137"
+        android:pathData="M0,7h36v3H0z" />
+    <!-- Chip -->
+    <path
+        android:fillColor="#FAB52E"
+        android:pathData="M4,14h5v4H4z" />
+    <!-- Number line suggestion -->
+    <path
+        android:fillColor="#A1A1AA"
+        android:pathData="M11,15h22v1H11zM11,17h12v1H11z" />
+</vector>

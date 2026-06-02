@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">يلّا خِدمة</string>
+
+    <!--
+        Web client ID for Google Sign-In via Credential Manager.
+        Get it from Firebase console:
+          Authentication → Sign-in method → Google (enable) → Web SDK configuration → Web client ID
+        It's a string ending in ".apps.googleusercontent.com".
+        Replace the placeholder below; until then, Google sign-in will be a no-op.
+    -->
+    <string name="google_web_client_id" translatable="false">411079346271-oqh39u71miq6oejg1rppdmobomi8qag8.apps.googleusercontent.com</string>
+
+    <!--
+        SMTP credentials for sending email OTP via JavaMail (Gmail).
+        ⚠️ TESTING ONLY — these end up inside the APK and can be extracted.
+        Move OTP sending to a Cloud Function before launch.
+
+        Setup:
+          1. Use a Gmail account dedicated to this (not your personal one).
+          2. Enable 2-Step Verification on it.
+          3. Create an "App Password": Google Account → Security → App passwords.
+          4. Put the Gmail address in smtp_email and the 16-char app password
+             (no spaces) in smtp_app_password.
+        Until filled, sending the OTP will fail.
+    -->
+    <string name="smtp_email" translatable="false">yallakhidmasup@mail.ru</string>
+    <string name="smtp_app_password" translatable="false">UOeokqjwkbqCB4bZmNYS</string>
+</resources>
