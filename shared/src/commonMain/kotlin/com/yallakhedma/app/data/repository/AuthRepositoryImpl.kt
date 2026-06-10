@@ -1,5 +1,6 @@
 package com.yallakhedma.app.data.repository
 
+import com.yallakhedma.app.data.auth.authErrorMessage
 import com.yallakhedma.app.data.datasource.FirebaseAuthDataSource
 import com.yallakhedma.app.data.datasource.ProvidersFirestoreDataSource
 import com.yallakhedma.app.data.datasource.UserFirestoreDataSource
@@ -38,7 +39,7 @@ class AuthRepositoryImpl(
         userType: UserType,
     ): DataResult<User> = runCatching {
         val fbUser = authDs.signUpWithEmail(email, password)
-            ?: return DataResult.Error("Sign up returned no user")
+            ?: return DataResult.Error("تعذّر إنشاء الحساب، حاول مرة أخرى")
         val profile = User(
             id = fbUser.uid,
             email = email,
@@ -60,44 +61,59 @@ class AuthRepositoryImpl(
             )
         }
         DataResult.Success(profile)
-    }.getOrElse { DataResult.Error(it.message ?: "Unknown error", it) }
+    }.getOrElse {
+        DataResult.Error(authErrorMessage(it, generic = "تعذّر إنشاء الحساب، حاول مرة أخرى"), it)
+    }
 
     override suspend fun signInWithEmail(email: String, password: String): DataResult<User> =
         runCatching {
             val fbUser = authDs.signInWithEmail(email, password)
-                ?: return DataResult.Error("Sign in returned no user")
+                ?: return DataResult.Error(SIGN_IN_GENERIC)
             val profile = userDs.getUser(fbUser.uid)
-                ?: return DataResult.Error("User profile missing")
+                ?: return DataResult.Error(SIGN_IN_GENERIC)
             DataResult.Success(profile)
-        }.getOrElse { DataResult.Error(it.message ?: "Unknown error", it) }
+        }.getOrElse {
+            // Generic on purpose — never reveal whether email or password was wrong.
+            DataResult.Error(authErrorMessage(it, generic = SIGN_IN_GENERIC), it)
+        }
 
     override suspend fun sendPasswordResetEmail(email: String): DataResult<Unit> =
         runCatching {
             authDs.sendPasswordResetEmail(email)
             DataResult.Success(Unit)
-        }.getOrElse { DataResult.Error(it.message ?: "Unknown error", it) }
+        }.getOrElse { e ->
+            // Enumeration-safe: if the address simply has no account, still report
+            // success so an attacker can't probe which emails are registered.
+            // Surface real problems (network, malformed) with a clean message.
+            val name = e::class.simpleName ?: ""
+            if (name.contains("InvalidUser", ignoreCase = true)) {
+                DataResult.Success(Unit)
+            } else {
+                DataResult.Error(authErrorMessage(e, generic = "تعذّر إرسال رابط الاستعادة"), e)
+            }
+        }
 
     override suspend fun signOut(): DataResult<Unit> =
         runCatching {
             authDs.signOut()
             DataResult.Success(Unit)
-        }.getOrElse { DataResult.Error(it.message ?: "Unknown error", it) }
+        }.getOrElse { DataResult.Error(authErrorMessage(it, generic = "تعذّر تسجيل الخروج"), it) }
 
     override suspend fun markEmailVerified(): DataResult<Unit> =
         runCatching {
             val uid = authDs.currentUid()
-                ?: return DataResult.Error("No signed-in user")
+                ?: return DataResult.Error("لا يوجد مستخدم مسجّل الدخول")
             userDs.markEmailVerified(uid)
             DataResult.Success(Unit)
-        }.getOrElse { DataResult.Error(it.message ?: "Unknown error", it) }
+        }.getOrElse { DataResult.Error(authErrorMessage(it, generic = "تعذّر تأكيد البريد"), it) }
 
     override suspend fun markProviderProfileCompleted(): DataResult<Unit> =
         runCatching {
             val uid = authDs.currentUid()
-                ?: return DataResult.Error("No signed-in user")
+                ?: return DataResult.Error("لا يوجد مستخدم مسجّل الدخول")
             userDs.markProviderProfileCompleted(uid)
             DataResult.Success(Unit)
-        }.getOrElse { DataResult.Error(it.message ?: "Unknown error", it) }
+        }.getOrElse { DataResult.Error(authErrorMessage(it, generic = "تعذّر حفظ الملف"), it) }
 
     override fun currentUid(): String? = authDs.currentUid()
 
@@ -105,7 +121,7 @@ class AuthRepositoryImpl(
         runCatching {
             userDs.upsertUser(user)
             DataResult.Success(Unit)
-        }.getOrElse { DataResult.Error(it.message ?: "Update failed", it) }
+        }.getOrElse { DataResult.Error(authErrorMessage(it, generic = "تعذّر تحديث الملف"), it) }
 
     override suspend fun signInWithGoogleCredential(
         idToken: String,
@@ -113,14 +129,14 @@ class AuthRepositoryImpl(
     ): DataResult<User> = runCatching {
         val credential = GoogleAuthProvider.credential(idToken = idToken, accessToken = null)
         val fbUser = Firebase.auth.signInWithCredential(credential).user
-            ?: return DataResult.Error("Google sign-in returned no user")
+            ?: return DataResult.Error(SOCIAL_GENERIC)
         upsertOrFetchProfile(
             uid = fbUser.uid,
             email = fbUser.email,
             displayName = fbUser.displayName,
             userType = defaultUserType,
         )
-    }.getOrElse { DataResult.Error(it.message ?: "Unknown error", it) }
+    }.getOrElse { DataResult.Error(authErrorMessage(it, generic = SOCIAL_GENERIC), it) }
 
     override suspend fun signInWithAppleCredential(
         idToken: String,
@@ -134,14 +150,14 @@ class AuthRepositoryImpl(
             accessToken = null,
         )
         val fbUser = Firebase.auth.signInWithCredential(credential).user
-            ?: return DataResult.Error("Apple sign-in returned no user")
+            ?: return DataResult.Error(SOCIAL_GENERIC)
         upsertOrFetchProfile(
             uid = fbUser.uid,
             email = fbUser.email,
             displayName = fbUser.displayName,
             userType = defaultUserType,
         )
-    }.getOrElse { DataResult.Error(it.message ?: "Unknown error", it) }
+    }.getOrElse { DataResult.Error(authErrorMessage(it, generic = SOCIAL_GENERIC), it) }
 
     /** First-time social sign-in creates a profile; returning users get their existing one. */
     private suspend fun upsertOrFetchProfile(
@@ -166,5 +182,12 @@ class AuthRepositoryImpl(
             userDs.upsertUser(profile)
             DataResult.Success(profile)
         }
+    }
+
+    private companion object {
+        // Single generic credential error — keeps "no such user" and "wrong
+        // password" indistinguishable so accounts can't be enumerated.
+        const val SIGN_IN_GENERIC = "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+        const val SOCIAL_GENERIC = "تعذّر تسجيل الدخول، حاول مرة أخرى"
     }
 }

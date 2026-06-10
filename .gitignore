@@ -1,0 +1,47 @@
+*.iml
+.kotlin
+.gradle
+**/build/
+xcuserdata
+!src/**/build/
+local.properties
+.idea
+.DS_Store
+captures
+.externalNativeBuild
+.cxx
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+**/xcshareddata/WorkspaceSettings.xcsettings
+node_modules/
+
+# Secrets — never commit
+google-services.json
+GoogleService-Info.plist
+*.keystore
+*.jks
+release.keystore.properties
+.env
+.env.*
+build_out.txt
+
+# Build artifacts
+*.apk
+*.aab
+*.dex
+*.class
+*.log
+
+# iOS / Xcode extras
+Pods/
+DerivedData/
+*.xcuserstate
+*.xcuserstate.lock
+Carthage/Build/
+
+# OS
+Thumbs.db
+desktop.ini

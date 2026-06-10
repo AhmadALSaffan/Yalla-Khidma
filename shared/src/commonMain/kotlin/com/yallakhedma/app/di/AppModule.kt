@@ -71,6 +71,7 @@ val appModule: Module = module {
     single { RequestsFirestoreDataSource() }
     single { PaymentMethodsFirestoreDataSource() }
     single { PaymentCardCrypto() }
+    single { com.yallakhedma.app.data.auth.OtpService() }
     single { com.yallakhedma.app.util.ClientLocationHolder() }
 
     // Repositories

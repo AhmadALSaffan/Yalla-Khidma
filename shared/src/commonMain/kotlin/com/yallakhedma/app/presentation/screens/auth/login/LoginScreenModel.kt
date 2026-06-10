@@ -5,6 +5,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import com.yallakhedma.app.data.auth.SocialAuthClient
 import com.yallakhedma.app.domain.repository.AuthRepository
 import com.yallakhedma.app.domain.util.DataResult
+import com.yallakhedma.app.util.AuthValidation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -66,8 +67,11 @@ class LoginScreenModel(
         val s = state.value
         return when {
             s.email.isBlank() -> { _state.update { it.copy(error = "الإيميل مطلوب") }; false }
-            !s.email.contains("@") -> { _state.update { it.copy(error = "إيميل غير صحيح") }; false }
-            s.password.length < 6 -> { _state.update { it.copy(error = "كلمة المرور 6 أحرف على الأقل") }; false }
+            !AuthValidation.isValidEmail(s.email) -> { _state.update { it.copy(error = "إيميل غير صحيح") }; false }
+            // On login we only check the field is filled — never enforce a
+            // length/complexity policy here (it leaks the rule and can lock out
+            // accounts created under an older policy). Firebase rejects bad creds.
+            s.password.isBlank() -> { _state.update { it.copy(error = "كلمة المرور مطلوبة") }; false }
             else -> true
         }
     }
