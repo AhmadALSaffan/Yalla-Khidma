@@ -5,6 +5,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import com.yallakhedma.app.domain.model.UserType
 import com.yallakhedma.app.domain.repository.AuthRepository
 import com.yallakhedma.app.domain.util.DataResult
+import com.yallakhedma.app.util.AuthValidation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -51,8 +52,11 @@ class SignUpScreenModel(
         val s = state.value
         return when {
             s.name.isBlank() -> { _state.update { it.copy(error = "الاسم مطلوب") }; false }
-            s.email.isBlank() || !s.email.contains("@") -> { _state.update { it.copy(error = "إيميل غير صحيح") }; false }
-            s.password.length < 6 -> { _state.update { it.copy(error = "كلمة المرور 6 أحرف على الأقل") }; false }
+            !AuthValidation.isValidEmail(s.email) -> { _state.update { it.copy(error = "إيميل غير صحيح") }; false }
+            s.password.length < AuthValidation.MIN_PASSWORD_LENGTH ->
+                { _state.update { it.copy(error = "كلمة المرور 8 أحرف على الأقل") }; false }
+            !AuthValidation.isStrongPassword(s.password) ->
+                { _state.update { it.copy(error = "كلمة المرور لازم تحتوي حروف وأرقام") }; false }
             s.password != s.confirmPassword -> { _state.update { it.copy(error = "كلمتا المرور غير متطابقتين") }; false }
             !s.termsAccepted -> { _state.update { it.copy(error = "لازم توافق على الشروط") }; false }
             else -> true

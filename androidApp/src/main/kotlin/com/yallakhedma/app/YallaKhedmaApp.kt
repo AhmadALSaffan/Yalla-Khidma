@@ -6,8 +6,6 @@ import coil3.SingletonImageLoader
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.crossfade
 import com.yallakhedma.app.di.KOIN_PROP_GOOGLE_WEB_CLIENT_ID
-import com.yallakhedma.app.di.KOIN_PROP_SMTP_APP_PASSWORD
-import com.yallakhedma.app.di.KOIN_PROP_SMTP_EMAIL
 import com.yallakhedma.app.di.initKoin
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -22,8 +20,6 @@ class YallaKhedmaApp : Application() {
             properties(
                 mapOf(
                     KOIN_PROP_GOOGLE_WEB_CLIENT_ID to getString(R.string.google_web_client_id),
-                    KOIN_PROP_SMTP_EMAIL to getString(R.string.smtp_email),
-                    KOIN_PROP_SMTP_APP_PASSWORD to getString(R.string.smtp_app_password),
                 ),
             )
         }

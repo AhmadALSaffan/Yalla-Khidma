@@ -2,33 +2,35 @@ package com.yallakhedma.app.presentation.screens.auth.otp
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.yallakhedma.app.data.auth.EmailOtpSender
+import com.yallakhedma.app.data.auth.OtpService
 import com.yallakhedma.app.domain.repository.AuthRepository
-import com.yallakhedma.app.domain.util.DataResult
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
+/**
+ * Drives email verification entirely through the server. The 4-digit code is
+ * generated, stored (hashed), and verified by Cloud Functions — this model only
+ * triggers send/verify and reflects the result. All anti-abuse (expiry, attempt
+ * cap, resend cooldown) is enforced server-side; the timer here is just UX.
+ */
 class OtpScreenModel(
     private val authRepository: AuthRepository,
-    private val emailOtpSender: EmailOtpSender,
+    private val otpService: OtpService,
 ) : ScreenModel {
 
     private val _state = MutableStateFlow(OtpState())
     val state = _state.asStateFlow()
 
-    private var generatedCode: String = ""
-
     init {
-        sendNewCode()
+        loadEmail()
+        sendCode()
     }
 
     fun onCodeChange(value: String) {
-        // Keep digits only, max 4.
         val digits = value.filter { it.isDigit() }.take(CODE_LENGTH)
         _state.update { it.copy(code = digits, error = null) }
     }
@@ -39,42 +41,50 @@ class OtpScreenModel(
             _state.update { it.copy(error = "أدخل الرمز كاملاً") }
             return
         }
-        if (entered != generatedCode) {
-            _state.update { it.copy(error = "الرمز غير صحيح") }
-            return
-        }
         screenModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
-            when (val result = authRepository.markEmailVerified()) {
-                is DataResult.Success -> _state.update { it.copy(isLoading = false, verified = true) }
-                is DataResult.Error -> _state.update { it.copy(isLoading = false, error = result.message) }
-                DataResult.Loading -> Unit
+            val ok = runCatching {
+                otpService.verify(OtpService.PURPOSE_EMAIL_VERIFY, entered)
+            }.getOrElse { e ->
+                // Cloud Functions throw a FirebaseFunctionsException whose message
+                // is the Arabic string we set server-side (wrong code, expired, …).
+                _state.update { it.copy(isLoading = false, error = e.message ?: "تعذّر التحقق") }
+                return@launch
+            }
+            if (ok) {
+                // The server already flipped users/{uid}.emailVerified = true.
+                _state.update { it.copy(isLoading = false, verified = true) }
+            } else {
+                _state.update { it.copy(isLoading = false, error = "الرمز غير صحيح") }
             }
         }
     }
 
     fun resend() {
         if (!state.value.canResend) return
-        sendNewCode()
+        sendCode()
     }
 
-    private fun sendNewCode() {
-        generatedCode = (1..CODE_LENGTH)
-            .map { Random.nextInt(0, 10) }
-            .joinToString("")
+    private fun loadEmail() {
+        screenModelScope.launch {
+            val email = authRepository.currentUser.firstOrNull()?.email
+            if (!email.isNullOrBlank()) _state.update { it.copy(email = email) }
+        }
+    }
+
+    private fun sendCode() {
         screenModelScope.launch {
             _state.update { it.copy(isSending = true, error = null, code = "") }
-            val email = authRepository.currentUser.firstOrNull()?.email
-            if (email.isNullOrBlank()) {
-                _state.update { it.copy(isSending = false, error = "لا يوجد بريد إلكتروني للحساب") }
-                return@launch
-            }
-            _state.update { it.copy(email = email) }
-            val sent = emailOtpSender.sendCode(email, generatedCode)
-            if (!sent) {
+            val result = runCatching { otpService.send(OtpService.PURPOSE_EMAIL_VERIFY) }
+            if (result.isFailure) {
                 _state.update {
-                    it.copy(isSending = false, error = "تعذّر إرسال الرمز، حاول لاحقاً")
+                    it.copy(
+                        isSending = false,
+                        error = result.exceptionOrNull()?.message ?: "تعذّر إرسال الرمز، حاول لاحقاً",
+                    )
                 }
+                // Still start the timer so the user can retry after the cooldown.
+                startTimer()
                 return@launch
             }
             _state.update { it.copy(isSending = false) }
