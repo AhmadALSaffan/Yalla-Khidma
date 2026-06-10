@@ -1,0 +1,81 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{userId} {
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+      // The client may set its own ID-verification status to NotSubmitted,
+      // Pending, or Rejected — but NEVER to "Approved". Approval happens only
+      // via the admin console / a Cloud Function (both bypass these rules).
+      function notSelfApprovingOnCreate() {
+        return request.resource.data.idVerificationStatus != 'Approved';
+      }
+      function notSelfApprovingOnUpdate() {
+        return request.resource.data.idVerificationStatus != 'Approved'
+          || resource.data.idVerificationStatus == 'Approved';
+      }
+
+      allow read: if isOwner();
+      allow create: if isOwner() && notSelfApprovingOnCreate();
+      allow update: if isOwner() && notSelfApprovingOnUpdate();
+      allow delete: if false;
+
+      // Saved payment cards live under the user. Only the owner can touch them.
+      match /payment_methods/{methodId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    match /providers/{providerId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == providerId;
+      // Owner edits their whole profile. Anyone else may ONLY bump the booking
+      // counter (a client booking a service) — nothing else.
+      allow update: if request.auth != null && (
+        request.auth.uid == providerId ||
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['bookingsCount'])
+      );
+      allow delete: if false;
+    }
+
+    match /services/{serviceId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+    match /categories/{categoryId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Booking requests: clients create, providers read/accept/reject, client pays.
+    match /requests/{requestId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.clientId == request.auth.uid;
+      allow update: if request.auth != null && (
+        resource.data.clientId == request.auth.uid ||
+        resource.data.providerId == request.auth.uid
+      );
+      allow delete: if false;
+    }
+
+    // Discount coupons: a provider owns their codes; any signed-in user may read.
+    match /coupons/{couponId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.providerId == request.auth.uid;
+      allow update, delete: if request.auth != null
+        && resource.data.providerId == request.auth.uid;
+    }
+
+    // OTP codes are written + read ONLY by Cloud Functions (Admin SDK bypasses
+    // rules). No client may ever touch them — the hashed code must stay secret.
+    match /otps/{otpId} {
+      allow read, write: if false;
+    }
+  }
+}

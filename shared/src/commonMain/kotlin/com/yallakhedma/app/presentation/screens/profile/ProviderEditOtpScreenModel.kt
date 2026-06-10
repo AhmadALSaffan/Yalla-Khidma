@@ -2,7 +2,7 @@ package com.yallakhedma.app.presentation.screens.profile
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.yallakhedma.app.data.auth.EmailOtpSender
+import com.yallakhedma.app.data.auth.OtpService
 import com.yallakhedma.app.domain.repository.AuthRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,20 +10,24 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
-/** Sends a fresh OTP to the provider's email, then verifies it before they can edit. */
+/**
+ * Server-backed OTP gate before a provider edits their profile. Generation and
+ * verification happen in Cloud Functions (purpose = "profile_edit"); this model
+ * only triggers send/verify and reflects the result.
+ */
 class ProviderEditOtpScreenModel(
     private val authRepository: AuthRepository,
-    private val emailOtpSender: EmailOtpSender,
+    private val otpService: OtpService,
 ) : ScreenModel {
 
     private val _state = MutableStateFlow(State())
     val state = _state.asStateFlow()
 
-    private var generatedCode: String = ""
-
-    init { sendNewCode() }
+    init {
+        loadEmail()
+        sendCode()
+    }
 
     fun onCodeChange(value: String) {
         val digits = value.filter { it.isDigit() }.take(CODE_LENGTH)
@@ -36,31 +40,39 @@ class ProviderEditOtpScreenModel(
             _state.update { it.copy(error = "أدخل الرمز كاملاً") }
             return
         }
-        if (entered != generatedCode) {
-            _state.update { it.copy(error = "الرمز غير صحيح") }
-            return
+        screenModelScope.launch {
+            val ok = runCatching {
+                otpService.verify(OtpService.PURPOSE_PROFILE_EDIT, entered)
+            }.getOrElse { e ->
+                _state.update { it.copy(error = e.message ?: "تعذّر التحقق") }
+                return@launch
+            }
+            if (ok) _state.update { it.copy(verified = true) }
+            else _state.update { it.copy(error = "الرمز غير صحيح") }
         }
-        _state.update { it.copy(verified = true) }
     }
 
     fun resend() {
         if (!state.value.canResend) return
-        sendNewCode()
+        sendCode()
     }
 
-    private fun sendNewCode() {
-        generatedCode = (1..CODE_LENGTH).map { Random.nextInt(0, 10) }.joinToString("")
+    private fun loadEmail() {
+        screenModelScope.launch {
+            val email = authRepository.currentUser.firstOrNull()?.email
+            if (!email.isNullOrBlank()) _state.update { it.copy(email = email) }
+        }
+    }
+
+    private fun sendCode() {
         screenModelScope.launch {
             _state.update { it.copy(sending = true, error = null, code = "") }
-            val email = authRepository.currentUser.firstOrNull()?.email
-            if (email.isNullOrBlank()) {
-                _state.update { it.copy(sending = false, error = "لا يوجد بريد إلكتروني") }
-                return@launch
-            }
-            _state.update { it.copy(email = email) }
-            val sent = emailOtpSender.sendCode(email, generatedCode)
-            if (!sent) {
-                _state.update { it.copy(sending = false, error = "تعذّر إرسال الرمز") }
+            val result = runCatching { otpService.send(OtpService.PURPOSE_PROFILE_EDIT) }
+            if (result.isFailure) {
+                _state.update {
+                    it.copy(sending = false, error = result.exceptionOrNull()?.message ?: "تعذّر إرسال الرمز")
+                }
+                startTimer()
                 return@launch
             }
             _state.update { it.copy(sending = false) }

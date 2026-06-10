@@ -54,10 +54,8 @@ kotlin {
             implementation(libs.androidx.credentials)
             implementation(libs.androidx.credentials.playServicesAuth)
             implementation(libs.google.identity.googleid)
-
-            // JavaMail (Android) — client-side SMTP for email OTP (testing only)
-            implementation(libs.javamail.android.mail)
-            implementation(libs.javamail.android.activation)
+            // OTP email is sent server-side now (Cloud Functions) — the client
+            // no longer needs JavaMail/SMTP.
         }
         commonMain.dependencies {
             // Compose Multiplatform
