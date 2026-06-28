@@ -19,18 +19,6 @@
 
 </div>
 
----
-
-
-## Overview
-
-**Yalla Khedma** (يلّا خِدمة — *"your service, one tap away"*) is a native cross-platform marketplace that connects clients with verified service providers (plumbers, electricians, tutors, designers, cleaners…) across the Arab region. Built entirely in **Kotlin Multiplatform** with **Compose Multiplatform**, it ships from a single codebase to both Android and iOS — fully RTL, fully bilingual.
-
-The model is simple: clients use the app for free, providers pay a monthly subscription ($9.99 / $24.99 / $49.99) to be listed. Clients negotiate a price with the provider, the provider accepts, and the client pays securely from a saved card — with optional discount coupons.
-
-> Brand: orange `#FF6B35` on white · clean · energetic · شعبي
-> Tagline: **خِدمَتُك بضغطة زِر** — *Your service, one tap away*
-
 <div align="center">
   <table>
     <tr>
@@ -45,6 +33,19 @@ The model is simple: clients use the app for free, providers pay a monthly subsc
     </tr>
   </table>
 </div>
+
+---
+
+
+## Overview
+
+**Yalla Khedma** (يلّا خِدمة — *"your service, one tap away"*) is a native cross-platform marketplace that connects clients with verified service providers (plumbers, electricians, tutors, designers, cleaners…) across the Arab region. Built entirely in **Kotlin Multiplatform** with **Compose Multiplatform**, it ships from a single codebase to both Android and iOS — fully RTL, fully bilingual.
+
+The model is simple: clients use the app for free, providers pay a monthly subscription ($9.99 / $24.99 / $49.99) to be listed. Clients negotiate a price with the provider, the provider accepts, and the client pays securely from a saved card — with optional discount coupons.
+
+> Brand: orange `#FF6B35` on white · clean · energetic · شعبي
+> Tagline: **خِدمَتُك بضغطة زِر** — *Your service, one tap away*
+
 
 ---
 
