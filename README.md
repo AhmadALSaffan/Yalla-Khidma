@@ -21,6 +21,7 @@
 
 ---
 
+
 ## Overview
 
 **Yalla Khedma** (يلّا خِدمة — *"your service, one tap away"*) is a native cross-platform marketplace that connects clients with verified service providers (plumbers, electricians, tutors, designers, cleaners…) across the Arab region. Built entirely in **Kotlin Multiplatform** with **Compose Multiplatform**, it ships from a single codebase to both Android and iOS — fully RTL, fully bilingual.
@@ -29,6 +30,21 @@ The model is simple: clients use the app for free, providers pay a monthly subsc
 
 > Brand: orange `#FF6B35` on white · clean · energetic · شعبي
 > Tagline: **خِدمَتُك بضغطة زِر** — *Your service, one tap away*
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" style="background:#1a1a1a; border-radius:24px; padding:12px; border: 2px solid #333;">
+        <img
+          src="https://github.com/user-attachments/assets/c300694f-bd92-4c80-887e-bd654747f6db"
+          alt="Yalla Khedma app demo"
+          width="360"
+          style="border-radius:16px; display:block;"
+        />
+      </td>
+    </tr>
+  </table>
+</div>
 
 ---
 
