@@ -4,7 +4,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import com.yallakhedma.app.domain.model.User
 import com.yallakhedma.app.domain.model.UserType
 import com.yallakhedma.app.domain.model.VerificationStatus
-import com.yallakhedma.app.presentation.screens.auth.otp.OtpScreen
+import com.yallakhedma.app.presentation.screens.auth.verify.EmailVerificationScreen
 import com.yallakhedma.app.presentation.screens.auth.usertype.UserTypeSelectionScreen
 import com.yallakhedma.app.presentation.screens.auth.welcome.WelcomeScreen
 import com.yallakhedma.app.presentation.screens.main.ProviderMainScreen
@@ -24,7 +24,7 @@ fun destinationForUser(user: User?): Screen = when {
     !user.userTypeChosen -> UserTypeSelectionScreen(UserTypeSelectionScreen.Mode.CompleteAccount)
     // Email accounts must confirm the OTP first. Google/Apple users are
     // created with emailVerified = true, so they skip straight past this.
-    !user.emailVerified -> OtpScreen
+    !user.emailVerified -> EmailVerificationScreen
     user.userType == UserType.Provider -> when (user.idVerificationStatus) {
         VerificationStatus.NotSubmitted,
         VerificationStatus.Rejected -> IdVerificationScreen

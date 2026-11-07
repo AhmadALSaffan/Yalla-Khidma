@@ -308,4 +308,22 @@
     <string name="error_coupon_code">اكتب رمز من 3 أحرف فأكثر</string>
     <string name="error_coupon_value">أدخل قيمة خصم صحيحة</string>
     <string name="error_coupon_percent">النسبة لا تتجاوز 100%</string>
+    <string name="verify_title">فعّل إيميلك</string>
+    <string name="verify_subtitle">أرسلنا رابط تفعيل إلى</string>
+    <string name="verify_steps">افتح الإيميل واضغط الرابط، وبعدها ارجع هنا. نتحقق تلقائياً.</string>
+    <string name="verify_check">فعّلت، كمّل</string>
+    <string name="verify_waiting">بانتظار التفعيل...</string>
+    <string name="verify_resend">إعادة إرسال الرابط</string>
+    <string name="verify_resend_in">إعادة الإرسال خلال %1$s</string>
+    <string name="verify_sent">أرسلنا رابط جديد</string>
+    <string name="verify_not_yet">لسا ما تم التفعيل — تأكد إنك ضغطت الرابط</string>
+    <string name="verify_spam">ما لقيته؟ شيّك مجلد الرسائل غير المرغوبة</string>
+    <string name="confirm_title">تأكيد هويتك</string>
+    <string name="confirm_subtitle_password">لحماية حسابك، اكتب كلمة المرور قبل تعديل الملف.</string>
+    <string name="confirm_subtitle_google">لحماية حسابك، أكّد حسابك في Google قبل تعديل الملف.</string>
+    <string name="confirm_submit">تأكيد</string>
+    <string name="confirm_with_google">التأكيد عبر Google</string>
+    <string name="confirm_unsupported">طريقة الدخول هذي ما تدعم التأكيد، سجّل خروج وادخل مرة ثانية.</string>
+    <string name="error_wrong_password">كلمة المرور غير صحيحة</string>
+    <string name="error_upload_not_configured">رفع الصور غير مفعّل — أضف مفتاح Openinary</string>
 </resources>

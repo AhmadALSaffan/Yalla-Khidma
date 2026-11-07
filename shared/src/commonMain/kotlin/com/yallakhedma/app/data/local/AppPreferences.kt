@@ -15,7 +15,13 @@ class AppPreferences(private val settings: Settings) {
         get() = settings.getBoolean(KEY_ONBOARDING_SEEN, false)
         set(value) = settings.putBoolean(KEY_ONBOARDING_SEEN, value)
 
+    /** Epoch millis of the last verification email we sent (avoids re-sending on every launch). */
+    var lastVerificationEmailAt: Long
+        get() = settings.getLong(KEY_LAST_VERIFY_EMAIL, 0L)
+        set(value) = settings.putLong(KEY_LAST_VERIFY_EMAIL, value)
+
     private companion object {
+        const val KEY_LAST_VERIFY_EMAIL = "last_verify_email_at"
         const val KEY_LANGUAGE = "app_language"
         const val KEY_ONBOARDING_SEEN = "onboarding_seen"
     }

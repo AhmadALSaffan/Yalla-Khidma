@@ -22,7 +22,7 @@ class VerificationRepositoryImpl(
         if (bytes.size > MAX_BYTES) {
             return DataResult.Error("الملف أكبر من 5 ميجابايت")
         }
-        val url = storageDs.uploadIdDocument(userId, bytes)
+        val url = storageDs.uploadIdDocument(userId, bytes, mimeType)
 
         val current = userDs.getUser(userId)
             ?: return DataResult.Error("ملف المستخدم غير موجود")

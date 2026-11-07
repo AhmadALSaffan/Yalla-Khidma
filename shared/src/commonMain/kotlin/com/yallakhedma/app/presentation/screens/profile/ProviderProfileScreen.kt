@@ -90,7 +90,7 @@ object ProviderProfileScreen : Screen {
         val provider = state.provider
         val name = provider?.name?.takeIf { it.isNotBlank() } ?: user?.name.orEmpty()
         // Editing is OTP-protected: go through the verification step first.
-        val openEdit: () -> Unit = { navigator.push(ProviderEditOtpScreen) }
+        val openEdit: () -> Unit = { navigator.push(ConfirmIdentityScreen) }
 
         Column(
             Modifier

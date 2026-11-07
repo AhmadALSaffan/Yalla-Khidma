@@ -103,7 +103,7 @@ object ProviderProfileSetupScreen : Screen {
 
             Spacer(Modifier.height(24.dp))
             // Profile photo uploader
-            val pickImage = rememberImagePicker { bytes, _ -> screenModel.uploadPhoto(bytes) }
+            val pickImage = rememberImagePicker { bytes, mime -> screenModel.uploadPhoto(bytes, mime) }
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Box(
                     modifier = Modifier

@@ -85,7 +85,7 @@ object AddServiceScreen : Screen {
         val model = koinScreenModel<AddServiceScreenModel>()
         val state by model.state.collectAsState()
         val language = LocalAppLanguage.current
-        val pickImage = rememberImagePicker { bytes, _ -> model.uploadImage(bytes) }
+        val pickImage = rememberImagePicker { bytes, mime -> model.uploadImage(bytes, mime) }
         var locating by remember { mutableStateOf(false) }
         val pickLocation = rememberLocationPicker { picked ->
             locating = false

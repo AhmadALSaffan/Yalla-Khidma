@@ -33,7 +33,7 @@ class ProviderProfileSetupScreenModel(
     fun onServices(v: String) = _state.update { it.copy(servicesText = v, error = null) }
 
     /** Uploads the picked image to Storage and stores its URL in state. */
-    fun uploadPhoto(bytes: ByteArray) {
+    fun uploadPhoto(bytes: ByteArray, mimeType: String = "image/jpeg") {
         screenModelScope.launch {
             _state.update { it.copy(photoUploading = true, error = null) }
             val uid = authRepository.currentUid()
@@ -41,7 +41,7 @@ class ProviderProfileSetupScreenModel(
                 _state.update { it.copy(photoUploading = false, error = "لا يوجد مستخدم") }
                 return@launch
             }
-            val url = runCatching { storageDataSource.uploadProviderPhoto(uid, bytes) }.getOrNull()
+            val url = runCatching { storageDataSource.uploadProviderPhoto(uid, bytes, mimeType) }.getOrNull()
             if (url == null) {
                 _state.update { it.copy(photoUploading = false, error = "تعذّر رفع الصورة") }
             } else {

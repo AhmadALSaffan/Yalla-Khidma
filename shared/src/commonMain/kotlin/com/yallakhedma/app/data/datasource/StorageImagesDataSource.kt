@@ -1,25 +1,21 @@
 package com.yallakhedma.app.data.datasource
 
+import com.yallakhedma.app.data.remote.OpeninaryClient
 import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.storage.Data
 import dev.gitlive.firebase.storage.storage
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /**
- * Resolves Firebase Storage paths (e.g. "banner/hero.jpg") to public download
- * URLs and caches them in memory for the lifetime of the process.
- *
- * Using the SDK to fetch the URL is more robust than constructing it by hand:
- * Firebase handles bucket-domain variants (.appspot.com vs .firebasestorage.app)
- * and any token requirements automatically.
+ * Image storage. Uploads go to Openinary (free; Firebase Storage needs Blaze).
+ * [getUrlOrNull] still resolves legacy Firebase Storage paths for old data.
  */
-class StorageImagesDataSource {
+class StorageImagesDataSource(private val openinary: OpeninaryClient) {
 
     private val cache = mutableMapOf<String, String>()
     private val mutex = Mutex()
 
-    /** Returns the download URL for [path], or null if it can't be fetched. */
+    /** Returns the download URL for a legacy Firebase Storage [path], or null. */
     suspend fun getUrlOrNull(path: String): String? {
         cache[path]?.let { return it }
         return mutex.withLock {
@@ -29,24 +25,16 @@ class StorageImagesDataSource {
         }
     }
 
-    /** Uploads a provider's profile photo to providers/{userId}/photo, returns its URL. */
-    suspend fun uploadProviderPhoto(userId: String, bytes: ByteArray): String {
-        val ref = Firebase.storage.reference("providers/$userId/photo")
-        ref.putData(Data(bytes))
-        return ref.getDownloadUrl()
-    }
+    /** Uploads a provider's profile photo; returns its public URL. */
+    suspend fun uploadProviderPhoto(userId: String, bytes: ByteArray, mimeType: String = "image/jpeg"): String =
+        openinary.uploadImage(bytes, folder = "providers/$userId", mimeType = mimeType)
 
-    /** Uploads a client/user profile photo to users/{userId}/photo, returns its URL. */
-    suspend fun uploadUserPhoto(userId: String, bytes: ByteArray): String {
-        val ref = Firebase.storage.reference("users/$userId/photo")
-        ref.putData(Data(bytes))
-        return ref.getDownloadUrl()
-    }
+    /** Uploads a client/user profile photo; returns its public URL. */
+    suspend fun uploadUserPhoto(userId: String, bytes: ByteArray, mimeType: String = "image/jpeg"): String =
+        openinary.uploadImage(bytes, folder = "users/$userId", mimeType = mimeType)
 
-    /** Uploads a service image under service_images/{userId}/{key}, returns its URL. */
-    suspend fun uploadServiceImage(userId: String, key: String, bytes: ByteArray): String {
-        val ref = Firebase.storage.reference("service_images/$userId/$key")
-        ref.putData(Data(bytes))
-        return ref.getDownloadUrl()
-    }
+    /** Uploads a service image; returns its public URL. */
+    @Suppress("UNUSED_PARAMETER")
+    suspend fun uploadServiceImage(userId: String, key: String, bytes: ByteArray, mimeType: String = "image/jpeg"): String =
+        openinary.uploadImage(bytes, folder = "services/$userId", mimeType = mimeType)
 }

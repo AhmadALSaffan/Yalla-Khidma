@@ -308,4 +308,22 @@
     <string name="error_coupon_code">Use at least 3 characters</string>
     <string name="error_coupon_value">Enter a valid discount</string>
     <string name="error_coupon_percent">Percent can’t exceed 100%</string>
+    <string name="verify_title">Verify your email</string>
+    <string name="verify_subtitle">We sent a verification link to</string>
+    <string name="verify_steps">Open the email, tap the link, then come back here. We’ll detect it automatically.</string>
+    <string name="verify_check">I’ve verified, continue</string>
+    <string name="verify_waiting">Waiting for verification...</string>
+    <string name="verify_resend">Resend link</string>
+    <string name="verify_resend_in">Resend in %1$s</string>
+    <string name="verify_sent">A new link is on its way</string>
+    <string name="verify_not_yet">Not verified yet — make sure you tapped the link</string>
+    <string name="verify_spam">Can’t find it? Check your spam folder</string>
+    <string name="confirm_title">Confirm it’s you</string>
+    <string name="confirm_subtitle_password">For your security, enter your password before editing your profile.</string>
+    <string name="confirm_subtitle_google">For your security, confirm with Google before editing your profile.</string>
+    <string name="confirm_submit">Confirm</string>
+    <string name="confirm_with_google">Confirm with Google</string>
+    <string name="confirm_unsupported">This sign-in method can’t be re-confirmed. Log out and sign in again.</string>
+    <string name="error_wrong_password">Incorrect password</string>
+    <string name="error_upload_not_configured">Image upload isn’t configured — add the Openinary key</string>
 </resources>

@@ -46,7 +46,7 @@ class ClientEditProfileScreenModel(
     fun onCity(v: String) = _state.update { it.copy(city = v, error = null) }
     fun onCountry(v: String) = _state.update { it.copy(country = v, error = null) }
 
-    fun uploadPhoto(bytes: ByteArray) {
+    fun uploadPhoto(bytes: ByteArray, mimeType: String = "image/jpeg") {
         screenModelScope.launch {
             _state.update { it.copy(photoUploading = true, error = null) }
             val uid = authRepository.currentUid()
@@ -54,7 +54,7 @@ class ClientEditProfileScreenModel(
                 _state.update { it.copy(photoUploading = false, error = UiText.of(Res.string.error_not_signed_in)) }
                 return@launch
             }
-            val url = runCatching { storageDataSource.uploadUserPhoto(uid, bytes) }.getOrNull()
+            val url = runCatching { storageDataSource.uploadUserPhoto(uid, bytes, mimeType) }.getOrNull()
             if (url == null) {
                 _state.update { it.copy(photoUploading = false, error = UiText.of(Res.string.error_photo_upload)) }
             } else {

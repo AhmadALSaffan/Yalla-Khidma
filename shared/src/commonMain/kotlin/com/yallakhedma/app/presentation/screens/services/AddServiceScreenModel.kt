@@ -55,7 +55,7 @@ class AddServiceScreenModel(
     fun onLocationPicked(label: String, lat: Double, lng: Double) =
         _state.update { it.copy(distance = label, latitude = lat, longitude = lng, error = null) }
 
-    fun uploadImage(bytes: ByteArray) {
+    fun uploadImage(bytes: ByteArray, mimeType: String = "image/jpeg") {
         screenModelScope.launch {
             _state.update { it.copy(imageUploading = true, error = null) }
             val uid = authRepository.currentUid()
@@ -64,7 +64,7 @@ class AddServiceScreenModel(
                 return@launch
             }
             val key = Clock.System.now().toEpochMilliseconds().toString()
-            val url = runCatching { storageDataSource.uploadServiceImage(uid, key, bytes) }.getOrNull()
+            val url = runCatching { storageDataSource.uploadServiceImage(uid, key, bytes, mimeType) }.getOrNull()
             if (url == null) {
                 _state.update { it.copy(imageUploading = false, error = UiText.of(Res.string.error_photo_upload)) }
             } else {

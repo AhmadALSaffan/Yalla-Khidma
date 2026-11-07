@@ -69,7 +69,7 @@ object ProviderEditProfileScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val screenModel = koinScreenModel<ProviderEditProfileScreenModel>()
         val state by screenModel.state.collectAsState()
-        val pickImage = rememberImagePicker { bytes, _ -> screenModel.uploadPhoto(bytes) }
+        val pickImage = rememberImagePicker { bytes, mime -> screenModel.uploadPhoto(bytes, mime) }
 
         LaunchedEffect(state.saved) { if (state.saved) navigator.pop() }
 

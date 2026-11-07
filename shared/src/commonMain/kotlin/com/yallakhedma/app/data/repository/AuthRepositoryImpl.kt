@@ -9,6 +9,7 @@ import com.yallakhedma.app.domain.model.Provider
 import com.yallakhedma.app.domain.model.User
 import com.yallakhedma.app.domain.model.UserType
 import com.yallakhedma.app.domain.repository.AuthRepository
+import com.yallakhedma.app.domain.repository.SignInMethod
 import com.yallakhedma.app.domain.util.DataResult
 import com.yallakhedma.app.domain.util.ErrorCode
 import dev.gitlive.firebase.Firebase
@@ -174,6 +175,40 @@ class AuthRepositoryImpl(
             }
             DataResult.Success(updated)
         }.getOrElse { failure(it, "تعذّر حفظ الملف", ErrorCode.SaveFailed) }
+
+    override fun signInMethod(): SignInMethod {
+        val ids = authDs.providerIds()
+        return when {
+            "password" in ids -> SignInMethod.Password
+            "google.com" in ids -> SignInMethod.Google
+            else -> SignInMethod.Other
+        }
+    }
+
+    override suspend fun sendEmailVerification(languageCode: String): DataResult<Unit> =
+        runCatching {
+            authDs.sendEmailVerification(languageCode)
+            DataResult.Success(Unit)
+        }.getOrElse { failure(it, "تعذّر إرسال رابط التحقق", ErrorCode.Unknown) }
+
+    override suspend fun refreshEmailVerified(): DataResult<Boolean> =
+        runCatching {
+            val verified = authDs.reloadEmailVerified()
+            if (verified) authDs.currentUid()?.let { userDs.markEmailVerified(it) }
+            DataResult.Success(verified)
+        }.getOrElse { failure(it, "تعذّر التحقق", ErrorCode.Unknown) }
+
+    override suspend fun reauthenticateWithPassword(password: String): DataResult<Unit> =
+        runCatching {
+            authDs.reauthenticateWithPassword(password)
+            DataResult.Success(Unit)
+        }.getOrElse { failure(it, SIGN_IN_GENERIC, ErrorCode.InvalidCredentials) }
+
+    override suspend fun reauthenticateWithGoogle(idToken: String): DataResult<Unit> =
+        runCatching {
+            authDs.reauthenticateWithGoogle(idToken)
+            DataResult.Success(Unit)
+        }.getOrElse { failure(it, SOCIAL_GENERIC, ErrorCode.SignInFailed) }
 
     private fun failure(e: Throwable, genericMessage: String, genericCode: ErrorCode) =
         DataResult.Error(

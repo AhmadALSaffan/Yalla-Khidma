@@ -28,7 +28,6 @@ import com.yallakhedma.app.domain.repository.RequestRepository
 import com.yallakhedma.app.domain.repository.ServiceRepository
 import com.yallakhedma.app.domain.repository.VerificationRepository
 import com.yallakhedma.app.presentation.screens.auth.login.LoginScreenModel
-import com.yallakhedma.app.presentation.screens.auth.otp.OtpScreenModel
 import com.yallakhedma.app.presentation.screens.auth.signup.SignUpScreenModel
 import com.yallakhedma.app.presentation.screens.bookings.BookingDetailsScreenModel
 import com.yallakhedma.app.presentation.screens.bookings.BookingRequestScreenModel
@@ -42,7 +41,6 @@ import com.yallakhedma.app.presentation.screens.dashboard.ProviderDashboardScree
 import com.yallakhedma.app.presentation.screens.home.ClientHomeScreenModel
 import com.yallakhedma.app.presentation.screens.profile.ClientEditProfileScreenModel
 import com.yallakhedma.app.presentation.screens.profile.ClientProfileScreenModel
-import com.yallakhedma.app.presentation.screens.profile.ProviderEditOtpScreenModel
 import com.yallakhedma.app.presentation.screens.payment.AddPaymentMethodScreenModel
 import com.yallakhedma.app.presentation.screens.payment.PaymentMethodsScreenModel
 import com.yallakhedma.app.presentation.screens.profile.ProviderEditProfileScreenModel
@@ -60,8 +58,10 @@ val appModule: Module = module {
     // Data sources
     single { FirebaseAuthDataSource() }
     single { UserFirestoreDataSource() }
-    single { VerificationStorageDataSource() }
-    single { StorageImagesDataSource() }
+    single { io.ktor.client.HttpClient() }
+    single { com.yallakhedma.app.data.remote.OpeninaryClient(get()) }
+    single { VerificationStorageDataSource(get()) }
+    single { StorageImagesDataSource(get()) }
     single { ProvidersFirestoreDataSource() }
     single { ServicesFirestoreDataSource() }
     single { CategoriesFirestoreDataSource() }
@@ -69,7 +69,6 @@ val appModule: Module = module {
     single { RequestsFirestoreDataSource() }
     single { PaymentMethodsFirestoreDataSource() }
     single { PaymentCardCrypto() }
-    single { com.yallakhedma.app.data.auth.OtpService() }
     single { com.yallakhedma.app.util.ClientLocationHolder() }
     single { com.yallakhedma.app.data.local.AppPreferences(get()) }
     single { com.yallakhedma.app.presentation.i18n.LanguageManager(get()) }
@@ -87,7 +86,7 @@ val appModule: Module = module {
     // ScreenModels (factory: new instance per screen)
     factory { LoginScreenModel(get()) }
     factory { SignUpScreenModel(get(), get()) }
-    factory { OtpScreenModel(get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.auth.verify.EmailVerificationScreenModel(get(), get(), get()) }
     factory { com.yallakhedma.app.presentation.screens.auth.welcome.WelcomeScreenModel(get(), get()) }
     factory { com.yallakhedma.app.presentation.screens.auth.forgot.ForgotPasswordScreenModel(get()) }
     factory { com.yallakhedma.app.presentation.screens.auth.usertype.UserTypeScreenModel(get()) }
@@ -104,7 +103,7 @@ val appModule: Module = module {
     factory { ClientProfileScreenModel(get()) }
     factory { ProviderProfileScreenModel(get(), get()) }
     factory { ClientEditProfileScreenModel(get(), get()) }
-    factory { ProviderEditOtpScreenModel(get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.profile.ConfirmIdentityScreenModel(get(), get()) }
     factory { ProviderEditProfileScreenModel(get(), get(), get()) }
     factory { PaymentMethodsScreenModel(get(), get()) }
     factory { AddPaymentMethodScreenModel(get(), get(), get()) }
