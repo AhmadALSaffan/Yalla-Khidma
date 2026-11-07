@@ -1,5 +1,8 @@
 package com.yallakhedma.app.presentation.screens.payment
 
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.components.YkIcons
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -67,15 +70,14 @@ object AddPaymentMethodScreen : Screen {
                 Box(
                     modifier = Modifier.size(40.dp).clip(CircleShape).clickable { navigator.pop() },
                     contentAlignment = Alignment.Center,
-                ) { Text("→", color = Primary, fontSize = 24.sp, fontWeight = FontWeight.Bold) }
+                ) { Icon(YkIcons.ArrowBack, contentDescription = null, tint = Primary, modifier = Modifier.size(22.dp)) }
                 Text("إضافة بطاقة", color = OnSurface, fontSize = 22.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(6.dp))
-            Text(
-                text = "🔒 يتم تشفير البطاقة قبل حفظها. لا نخزّن رمز CVV.",
-                color = OnSurfaceVariant,
-                fontSize = 12.sp,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Icon(YkIcons.Lock, contentDescription = null, tint = OnSurfaceVariant, modifier = Modifier.size(14.dp))
+                Text(text = "يتم تشفير البطاقة قبل حفظها. لا نخزّن رمز CVV.", color = OnSurfaceVariant, fontSize = 12.sp)
+            }
 
             Spacer(Modifier.height(20.dp))
             // Card number + live brand badge

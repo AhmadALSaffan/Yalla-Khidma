@@ -1,5 +1,8 @@
 package com.yallakhedma.app.presentation.screens.coupons
 
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.components.YkIcons
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -76,7 +79,7 @@ object AddCouponScreen : Screen {
                 Box(
                     modifier = Modifier.size(40.dp).clip(CircleShape).clickable { navigator.pop() },
                     contentAlignment = Alignment.Center,
-                ) { Text("→", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold) }
+                ) { Icon(YkIcons.ArrowBack, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp)) }
                 Text("إضافة كوبون", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.size(40.dp))
             }

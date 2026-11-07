@@ -1,5 +1,8 @@
 package com.yallakhedma.app.presentation.screens.profile
 
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.components.YkIcons
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -77,7 +80,7 @@ object ProviderEditOtpScreen : Screen {
                 Box(
                     modifier = Modifier.size(40.dp).clip(CircleShape).clickable { navigator.pop() },
                     contentAlignment = Alignment.Center,
-                ) { Text("→", color = Primary, fontSize = 24.sp, fontWeight = FontWeight.Bold) }
+                ) { Icon(YkIcons.ArrowBack, contentDescription = null, tint = Primary, modifier = Modifier.size(22.dp)) }
                 Text("تأكيد الهوية", color = OnSurface, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
 

@@ -1,5 +1,8 @@
 package com.yallakhedma.app.presentation.screens.bookings
 
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.components.YkIcons
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -164,14 +167,14 @@ data class BookingDetailsScreen(
                 // Pay action / paid badge
                 when {
                     booking.paid -> SectionCard(title = "حالة الدفع") {
-                        // Header row — "تم الدفع ✓" + brand logo + last 4
+                        // Header row — "تم الدفع" + brand logo + last 4
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier.fillMaxWidth(),
                         ) {
                             Text(
-                                "تم الدفع ✓",
+                                "تم الدفع",
                                 color = Success,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
@@ -345,7 +348,7 @@ private fun HeroHeader(imageUrl: String?, onBack: () -> Unit) {
                 .background(Color.White.copy(alpha = 0.95f))
                 .clickable(onClick = onBack),
             contentAlignment = Alignment.Center,
-        ) { Text("→", color = Primary, fontSize = 22.sp, fontWeight = FontWeight.Bold) }
+        ) { Icon(YkIcons.ArrowBack, contentDescription = null, tint = Primary, modifier = Modifier.size(22.dp)) }
     }
 }
 

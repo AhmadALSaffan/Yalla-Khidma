@@ -1,11 +1,17 @@
 package com.yallakhedma.app.di
 
+import android.content.Context
+import com.russhwolf.settings.Settings
+import com.russhwolf.settings.SharedPreferencesSettings
 import com.yallakhedma.app.data.auth.SocialAuthClient
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
 actual val platformModule: Module = module {
+    single<Settings> {
+        SharedPreferencesSettings(androidContext().getSharedPreferences("yk_prefs", Context.MODE_PRIVATE))
+    }
     single {
         SocialAuthClient(
             appContext = androidContext(),

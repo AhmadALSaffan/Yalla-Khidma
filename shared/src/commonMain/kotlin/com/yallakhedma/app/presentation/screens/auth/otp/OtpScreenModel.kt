@@ -4,12 +4,27 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.yallakhedma.app.data.auth.OtpService
 import com.yallakhedma.app.domain.repository.AuthRepository
+import com.yallakhedma.app.presentation.i18n.UiText
+import dev.gitlive.firebase.functions.FirebaseFunctionsException
+import dev.gitlive.firebase.functions.FunctionsExceptionCode
+import dev.gitlive.firebase.functions.code
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.error_generic
+import yallakhidma.shared.generated.resources.error_network
+import yallakhidma.shared.generated.resources.error_not_signed_in
+import yallakhidma.shared.generated.resources.error_otp_expired
+import yallakhidma.shared.generated.resources.error_otp_incomplete
+import yallakhidma.shared.generated.resources.error_otp_request_new
+import yallakhidma.shared.generated.resources.error_otp_send_failed
+import yallakhidma.shared.generated.resources.error_otp_too_many
+import yallakhidma.shared.generated.resources.error_otp_wrong
+import yallakhidma.shared.generated.resources.error_otp_wrong_left
 
 /**
  * Drives email verification entirely through the server. The 4-digit code is
@@ -38,7 +53,7 @@ class OtpScreenModel(
     fun verify() {
         val entered = state.value.code
         if (entered.length < CODE_LENGTH) {
-            _state.update { it.copy(error = "أدخل الرمز كاملاً") }
+            _state.update { it.copy(error = UiText.of(Res.string.error_otp_incomplete)) }
             return
         }
         screenModelScope.launch {
@@ -46,16 +61,16 @@ class OtpScreenModel(
             val ok = runCatching {
                 otpService.verify(OtpService.PURPOSE_EMAIL_VERIFY, entered)
             }.getOrElse { e ->
-                // Cloud Functions throw a FirebaseFunctionsException whose message
-                // is the Arabic string we set server-side (wrong code, expired, …).
-                _state.update { it.copy(isLoading = false, error = e.message ?: "تعذّر التحقق") }
+                // Cloud Functions throw a FirebaseFunctionsException; map its
+                // code (not the server's Arabic message) so errors follow the app language.
+                _state.update { it.copy(isLoading = false, error = otpErrorText(e)) }
                 return@launch
             }
             if (ok) {
                 // The server already flipped users/{uid}.emailVerified = true.
                 _state.update { it.copy(isLoading = false, verified = true) }
             } else {
-                _state.update { it.copy(isLoading = false, error = "الرمز غير صحيح") }
+                _state.update { it.copy(isLoading = false, error = UiText.of(Res.string.error_otp_wrong)) }
             }
         }
     }
@@ -80,7 +95,8 @@ class OtpScreenModel(
                 _state.update {
                     it.copy(
                         isSending = false,
-                        error = result.exceptionOrNull()?.message ?: "تعذّر إرسال الرمز، حاول لاحقاً",
+                        error = result.exceptionOrNull()?.let(::otpSendErrorText)
+                            ?: UiText.of(Res.string.error_otp_send_failed),
                     )
                 }
                 // Still start the timer so the user can retry after the cooldown.
@@ -108,7 +124,7 @@ class OtpScreenModel(
         val email: String = "",
         val isSending: Boolean = false,
         val isLoading: Boolean = false,
-        val error: String? = null,
+        val error: UiText? = null,
         val verified: Boolean = false,
         val secondsLeft: Int = RESEND_SECONDS,
         val canResend: Boolean = false,
@@ -116,6 +132,44 @@ class OtpScreenModel(
 
     companion object {
         const val CODE_LENGTH = 4
+
+        /** Maps verifyOtp failures (see functions/src/index.ts) to localized text. */
+        fun otpErrorText(e: Throwable): UiText {
+            val code = (e as? FirebaseFunctionsException)?.code ?: return networkOrGeneric(e)
+            return when (code) {
+                FunctionsExceptionCode.PERMISSION_DENIED -> {
+                    // Server message ends with the remaining-attempts count.
+                    val left = e.message?.let { Regex("""(\d+)\s*$""").find(it)?.groupValues?.get(1)?.toIntOrNull() }
+                    if (left != null) UiText.of(Res.string.error_otp_wrong_left, left)
+                    else UiText.of(Res.string.error_otp_wrong)
+                }
+                FunctionsExceptionCode.INVALID_ARGUMENT -> UiText.of(Res.string.error_otp_wrong)
+                FunctionsExceptionCode.DEADLINE_EXCEEDED -> UiText.of(Res.string.error_otp_expired)
+                FunctionsExceptionCode.NOT_FOUND -> UiText.of(Res.string.error_otp_request_new)
+                FunctionsExceptionCode.RESOURCE_EXHAUSTED -> UiText.of(Res.string.error_otp_too_many)
+                FunctionsExceptionCode.UNAUTHENTICATED -> UiText.of(Res.string.error_not_signed_in)
+                FunctionsExceptionCode.UNAVAILABLE -> UiText.of(Res.string.error_network)
+                else -> UiText.of(Res.string.error_generic)
+            }
+        }
+
+        /** Maps sendOtp failures (cooldown, no email, …) to localized text. */
+        fun otpSendErrorText(e: Throwable): UiText {
+            val code = (e as? FirebaseFunctionsException)?.code ?: return networkOrGeneric(e, Res.string.error_otp_send_failed)
+            return when (code) {
+                FunctionsExceptionCode.RESOURCE_EXHAUSTED -> UiText.of(Res.string.error_otp_too_many)
+                FunctionsExceptionCode.UNAUTHENTICATED -> UiText.of(Res.string.error_not_signed_in)
+                FunctionsExceptionCode.UNAVAILABLE -> UiText.of(Res.string.error_network)
+                else -> UiText.of(Res.string.error_otp_send_failed)
+            }
+        }
+
+        private fun networkOrGeneric(
+            e: Throwable,
+            fallback: org.jetbrains.compose.resources.StringResource = Res.string.error_generic,
+        ): UiText =
+            if ((e::class.simpleName ?: "").contains("Network", ignoreCase = true)) UiText.of(Res.string.error_network)
+            else UiText.of(fallback)
         private const val RESEND_SECONDS = 59
     }
 }

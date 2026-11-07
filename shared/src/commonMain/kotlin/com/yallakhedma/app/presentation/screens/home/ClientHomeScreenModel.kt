@@ -4,6 +4,8 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.yallakhedma.app.domain.model.Provider
 import com.yallakhedma.app.domain.model.Service
+import com.yallakhedma.app.domain.model.ServiceCategory
+import com.yallakhedma.app.domain.repository.CategoryRepository
 import com.yallakhedma.app.domain.repository.ProviderRepository
 import com.yallakhedma.app.domain.repository.ServiceRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +17,7 @@ import kotlinx.coroutines.launch
 class ClientHomeScreenModel(
     providerRepo: ProviderRepository,
     serviceRepo: ServiceRepository,
+    categoryRepo: CategoryRepository,
 ) : ScreenModel {
 
     private val _state = MutableStateFlow(HomeState())
@@ -23,32 +26,19 @@ class ClientHomeScreenModel(
     init {
         screenModelScope.launch {
             providerRepo.observeFeatured()
-                .catch { e ->
-                    _state.update { it.copy(providersError = e.message, providersLoading = false) }
-                }
-                .collect { list ->
-                    _state.update {
-                        it.copy(
-                            providers = list,
-                            providersLoading = false,
-                            providersError = null,
-                        )
-                    }
-                }
+                .catch { _state.update { it.copy(providersLoading = false) } }
+                .collect { list -> _state.update { it.copy(providers = list, providersLoading = false) } }
         }
         screenModelScope.launch {
             serviceRepo.observeNearby()
-                .catch { e ->
-                    _state.update { it.copy(servicesError = e.message, servicesLoading = false) }
-                }
+                .catch { _state.update { it.copy(servicesLoading = false) } }
+                .collect { list -> _state.update { it.copy(services = list, servicesLoading = false) } }
+        }
+        screenModelScope.launch {
+            categoryRepo.observeAll()
+                .catch { _state.update { it.copy(categoriesLoading = false) } }
                 .collect { list ->
-                    _state.update {
-                        it.copy(
-                            services = list,
-                            servicesLoading = false,
-                            servicesError = null,
-                        )
-                    }
+                    _state.update { it.copy(categories = list.sortedBy { c -> c.order }, categoriesLoading = false) }
                 }
         }
     }
@@ -56,9 +46,9 @@ class ClientHomeScreenModel(
     data class HomeState(
         val providers: List<Provider> = emptyList(),
         val providersLoading: Boolean = true,
-        val providersError: String? = null,
         val services: List<Service> = emptyList(),
         val servicesLoading: Boolean = true,
-        val servicesError: String? = null,
+        val categories: List<ServiceCategory> = emptyList(),
+        val categoriesLoading: Boolean = true,
     )
 }

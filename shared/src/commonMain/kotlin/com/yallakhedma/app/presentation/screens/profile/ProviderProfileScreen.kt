@@ -1,5 +1,7 @@
 package com.yallakhedma.app.presentation.screens.profile
 
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.components.YkIcons
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -44,7 +46,7 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
-import com.yallakhedma.app.presentation.screens.auth.login.LoginScreen
+import com.yallakhedma.app.presentation.routing.SignedOutDestination
 import com.yallakhedma.app.presentation.screens.home.HomeImageAssets
 import com.yallakhedma.app.presentation.screens.payment.PaymentMethodsScreen
 import com.yallakhedma.app.presentation.screens.services.MyServicesScreen
@@ -84,7 +86,7 @@ object ProviderProfileScreen : Screen {
         var hadUser by remember { mutableStateOf(false) }
         LaunchedEffect(user) {
             if (user != null) hadUser = true
-            else if (hadUser) navigator.replaceAll(LoginScreen)
+            else if (hadUser) navigator.replaceAll(SignedOutDestination)
         }
 
         var showAvatarPreview by remember { mutableStateOf(false) }
@@ -114,7 +116,7 @@ object ProviderProfileScreen : Screen {
                     Box(
                         modifier = Modifier.size(40.dp).clip(CircleShape).clickable { navigator.pop() },
                         contentAlignment = Alignment.Center,
-                    ) { Text("→", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold) }
+                    ) { Icon(YkIcons.ArrowBack, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp)) }
                     Text("حسابي", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.size(40.dp))
                 }
@@ -158,14 +160,17 @@ object ProviderProfileScreen : Screen {
                                 Box(
                                     modifier = Modifier.size(18.dp).clip(CircleShape).background(Color.White),
                                     contentAlignment = Alignment.Center,
-                                ) { Text("✓", color = Primary, fontSize = 11.sp, fontWeight = FontWeight.Bold) }
+                                ) { Icon(YkIcons.Check, contentDescription = null, tint = Primary, modifier = Modifier.size(14.dp)) }
                             }
                         }
                         provider?.profession?.takeIf { it.isNotBlank() }?.let {
                             Text(it, color = Color.White.copy(alpha = 0.9f), fontSize = 13.sp)
                         }
                         provider?.city?.takeIf { it.isNotBlank() }?.let {
-                            Text("📍 $it", color = Color.White.copy(alpha = 0.85f), fontSize = 12.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Icon(YkIcons.MapPin, contentDescription = null, tint = Color.White.copy(alpha = 0.85f), modifier = Modifier.size(12.dp))
+                                Text(it, color = Color.White.copy(alpha = 0.85f), fontSize = 12.sp)
+                            }
                         }
                     }
                 }
@@ -178,7 +183,7 @@ object ProviderProfileScreen : Screen {
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                StatCard(Modifier.weight(1f), if ((provider?.rating ?: 0.0) > 0.0) "${provider?.rating}" else "—", "تقييم", StarYellow, "★")
+                StatCard(Modifier.weight(1f), if ((provider?.rating ?: 0.0) > 0.0) "${provider?.rating}" else "—", "تقييم", StarYellow, YkIcons.StarFilled)
                 StatCard(Modifier.weight(1f), (provider?.bookingsCount ?: 0).toString(), "حجز", Primary)
                 StatCard(Modifier.weight(1f), (provider?.completedJobs ?: 0).toString(), "مكتمل", Tertiary)
             }
@@ -196,6 +201,7 @@ object ProviderProfileScreen : Screen {
                     navigator.push(PaymentMethodsScreen)
                 }
                 MenuRow(Res.drawable.ic_profile_notifications, "الإشعارات") { }
+                LanguageMenuRow { icon, label, onClick -> MenuRow(icon, label, onClick = onClick) }
                 MenuRow(Res.drawable.ic_profile_support, "الدعم والمساعدة") { }
                 MenuRow(Res.drawable.ic_profile_about, "حول التطبيق") { }
 
@@ -233,7 +239,7 @@ object ProviderProfileScreen : Screen {
 }
 
 @Composable
-private fun StatCard(modifier: Modifier, value: String, label: String, valueColor: Color, leading: String? = null) {
+private fun StatCard(modifier: Modifier, value: String, label: String, valueColor: Color, leading: androidx.compose.ui.graphics.vector.ImageVector? = null) {
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(14.dp))
@@ -243,7 +249,7 @@ private fun StatCard(modifier: Modifier, value: String, label: String, valueColo
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-            if (leading != null) Text(leading, color = valueColor, fontSize = 13.sp)
+            if (leading != null) Icon(leading, contentDescription = null, tint = valueColor, modifier = Modifier.size(14.dp))
             Text(value, color = valueColor, fontSize = 17.sp, fontWeight = FontWeight.Bold)
         }
         Text(label, color = OnSurfaceVariant, fontSize = 11.sp)
@@ -283,7 +289,7 @@ private fun MenuRow(icon: DrawableResource, label: String, colored: Boolean = fa
             }
         }
         Text(label, color = OnSurface, fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
-        Text("‹", color = OnSurfaceVariant, fontSize = 20.sp)
+        Icon(YkIcons.ChevronForward, contentDescription = null, tint = OnSurfaceVariant, modifier = Modifier.size(18.dp))
     }
 }
 

@@ -23,6 +23,10 @@ data class User(
     // Google sign-ins are set true automatically (Google verifies the email).
     val emailVerified: Boolean = false,
 
+    // False only for a brand-new Google/Apple account that hasn't picked
+    // client vs provider yet. Defaults true so existing documents are unaffected.
+    val userTypeChosen: Boolean = true,
+
     // ID verification (Providers only — review process)
     val idVerificationStatus: VerificationStatus = VerificationStatus.NotSubmitted,
     val idDocumentType: DocumentType? = null,

@@ -35,6 +35,12 @@ interface AuthRepository {
     /** Marks the provider's profile as completed (after the setup form). */
     suspend fun markProviderProfileCompleted(): DataResult<Unit>
 
+    /**
+     * Sets the account type for a signed-in user who hasn't picked one yet
+     * (first Google/Apple sign-in). Creates the provider listing if needed.
+     */
+    suspend fun chooseUserType(type: UserType): DataResult<User>
+
     /** Updates the signed-in user's profile fields. */
     suspend fun updateUserProfile(user: User): DataResult<Unit>
 

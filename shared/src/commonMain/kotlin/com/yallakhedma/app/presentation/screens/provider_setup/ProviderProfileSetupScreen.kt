@@ -1,5 +1,8 @@
 package com.yallakhedma.app.presentation.screens.provider_setup
 
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.components.YkIcons
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -92,7 +95,7 @@ object ProviderProfileSetupScreen : Screen {
             )
             Spacer(Modifier.height(6.dp))
             Text(
-                text = "تم توثيق حسابك ✓ — عبّي بياناتك عشان يشوفها العملاء",
+                text = "تم توثيق حسابك — عبّي بياناتك عشان يشوفها العملاء",
                 color = OnSurfaceVariant,
                 fontSize = 14.sp,
             )
@@ -123,7 +126,7 @@ object ProviderProfileSetupScreen : Screen {
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize().clip(CircleShape),
                         )
-                        else -> Text("📷", fontSize = 30.sp)
+                        else -> Icon(YkIcons.Camera, contentDescription = null, tint = Yk.Orange, modifier = Modifier.size(30.dp))
                     }
                 }
             }
@@ -170,7 +173,7 @@ object ProviderProfileSetupScreen : Screen {
                     CircularProgressIndicator(color = LogoOrange, strokeWidth = 2.dp, modifier = Modifier.size(16.dp))
                     Text("جاري تحديد موقعك...", color = LogoOrange, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 } else {
-                    Text("📍", fontSize = 14.sp)
+                    Icon(YkIcons.MapPin, contentDescription = null, tint = Yk.Orange, modifier = Modifier.size(16.dp))
                     Text("استخدم موقعي الحالي", color = LogoOrange, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
             }

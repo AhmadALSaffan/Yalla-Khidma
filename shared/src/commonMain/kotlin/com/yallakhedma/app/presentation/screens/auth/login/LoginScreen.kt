@@ -1,190 +1,161 @@
 package com.yallakhedma.app.presentation.screens.auth.login
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.yallakhedma.app.domain.repository.AuthRepository
-import com.yallakhedma.app.presentation.components.AppPrimaryButton
-import com.yallakhedma.app.presentation.components.AppTextField
+import com.yallakhedma.app.presentation.components.ErrorBanner
+import com.yallakhedma.app.presentation.components.PasswordToggle
+import com.yallakhedma.app.presentation.components.PromptLink
+import com.yallakhedma.app.presentation.components.YkButton
+import com.yallakhedma.app.presentation.components.YkIcons
+import com.yallakhedma.app.presentation.components.YkTextField
+import com.yallakhedma.app.presentation.components.YkTopBar
+import com.yallakhedma.app.presentation.i18n.asString
 import com.yallakhedma.app.presentation.routing.destinationForUser
+import com.yallakhedma.app.presentation.screens.auth.forgot.ForgotPasswordScreen
 import com.yallakhedma.app.presentation.screens.auth.usertype.UserTypeSelectionScreen
-import com.yallakhedma.app.presentation.theme.LocalSpacing
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.theme.YkRadius
 import kotlinx.coroutines.flow.first
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import org.jetbrains.compose.resources.painterResource
 import yallakhidma.shared.generated.resources.Res
-import yallakhidma.shared.generated.resources.icon
+import yallakhidma.shared.generated.resources.common_hide
+import yallakhidma.shared.generated.resources.common_show
+import yallakhidma.shared.generated.resources.field_email
+import yallakhidma.shared.generated.resources.field_email_placeholder
+import yallakhidma.shared.generated.resources.field_password
+import yallakhidma.shared.generated.resources.field_password_placeholder
+import yallakhidma.shared.generated.resources.login_create
+import yallakhidma.shared.generated.resources.login_forgot
+import yallakhidma.shared.generated.resources.login_no_account
+import yallakhidma.shared.generated.resources.login_submit
+import yallakhidma.shared.generated.resources.login_subtitle
+import yallakhidma.shared.generated.resources.login_title
 
+/** Email sign-in. Reached from Welcome → "Continue with email". */
 object LoginScreen : Screen {
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = koinScreenModel<LoginScreenModel>()
-        val authRepository = koinInject<AuthRepository>()
-        val state by screenModel.state.collectAsState()
-        val spacing = LocalSpacing.current
+        val model = koinScreenModel<LoginScreenModel>()
+        val auth = koinInject<AuthRepository>()
+        val state by model.state.collectAsState()
+        val focus = LocalFocusManager.current
 
         LaunchedEffect(state.signedIn) {
-            if (state.signedIn) {
-                val user = authRepository.currentUser.first()
-                navigator.replaceAll(destinationForUser(user))
-            }
+            if (state.signedIn) navigator.replaceAll(destinationForUser(auth.currentUser.first()))
         }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(Yk.Canvas)
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .imePadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = spacing.screenHorizontal)
-                .padding(top = spacing.screenTop, bottom = spacing.xxxl),
+                .padding(horizontal = 20.dp),
         ) {
-            Spacer(Modifier.height(spacing.xxl))
-            Image(
-                painter = painterResource(Res.drawable.icon),
-                contentDescription = "شعار يلّا خِدمة",
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .size(160.dp),
-            )
-            Spacer(Modifier.height(spacing.xxl))
-            Text(
-                text = "أهلاً بعودتك",
-                style = MaterialTheme.typography.displaySmall,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Spacer(Modifier.height(spacing.xs))
-            Text(
-                text = "سجّل دخولك وكمّل من حيث وقفت",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(Modifier.height(spacing.xxxl))
+            YkTopBar(onBack = { navigator.pop() }, modifier = Modifier.padding(top = 8.dp))
+            Spacer(Modifier.height(24.dp))
+            Text(stringResource(Res.string.login_title), style = MaterialTheme.typography.displaySmall, color = Yk.Ink)
+            Spacer(Modifier.height(6.dp))
+            Text(stringResource(Res.string.login_subtitle), style = MaterialTheme.typography.bodyLarge, color = Yk.Ink2)
+            Spacer(Modifier.height(32.dp))
 
-            AppTextField(
+            YkTextField(
                 value = state.email,
-                onValueChange = screenModel::onEmailChange,
-                label = "الإيميل",
+                onValueChange = model::onEmailChange,
+                label = stringResource(Res.string.field_email),
+                placeholder = stringResource(Res.string.field_email_placeholder),
+                leadingIcon = YkIcons.Mail,
                 keyboardType = KeyboardType.Email,
-                isError = state.error != null,
+                forceLtr = true,
+                isError = state.emailError != null,
+                supportingText = state.emailError?.asString(),
             )
-            Spacer(Modifier.height(spacing.lg))
-            AppTextField(
+            Spacer(Modifier.height(18.dp))
+            YkTextField(
                 value = state.password,
-                onValueChange = screenModel::onPasswordChange,
-                label = "كلمة المرور",
+                onValueChange = model::onPasswordChange,
+                label = stringResource(Res.string.field_password),
+                placeholder = stringResource(Res.string.field_password_placeholder),
+                leadingIcon = YkIcons.Lock,
                 keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done,
+                keyboardActions = KeyboardActions(onDone = { focus.clearFocus(); model.submit() }),
                 isPassword = true,
                 passwordVisible = state.passwordVisible,
-                isError = state.error != null,
-                trailingIcon = {
-                    TextButton(onClick = screenModel::togglePasswordVisibility) {
-                        Text(
-                            text = if (state.passwordVisible) "إخفاء" else "إظهار",
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.labelSmall,
-                        )
-                    }
+                forceLtr = true,
+                isError = state.passwordError != null,
+                supportingText = state.passwordError?.asString(),
+                trailing = {
+                    PasswordToggle(
+                        visible = state.passwordVisible,
+                        onToggle = model::togglePasswordVisibility,
+                        contentDescription = stringResource(if (state.passwordVisible) Res.string.common_hide else Res.string.common_show),
+                    )
                 },
             )
 
-            state.error?.let { msg ->
-                Spacer(Modifier.height(spacing.sm))
-                Text(
-                    text = msg,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
+            Text(
+                text = stringResource(Res.string.login_forgot),
+                style = MaterialTheme.typography.titleSmall,
+                color = Yk.Orange,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(top = 8.dp)
+                    .clip(YkRadius.chip)
+                    .clickable(role = Role.Button) { navigator.push(ForgotPasswordScreen(state.email.trim())) }
+                    .padding(horizontal = 6.dp, vertical = 8.dp),
+            )
 
-            Spacer(Modifier.height(spacing.sm))
-            TextButton(
-                onClick = { /* TODO: forgot password screen */ },
-                modifier = Modifier.align(Alignment.End),
-            ) {
-                Text("نسيت كلمة المرور؟", color = MaterialTheme.colorScheme.primary)
-            }
-
-            Spacer(Modifier.height(spacing.lg))
-            AppPrimaryButton(
-                text = "تسجيل الدخول",
-                onClick = screenModel::submit,
+            Spacer(Modifier.height(16.dp))
+            ErrorBanner(state.error?.asString(), Modifier.padding(bottom = 12.dp))
+            YkButton(
+                text = stringResource(Res.string.login_submit),
+                onClick = { focus.clearFocus(); model.submit() },
                 loading = state.isLoading,
             )
 
-            // Divider with "أو"
-            Spacer(Modifier.height(spacing.xxl))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outline)
-                Text(
-                    text = "أو",
-                    modifier = Modifier.padding(horizontal = spacing.md),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outline)
-            }
-            Spacer(Modifier.height(spacing.lg))
-
-            // Google (always shown — works on Android via Credential Manager; iOS routes via Swift)
-            OutlinedButton(
-                onClick = screenModel::signInWithGoogle,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = MaterialTheme.shapes.small,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            ) {
-                Text(
-                    text = "متابعة بحساب Google",
-                    color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-
-            Spacer(Modifier.height(spacing.xxxl))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text("ما عندك حساب؟", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                TextButton(onClick = { navigator.push(UserTypeSelectionScreen) }) {
-                    Text("إنشاء حساب", color = MaterialTheme.colorScheme.primary)
-                }
-            }
+            Spacer(Modifier.height(32.dp))
+            PromptLink(
+                prompt = stringResource(Res.string.login_no_account),
+                action = stringResource(Res.string.login_create),
+                onClick = { navigator.push(UserTypeSelectionScreen(UserTypeSelectionScreen.Mode.SignUp)) },
+            )
+            Spacer(Modifier.height(16.dp))
         }
     }
 }

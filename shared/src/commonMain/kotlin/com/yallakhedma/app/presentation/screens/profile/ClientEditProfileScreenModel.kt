@@ -10,6 +10,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.yallakhedma.app.presentation.i18n.UiText
+import com.yallakhedma.app.presentation.i18n.toUiText
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.error_name_required
+import yallakhidma.shared.generated.resources.error_not_signed_in
+import yallakhidma.shared.generated.resources.error_photo_upload
 
 class ClientEditProfileScreenModel(
     private val authRepository: AuthRepository,
@@ -45,12 +51,12 @@ class ClientEditProfileScreenModel(
             _state.update { it.copy(photoUploading = true, error = null) }
             val uid = authRepository.currentUid()
             if (uid == null) {
-                _state.update { it.copy(photoUploading = false, error = "لا يوجد مستخدم") }
+                _state.update { it.copy(photoUploading = false, error = UiText.of(Res.string.error_not_signed_in)) }
                 return@launch
             }
             val url = runCatching { storageDataSource.uploadUserPhoto(uid, bytes) }.getOrNull()
             if (url == null) {
-                _state.update { it.copy(photoUploading = false, error = "تعذّر رفع الصورة") }
+                _state.update { it.copy(photoUploading = false, error = UiText.of(Res.string.error_photo_upload)) }
             } else {
                 _state.update { it.copy(photoUploading = false, photoUrl = url) }
             }
@@ -59,12 +65,12 @@ class ClientEditProfileScreenModel(
 
     fun submit() {
         val s = state.value
-        if (s.name.isBlank()) { _state.update { it.copy(error = "الاسم مطلوب") }; return }
+        if (s.name.isBlank()) { _state.update { it.copy(error = UiText.of(Res.string.error_name_required)) }; return }
         screenModelScope.launch {
             _state.update { it.copy(saving = true, error = null) }
             val existing = authRepository.currentUser.firstOrNull()
             if (existing == null) {
-                _state.update { it.copy(saving = false, error = "لا يوجد مستخدم") }
+                _state.update { it.copy(saving = false, error = UiText.of(Res.string.error_not_signed_in)) }
                 return@launch
             }
             val updated = existing.copy(
@@ -76,7 +82,7 @@ class ClientEditProfileScreenModel(
             )
             when (val r = authRepository.updateUserProfile(updated)) {
                 is DataResult.Success -> _state.update { it.copy(saving = false, saved = true) }
-                is DataResult.Error -> _state.update { it.copy(saving = false, error = r.message) }
+                is DataResult.Error -> _state.update { it.copy(saving = false, error = r.toUiText()) }
                 DataResult.Loading -> Unit
             }
         }
@@ -92,6 +98,6 @@ class ClientEditProfileScreenModel(
         val loaded: Boolean = false,
         val saving: Boolean = false,
         val saved: Boolean = false,
-        val error: String? = null,
+        val error: UiText? = null,
     )
 }

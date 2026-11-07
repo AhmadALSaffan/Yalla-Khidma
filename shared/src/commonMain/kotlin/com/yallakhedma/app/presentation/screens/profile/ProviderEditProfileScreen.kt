@@ -1,5 +1,8 @@
 package com.yallakhedma.app.presentation.screens.profile
 
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.components.YkIcons
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -81,7 +84,7 @@ object ProviderEditProfileScreen : Screen {
                 Box(
                     modifier = Modifier.size(40.dp).clip(CircleShape).clickable { navigator.pop() },
                     contentAlignment = Alignment.Center,
-                ) { Text("→", color = LogoOrange, fontSize = 24.sp, fontWeight = FontWeight.Bold) }
+                ) { Icon(YkIcons.ArrowBack, contentDescription = null, tint = LogoOrange, modifier = Modifier.size(22.dp)) }
                 Text("تعديل الملف", color = OnSurface, fontSize = 22.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(6.dp))
@@ -108,7 +111,7 @@ object ProviderEditProfileScreen : Screen {
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize().clip(CircleShape),
                         )
-                        else -> Text("📷", fontSize = 30.sp)
+                        else -> Icon(YkIcons.Camera, contentDescription = null, tint = Yk.Orange, modifier = Modifier.size(30.dp))
                     }
                 }
             }
@@ -147,7 +150,7 @@ object ProviderEditProfileScreen : Screen {
                     CircularProgressIndicator(color = LogoOrange, strokeWidth = 2.dp, modifier = Modifier.size(16.dp))
                     Text("جاري التحديد...", color = LogoOrange, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 } else {
-                    Text("📍", fontSize = 14.sp)
+                    Icon(YkIcons.MapPin, contentDescription = null, tint = Yk.Orange, modifier = Modifier.size(16.dp))
                     Text("استخدم موقعي", color = LogoOrange, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
             }

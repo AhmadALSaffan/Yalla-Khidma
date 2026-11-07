@@ -9,13 +9,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,284 +27,179 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import coil3.compose.AsyncImage
 import com.yallakhedma.app.domain.model.Service
-import com.yallakhedma.app.presentation.components.AppPrimaryButton
+import com.yallakhedma.app.presentation.components.Avatar
+import com.yallakhedma.app.presentation.components.RatingPill
+import com.yallakhedma.app.presentation.components.RemoteImage
+import com.yallakhedma.app.presentation.components.YkButton
+import com.yallakhedma.app.presentation.components.YkIconButton
+import com.yallakhedma.app.presentation.components.YkIcons
+import com.yallakhedma.app.presentation.components.pressable
+import com.yallakhedma.app.presentation.components.ykCard
 import com.yallakhedma.app.presentation.screens.bookings.BookingRequestScreen
-import com.yallakhedma.app.presentation.screens.home.HomeImageAssets
+import com.yallakhedma.app.presentation.screens.common.TagChip
+import com.yallakhedma.app.presentation.screens.common.VerifiedTick
 import com.yallakhedma.app.presentation.screens.providers.ProviderDetailsScreen
-
-private val Background = Color(0xFFFFFFFF)
-private val SurfaceContainerLow = Color(0xFFF2F3FF)
-private val OnSurface = Color(0xFF131B2E)
-private val OnSurfaceVariant = Color(0xFF5B4137)
-private val OutlineVariant = Color(0xFFE4BEB1)
-private val Primary = Color(0xFFA73A00)
-private val PrimaryFixed = Color(0xFFFFDBCE)
-private val Secondary = Color(0xFF5D3FD3)
-private val Success = Color(0xFF10B981)
-private val Danger = Color(0xFFEF4444)
-private val StarYellow = Color(0xFFF59E0B)
-
-@Composable
-private fun MetaChip(text: String, accent: Color = OnSurfaceVariant) {
-    Text(
-        text = text,
-        color = accent,
-        fontSize = 12.sp,
-        fontWeight = FontWeight.Medium,
-        modifier = Modifier
-            .clip(RoundedCornerShape(50))
-            .background(SurfaceContainerLow)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
-    )
-}
-
-private fun formatRating(rating: Double): String {
-    val rounded = (rating * 10).toInt() / 10.0
-    return if (rounded % 1.0 == 0.0) rounded.toInt().toString() else rounded.toString()
-}
+import com.yallakhedma.app.presentation.theme.Yk
+import org.jetbrains.compose.resources.stringResource
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.cd_back
+import yallakhidma.shared.generated.resources.service_book
+import yallakhidma.shared.generated.resources.service_details
+import yallakhidma.shared.generated.resources.service_duration
+import yallakhidma.shared.generated.resources.service_price_from
+import yallakhidma.shared.generated.resources.service_provider
 
 class ServiceDetailsScreen(private val service: Service) : Screen {
+
+    override val key: ScreenKey = uniqueScreenKey
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = koinScreenModel<ServiceDetailsScreenModel>()
-        val state by screenModel.state.collectAsState()
-        LaunchedEffect(Unit) { screenModel.loadProvider(service.providerId) }
+        val model = koinScreenModel<ServiceDetailsScreenModel>()
+        val state by model.state.collectAsState()
+        LaunchedEffect(Unit) { model.loadProvider(service.providerId) }
 
-        Box(modifier = Modifier.fillMaxSize().background(Background)) {
+        Box(Modifier.fillMaxSize().background(Yk.Canvas)) {
             Column(
-                modifier = Modifier
+                Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(bottom = 104.dp),
+                    .padding(bottom = 120.dp),
             ) {
-                // Image header with a floating back button.
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(260.dp)
-                        .background(PrimaryFixed),
-                ) {
-                    val url = HomeImageAssets.imageUrl(service.imageUrl)
-                    if (url != null) {
-                        AsyncImage(
-                            model = url,
-                            contentDescription = service.title,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize(),
-                        )
+                // Image hero
+                Box(Modifier.fillMaxWidth().height(300.dp)) {
+                    RemoteImage(service.imageUrl, service.title, Modifier.fillMaxSize()) {
+                        Icon(YkIcons.Wrench, null, tint = Yk.Orange.copy(alpha = 0.4f), modifier = Modifier.size(64.dp))
                     }
                     Box(
-                        modifier = Modifier
-                            .padding(top = 46.dp, start = 20.dp)
-                            .align(Alignment.TopStart)
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(Color.White)
-                            .clickable { navigator.pop() },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text("→", color = Primary, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                    }
+                        Modifier.fillMaxSize().background(
+                            Brush.verticalGradient(listOf(Yk.Ink.copy(alpha = 0.35f), Color.Transparent, Color.Transparent)),
+                        ),
+                    )
+                    YkIconButton(
+                        icon = YkIcons.ArrowBack,
+                        contentDescription = stringResource(Res.string.cd_back),
+                        onClick = { navigator.pop() },
+                        background = Color.White,
+                        modifier = Modifier.statusBarsPadding().padding(start = 16.dp, top = 8.dp),
+                    )
                 }
 
+                // Content sheet overlapping the hero
                 Column(
-                    modifier = Modifier
+                    Modifier
+                        .offset(y = (-28).dp)
                         .fillMaxWidth()
+                        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                        .background(Yk.Canvas)
                         .padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
-                    if (service.categoryTag.isNotBlank()) {
-                        Text(
-                            text = service.categoryTag,
-                            color = Secondary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(50))
-                                .background(Secondary.copy(alpha = 0.10f))
-                                .padding(horizontal = 12.dp, vertical = 6.dp),
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (service.categoryTag.isNotBlank()) TagChip(service.categoryTag)
+                        if (service.rating > 0.0) RatingPill(service.rating)
                     }
-                    Text(
-                        text = service.title,
-                        color = OnSurface,
-                        fontSize = 23.sp,
-                        fontWeight = FontWeight.Bold,
-                        lineHeight = 30.sp,
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = service.priceFrom,
-                            color = Primary,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        if (service.distance.isNotBlank()) {
-                            Text(
-                                text = service.distance,
-                                color = OnSurfaceVariant,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(50))
-                                    .background(SurfaceContainerLow)
-                                    .padding(horizontal = 12.dp, vertical = 6.dp),
-                            )
+                    Text(service.title, style = MaterialTheme.typography.headlineLarge, color = Yk.Ink)
+
+                    // Quick facts
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Fact(YkIcons.CreditCard, stringResource(Res.string.service_price_from), service.priceFrom, Modifier.weight(1f))
+                        if (service.durationText.isNotBlank()) {
+                            Fact(YkIcons.Clock, stringResource(Res.string.service_duration), service.durationText, Modifier.weight(1f))
+                        } else if (service.distance.isNotBlank()) {
+                            Fact(YkIcons.MapPin, "", service.distance, Modifier.weight(1f))
                         }
                     }
-
-                    // Meta chips: duration + service rating (shown when present).
-                    if (service.durationText.isNotBlank() || service.rating > 0.0) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            if (service.durationText.isNotBlank()) {
-                                MetaChip("⏱ ${service.durationText}")
-                            }
-                            if (service.rating > 0.0) {
-                                MetaChip("★ ${formatRating(service.rating)}", accent = StarYellow)
-                            }
-                        }
-                    }
-
-                    Spacer(Modifier.height(4.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(OutlineVariant.copy(alpha = 0.4f)),
-                    )
-                    Spacer(Modifier.height(4.dp))
 
                     if (service.description.isNotBlank()) {
-                        Text(
-                            text = "تفاصيل الخدمة",
-                            color = OnSurface,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                        Text(
-                            text = service.description,
-                            color = OnSurfaceVariant,
-                            fontSize = 14.sp,
-                            lineHeight = 22.sp,
-                        )
+                        Text(stringResource(Res.string.service_details), style = MaterialTheme.typography.headlineSmall, color = Yk.Ink)
+                        Text(service.description, style = MaterialTheme.typography.bodyLarge, color = Yk.Ink2)
                     }
 
-                    // Provider card — uses the live provider (photo + rating)
-                    // when loaded, falling back to the denormalized name.
                     val provider = state.provider
-                    val displayName = provider?.name?.takeIf { it.isNotBlank() }
-                        ?: service.providerName
+                    val displayName = provider?.name?.takeIf { it.isNotBlank() } ?: service.providerName
                     if (displayName.isNotBlank()) {
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = "مقدم الخدمة",
-                            color = OnSurface,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                        )
+                        Text(stringResource(Res.string.service_provider), style = MaterialTheme.typography.headlineSmall, color = Yk.Ink)
                         Row(
-                            modifier = Modifier
+                            Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(SurfaceContainerLow)
-                                .then(
-                                    if (provider != null) {
-                                        Modifier.clickable {
-                                            navigator.push(ProviderDetailsScreen(provider))
-                                        }
-                                    } else Modifier,
-                                )
+                                .then(if (provider != null) Modifier.pressable({ navigator.push(ProviderDetailsScreen(provider)) }) else Modifier)
+                                .ykCard(elevation = 6.dp)
                                 .padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(52.dp)
-                                    .clip(CircleShape)
-                                    .background(PrimaryFixed),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    text = displayName.firstOrNull()?.toString() ?: "؟",
-                                    color = Primary,
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
-                                )
-                                val pUrl = provider?.let { HomeImageAssets.imageUrl(it.photoUrl) }
-                                if (pUrl != null) {
-                                    AsyncImage(
-                                        model = pUrl,
-                                        contentDescription = displayName,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.fillMaxSize().clip(CircleShape),
-                                    )
+                            Avatar(displayName, provider?.photoUrl, 52.dp)
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Text(displayName, style = MaterialTheme.typography.titleMedium, color = Yk.Ink)
+                                    if (provider?.verified == true) VerifiedTick()
                                 }
-                            }
-                            Column(
-                                modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.spacedBy(2.dp),
-                            ) {
-                                Text(
-                                    text = displayName,
-                                    color = OnSurface,
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                )
                                 if (provider != null && provider.profession.isNotBlank()) {
-                                    Text(
-                                        text = provider.profession,
-                                        color = OnSurfaceVariant,
-                                        fontSize = 12.sp,
-                                    )
+                                    Text(provider.profession, style = MaterialTheme.typography.bodySmall, color = Yk.Ink2)
                                 }
-                            }
-                            if (provider != null && provider.rating > 0.0) {
-                                Text(
-                                    text = "★ ${formatRating(provider.rating)}",
-                                    color = StarYellow,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                )
                             }
                             if (provider != null) {
-                                Text("‹", color = OnSurfaceVariant, fontSize = 20.sp)
+                                RatingPill(provider.rating)
+                                Icon(YkIcons.ChevronForward, null, tint = Yk.Ink3, modifier = Modifier.size(18.dp))
                             }
                         }
                     }
                 }
             }
 
-            // Sticky bottom booking bar.
-            Column(
-                modifier = Modifier
+            // Sticky booking bar
+            Row(
+                Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .background(Background)
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                    .shadow(16.dp, ambientColor = Yk.Ink.copy(alpha = 0.1f), spotColor = Yk.Ink.copy(alpha = 0.1f))
+                    .background(Yk.Canvas)
+                    .navigationBarsPadding()
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                AppPrimaryButton(
-                    text = "احجز الخدمة",
+                Column {
+                    Text(stringResource(Res.string.service_price_from), style = MaterialTheme.typography.labelMedium, color = Yk.Ink3)
+                    Text(service.priceFrom, style = MaterialTheme.typography.titleLarge, color = Yk.OrangeDeep)
+                }
+                YkButton(
+                    text = stringResource(Res.string.service_book),
                     onClick = { navigator.push(BookingRequestScreen(service)) },
+                    modifier = Modifier.weight(1f),
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun Fact(icon: ImageVector, label: String, value: String, modifier: Modifier = Modifier) {
+    Row(
+        modifier.clip(RoundedCornerShape(16.dp)).background(Yk.Fill).padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Box(Modifier.size(36.dp).clip(RoundedCornerShape(12.dp)).background(Yk.Canvas), contentAlignment = Alignment.Center) {
+            Icon(icon, null, tint = Yk.Orange, modifier = Modifier.size(18.dp))
+        }
+        Column {
+            if (label.isNotBlank()) Text(label, style = MaterialTheme.typography.labelMedium, color = Yk.Ink3)
+            Text(value, style = MaterialTheme.typography.titleSmall, color = Yk.Ink, maxLines = 1)
         }
     }
 }

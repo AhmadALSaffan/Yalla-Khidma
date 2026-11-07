@@ -1,5 +1,8 @@
 package com.yallakhedma.app.presentation.screens.bookings
 
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.components.YkIcons
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -74,7 +77,7 @@ data class BookingRequestScreen(private val service: Service) : Screen {
                 Box(
                     modifier = Modifier.size(40.dp).clip(CircleShape).clickable { navigator.pop() },
                     contentAlignment = Alignment.Center,
-                ) { Text("→", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold) }
+                ) { Icon(YkIcons.ArrowBack, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp)) }
                 Text("طلب حجز", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.size(40.dp))
             }
@@ -138,7 +141,7 @@ data class BookingRequestScreen(private val service: Service) : Screen {
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            "تم إرسال الطلب — استنى رد مقدم الخدمة ✓",
+                            "تم إرسال الطلب — استنى رد مقدم الخدمة",
                             color = Color.White,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,

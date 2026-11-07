@@ -1,5 +1,8 @@
 package com.yallakhedma.app.presentation.screens.bookings
 
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.components.YkIcons
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -94,7 +97,7 @@ data class PayBookingScreen(
                 Box(
                     modifier = Modifier.size(40.dp).clip(CircleShape).clickable { navigator.pop() },
                     contentAlignment = Alignment.Center,
-                ) { Text("→", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold) }
+                ) { Icon(YkIcons.ArrowBack, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp)) }
                 Text("الدفع", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.size(40.dp))
             }
@@ -189,7 +192,7 @@ data class PayBookingScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text(
-                            "تم تطبيق الكوبون ${state.appliedCoupon?.code.orEmpty()} ✓",
+                            "تم تطبيق الكوبون ${state.appliedCoupon?.code.orEmpty()}",
                             color = Success,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -263,7 +266,7 @@ data class PayBookingScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            "تم الدفع بنجاح ✓",
+                            "تم الدفع بنجاح",
                             color = Color.White,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -308,7 +311,7 @@ private fun MethodRow(method: PaymentMethod, selected: Boolean, onClick: () -> U
                 .border(BorderStroke(1.5.dp, if (selected) Primary else OutlineVariant), CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            if (selected) Text("✓", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            if (selected) Icon(YkIcons.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
         }
     }
 }

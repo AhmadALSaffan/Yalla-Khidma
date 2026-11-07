@@ -1,5 +1,7 @@
 package com.yallakhedma.app.presentation.screens.verification
 
+import com.yallakhedma.app.presentation.components.YkIcons
+import androidx.compose.material3.Icon
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -45,7 +47,7 @@ import com.yallakhedma.app.domain.model.VerificationStatus
 import com.yallakhedma.app.domain.repository.AuthRepository
 import com.yallakhedma.app.presentation.components.AppPrimaryButton
 import com.yallakhedma.app.presentation.routing.destinationForUser
-import com.yallakhedma.app.presentation.screens.auth.login.LoginScreen
+import com.yallakhedma.app.presentation.routing.SignedOutDestination
 import com.yallakhedma.app.presentation.theme.LocalSpacing
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -162,9 +164,11 @@ object WaitingForVerificationScreen : Screen {
                                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                Text(
-                                    text = "⏳",
-                                    style = MaterialTheme.typography.displayMedium,
+                                Icon(
+                                    YkIcons.Hourglass,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(40.dp),
                                 )
                             }
                         }
@@ -218,7 +222,7 @@ object WaitingForVerificationScreen : Screen {
                     onClick = {
                         scope.launch {
                             authRepository.signOut()
-                            navigator.replaceAll(LoginScreen)
+                            navigator.replaceAll(SignedOutDestination)
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),

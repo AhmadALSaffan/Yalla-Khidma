@@ -1,5 +1,7 @@
 package com.yallakhedma.app.presentation.screens.dashboard
 
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.components.YkIcons
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -146,7 +148,7 @@ private fun TopBar() {
             Text("يلّا خِدمة", color = Primary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
         Box(contentAlignment = Alignment.TopEnd) {
-            Text("🔔", fontSize = 20.sp)
+            Icon(YkIcons.Bell, contentDescription = null, tint = OnSurface, modifier = Modifier.size(22.dp))
             Box(modifier = Modifier.size(7.dp).clip(CircleShape).background(Danger))
         }
     }
@@ -183,14 +185,14 @@ private fun StatsGrid(newRequests: Int, rating: String, bookings: Int) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             StatCard(
-                Modifier.weight(1f), "📋", "طلبات جديدة", newRequests.toString(),
+                Modifier.weight(1f), YkIcons.Clipboard, "طلبات جديدة", newRequests.toString(),
                 badge = if (newRequests > 0) "+$newRequests" else null, iconTint = PrimaryContainer,
             )
-            StatCard(Modifier.weight(1f), "💰", "أرباح الشهر", "0 ر.س", iconTint = Tertiary)
+            StatCard(Modifier.weight(1f), YkIcons.Wallet, "أرباح الشهر", "0 ر.س", iconTint = Tertiary)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatCard(Modifier.weight(1f), "⭐", "التقييم العام", rating, iconTint = StarYellow)
-            StatCard(Modifier.weight(1f), "🗓", "إجمالي الحجوزات", bookings.toString(), iconTint = Secondary)
+            StatCard(Modifier.weight(1f), YkIcons.StarFilled, "التقييم العام", rating, iconTint = StarYellow)
+            StatCard(Modifier.weight(1f), YkIcons.CalendarCheck, "إجمالي الحجوزات", bookings.toString(), iconTint = Secondary)
         }
     }
 }
@@ -198,7 +200,7 @@ private fun StatsGrid(newRequests: Int, rating: String, bookings: Int) {
 @Composable
 private fun StatCard(
     modifier: Modifier,
-    emoji: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     value: String,
     iconTint: Color,
@@ -220,7 +222,7 @@ private fun StatCard(
             Box(
                 modifier = Modifier.size(32.dp).clip(CircleShape).background(iconTint.copy(alpha = 0.18f)),
                 contentAlignment = Alignment.Center,
-            ) { Text(emoji, fontSize = 15.sp) }
+            ) { Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(17.dp)) }
             if (badge != null) {
                 Text(
                     text = badge,
@@ -255,12 +257,12 @@ private fun MyServicesButton(onClick: () -> Unit) {
         Box(
             modifier = Modifier.size(40.dp).clip(CircleShape).background(LogoOrange),
             contentAlignment = Alignment.Center,
-        ) { Text("🧰", fontSize = 18.sp) }
+        ) { Icon(YkIcons.Briefcase, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp)) }
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text("خدماتي المنشورة", color = OnSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Text("عرض وإدارة كل الخدمات اللي نشرتها", color = OnSurfaceVariant, fontSize = 12.sp)
         }
-        Text("‹", color = Primary, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+        Icon(YkIcons.ChevronForward, contentDescription = null, tint = Primary, modifier = Modifier.size(18.dp))
     }
 }
 
@@ -430,16 +432,16 @@ private fun QuickActions(
     onManageCoupons: () -> Unit,
 ) {
     val actions = listOf(
-        Triple("➕", "إضافة خدمة", onAddService),
-        Triple("📅", "إدارة الحجوزات", onManageBookings),
-        Triple("🎟️", "كوبونات الخصم", onManageCoupons),
-        Triple("🎧", "الدعم الفني", {}),
+        Triple(YkIcons.Plus, "إضافة خدمة", onAddService),
+        Triple(YkIcons.CalendarCheck, "إدارة الحجوزات", onManageBookings),
+        Triple(YkIcons.Ticket, "كوبونات الخصم", onManageCoupons),
+        Triple(YkIcons.Headphones, "الدعم الفني", {}),
     )
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("إجراءات سريعة", color = OnSurface, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
         actions.chunked(2).forEach { row ->
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-                row.forEach { (emoji, label, action) ->
+                row.forEach { (icon, label, action) ->
                     Column(
                         modifier = Modifier
                             .weight(1f)
@@ -454,7 +456,7 @@ private fun QuickActions(
                         Box(
                             modifier = Modifier.size(44.dp).clip(CircleShape).background(PrimaryFixed.copy(alpha = 0.5f)),
                             contentAlignment = Alignment.Center,
-                        ) { Text(emoji, fontSize = 18.sp) }
+                        ) { Icon(icon, contentDescription = null, tint = Primary, modifier = Modifier.size(20.dp)) }
                         Text(label, color = OnSurface, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                     }
                 }

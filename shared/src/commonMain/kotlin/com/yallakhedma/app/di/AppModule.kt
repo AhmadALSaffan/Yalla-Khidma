@@ -48,10 +48,8 @@ import com.yallakhedma.app.presentation.screens.payment.PaymentMethodsScreenMode
 import com.yallakhedma.app.presentation.screens.profile.ProviderEditProfileScreenModel
 import com.yallakhedma.app.presentation.screens.profile.ProviderProfileScreenModel
 import com.yallakhedma.app.presentation.screens.provider_setup.ProviderProfileSetupScreenModel
-import com.yallakhedma.app.presentation.screens.providers.AllProvidersScreenModel
 import com.yallakhedma.app.presentation.screens.providers.ProviderDetailsScreenModel
 import com.yallakhedma.app.presentation.screens.services.AddServiceScreenModel
-import com.yallakhedma.app.presentation.screens.services.AllServicesScreenModel
 import com.yallakhedma.app.presentation.screens.services.MyServicesScreenModel
 import com.yallakhedma.app.presentation.screens.services.ServiceDetailsScreenModel
 import com.yallakhedma.app.presentation.screens.verification.IdVerificationScreenModel
@@ -73,6 +71,8 @@ val appModule: Module = module {
     single { PaymentCardCrypto() }
     single { com.yallakhedma.app.data.auth.OtpService() }
     single { com.yallakhedma.app.util.ClientLocationHolder() }
+    single { com.yallakhedma.app.data.local.AppPreferences(get()) }
+    single { com.yallakhedma.app.presentation.i18n.LanguageManager(get()) }
 
     // Repositories
     single<AuthRepository> { AuthRepositoryImpl(get(), get(), get()) }
@@ -85,14 +85,16 @@ val appModule: Module = module {
     single<PaymentMethodRepository> { PaymentMethodRepositoryImpl(get()) }
 
     // ScreenModels (factory: new instance per screen)
-    factory { LoginScreenModel(get(), get()) }
-    factory { SignUpScreenModel(get()) }
+    factory { LoginScreenModel(get()) }
+    factory { SignUpScreenModel(get(), get()) }
     factory { OtpScreenModel(get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.auth.welcome.WelcomeScreenModel(get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.auth.forgot.ForgotPasswordScreenModel(get()) }
+    factory { com.yallakhedma.app.presentation.screens.auth.usertype.UserTypeScreenModel(get()) }
     factory { IdVerificationScreenModel(get(), get()) }
-    factory { ClientHomeScreenModel(get(), get()) }
+    factory { ClientHomeScreenModel(get(), get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.explore.ExploreScreenModel(get(), get(), get(), get()) }
     factory { AllCategoriesScreenModel(get()) }
-    factory { AllProvidersScreenModel(get()) }
-    factory { AllServicesScreenModel(get()) }
     factory { ServiceDetailsScreenModel(get(), get(), get()) }
     factory { ProviderDetailsScreenModel(get(), get()) }
     factory { ProviderProfileSetupScreenModel(get(), get(), get()) }

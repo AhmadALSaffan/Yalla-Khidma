@@ -1,5 +1,7 @@
 package com.yallakhedma.app.presentation.screens.verification
 
+import com.yallakhedma.app.presentation.components.YkIcons
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,7 +49,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.yallakhedma.app.domain.model.DocumentType
 import com.yallakhedma.app.domain.repository.AuthRepository
 import com.yallakhedma.app.presentation.components.AppPrimaryButton
-import com.yallakhedma.app.presentation.screens.auth.login.LoginScreen
+import com.yallakhedma.app.presentation.routing.SignedOutDestination
 import com.yallakhedma.app.presentation.theme.LocalSpacing
 import com.yallakhedma.app.util.rememberImagePicker
 import kotlinx.coroutines.launch
@@ -104,7 +106,7 @@ object IdVerificationScreen : Screen {
                     onSignOut = {
                         scope.launch {
                             authRepository.signOut()
-                            navigator.replaceAll(LoginScreen)
+                            navigator.replaceAll(SignedOutDestination)
                         }
                     },
                 )
@@ -232,10 +234,11 @@ private fun DocumentTypeCard(
                 .padding(vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Simple icon stand-in (text emoji) — replace with Compose Resources drawable when available.
-            Text(
-                text = if (label.contains("جواز")) "📕" else "🪪",
-                style = MaterialTheme.typography.headlineMedium,
+            Icon(
+                imageVector = if (label.contains("جواز")) YkIcons.Book else YkIcons.IdCard,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(32.dp),
             )
             Spacer(Modifier.height(8.dp))
             Text(
@@ -280,12 +283,12 @@ private fun UploadZone(
                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(text = "📷", style = MaterialTheme.typography.headlineMedium)
+                Icon(YkIcons.Camera, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
             }
             Spacer(Modifier.height(12.dp))
             if (hasFile) {
                 Text(
-                    text = "تم اختيار الصورة ✓",
+                    text = "تم اختيار الصورة",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -385,7 +388,7 @@ private fun InfoNote(text: String) {
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.Top,
         ) {
-            Text(text = "ℹ️", style = MaterialTheme.typography.titleMedium)
+            Icon(YkIcons.Info, contentDescription = null, tint = blueText, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(8.dp))
             Column {
                 Text(

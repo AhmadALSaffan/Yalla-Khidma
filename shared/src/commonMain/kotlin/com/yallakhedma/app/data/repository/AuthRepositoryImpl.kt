@@ -1,5 +1,6 @@
 package com.yallakhedma.app.data.repository
 
+import com.yallakhedma.app.data.auth.authErrorCode
 import com.yallakhedma.app.data.auth.authErrorMessage
 import com.yallakhedma.app.data.datasource.FirebaseAuthDataSource
 import com.yallakhedma.app.data.datasource.ProvidersFirestoreDataSource
@@ -9,6 +10,7 @@ import com.yallakhedma.app.domain.model.User
 import com.yallakhedma.app.domain.model.UserType
 import com.yallakhedma.app.domain.repository.AuthRepository
 import com.yallakhedma.app.domain.util.DataResult
+import com.yallakhedma.app.domain.util.ErrorCode
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.GoogleAuthProvider
 import dev.gitlive.firebase.auth.OAuthProvider
@@ -39,7 +41,7 @@ class AuthRepositoryImpl(
         userType: UserType,
     ): DataResult<User> = runCatching {
         val fbUser = authDs.signUpWithEmail(email, password)
-            ?: return DataResult.Error("تعذّر إنشاء الحساب، حاول مرة أخرى")
+            ?: return DataResult.Error("تعذّر إنشاء الحساب، حاول مرة أخرى", code = ErrorCode.SignUpFailed)
         val profile = User(
             id = fbUser.uid,
             email = email,
@@ -62,19 +64,19 @@ class AuthRepositoryImpl(
         }
         DataResult.Success(profile)
     }.getOrElse {
-        DataResult.Error(authErrorMessage(it, generic = "تعذّر إنشاء الحساب، حاول مرة أخرى"), it)
+        failure(it, "تعذّر إنشاء الحساب، حاول مرة أخرى", ErrorCode.SignUpFailed)
     }
 
     override suspend fun signInWithEmail(email: String, password: String): DataResult<User> =
         runCatching {
             val fbUser = authDs.signInWithEmail(email, password)
-                ?: return DataResult.Error(SIGN_IN_GENERIC)
+                ?: return DataResult.Error(SIGN_IN_GENERIC, code = ErrorCode.InvalidCredentials)
             val profile = userDs.getUser(fbUser.uid)
-                ?: return DataResult.Error(SIGN_IN_GENERIC)
+                ?: return DataResult.Error(SIGN_IN_GENERIC, code = ErrorCode.InvalidCredentials)
             DataResult.Success(profile)
         }.getOrElse {
             // Generic on purpose — never reveal whether email or password was wrong.
-            DataResult.Error(authErrorMessage(it, generic = SIGN_IN_GENERIC), it)
+            failure(it, SIGN_IN_GENERIC, ErrorCode.InvalidCredentials)
         }
 
     override suspend fun sendPasswordResetEmail(email: String): DataResult<Unit> =
@@ -89,7 +91,7 @@ class AuthRepositoryImpl(
             if (name.contains("InvalidUser", ignoreCase = true)) {
                 DataResult.Success(Unit)
             } else {
-                DataResult.Error(authErrorMessage(e, generic = "تعذّر إرسال رابط الاستعادة"), e)
+                failure(e, "تعذّر إرسال رابط الاستعادة", ErrorCode.ResetFailed)
             }
         }
 
@@ -97,23 +99,23 @@ class AuthRepositoryImpl(
         runCatching {
             authDs.signOut()
             DataResult.Success(Unit)
-        }.getOrElse { DataResult.Error(authErrorMessage(it, generic = "تعذّر تسجيل الخروج"), it) }
+        }.getOrElse { failure(it, "تعذّر تسجيل الخروج", ErrorCode.Unknown) }
 
     override suspend fun markEmailVerified(): DataResult<Unit> =
         runCatching {
             val uid = authDs.currentUid()
-                ?: return DataResult.Error("لا يوجد مستخدم مسجّل الدخول")
+                ?: return DataResult.Error("لا يوجد مستخدم مسجّل الدخول", code = ErrorCode.NotSignedIn)
             userDs.markEmailVerified(uid)
             DataResult.Success(Unit)
-        }.getOrElse { DataResult.Error(authErrorMessage(it, generic = "تعذّر تأكيد البريد"), it) }
+        }.getOrElse { failure(it, "تعذّر تأكيد البريد", ErrorCode.SaveFailed) }
 
     override suspend fun markProviderProfileCompleted(): DataResult<Unit> =
         runCatching {
             val uid = authDs.currentUid()
-                ?: return DataResult.Error("لا يوجد مستخدم مسجّل الدخول")
+                ?: return DataResult.Error("لا يوجد مستخدم مسجّل الدخول", code = ErrorCode.NotSignedIn)
             userDs.markProviderProfileCompleted(uid)
             DataResult.Success(Unit)
-        }.getOrElse { DataResult.Error(authErrorMessage(it, generic = "تعذّر حفظ الملف"), it) }
+        }.getOrElse { failure(it, "تعذّر حفظ الملف", ErrorCode.SaveFailed) }
 
     override fun currentUid(): String? = authDs.currentUid()
 
@@ -121,7 +123,7 @@ class AuthRepositoryImpl(
         runCatching {
             userDs.upsertUser(user)
             DataResult.Success(Unit)
-        }.getOrElse { DataResult.Error(authErrorMessage(it, generic = "تعذّر تحديث الملف"), it) }
+        }.getOrElse { failure(it, "تعذّر تحديث الملف", ErrorCode.SaveFailed) }
 
     override suspend fun signInWithGoogleCredential(
         idToken: String,
@@ -129,14 +131,14 @@ class AuthRepositoryImpl(
     ): DataResult<User> = runCatching {
         val credential = GoogleAuthProvider.credential(idToken = idToken, accessToken = null)
         val fbUser = Firebase.auth.signInWithCredential(credential).user
-            ?: return DataResult.Error(SOCIAL_GENERIC)
+            ?: return DataResult.Error(SOCIAL_GENERIC, code = ErrorCode.SignInFailed)
         upsertOrFetchProfile(
             uid = fbUser.uid,
             email = fbUser.email,
             displayName = fbUser.displayName,
             userType = defaultUserType,
         )
-    }.getOrElse { DataResult.Error(authErrorMessage(it, generic = SOCIAL_GENERIC), it) }
+    }.getOrElse { failure(it, SOCIAL_GENERIC, ErrorCode.SignInFailed) }
 
     override suspend fun signInWithAppleCredential(
         idToken: String,
@@ -150,14 +152,35 @@ class AuthRepositoryImpl(
             accessToken = null,
         )
         val fbUser = Firebase.auth.signInWithCredential(credential).user
-            ?: return DataResult.Error(SOCIAL_GENERIC)
+            ?: return DataResult.Error(SOCIAL_GENERIC, code = ErrorCode.SignInFailed)
         upsertOrFetchProfile(
             uid = fbUser.uid,
             email = fbUser.email,
             displayName = fbUser.displayName,
             userType = defaultUserType,
         )
-    }.getOrElse { DataResult.Error(authErrorMessage(it, generic = SOCIAL_GENERIC), it) }
+    }.getOrElse { failure(it, SOCIAL_GENERIC, ErrorCode.SignInFailed) }
+
+    override suspend fun chooseUserType(type: UserType): DataResult<User> =
+        runCatching {
+            val uid = authDs.currentUid()
+                ?: return DataResult.Error("لا يوجد مستخدم مسجّل الدخول", code = ErrorCode.NotSignedIn)
+            val existing = userDs.getUser(uid)
+                ?: return DataResult.Error("تعذّر حفظ الملف", code = ErrorCode.SaveFailed)
+            val updated = existing.copy(userType = type, userTypeChosen = true)
+            userDs.upsertUser(updated)
+            if (type == UserType.Provider) {
+                providersDs.upsertProvider(Provider(id = uid, name = updated.name, isFeatured = false))
+            }
+            DataResult.Success(updated)
+        }.getOrElse { failure(it, "تعذّر حفظ الملف", ErrorCode.SaveFailed) }
+
+    private fun failure(e: Throwable, genericMessage: String, genericCode: ErrorCode) =
+        DataResult.Error(
+            message = authErrorMessage(e, generic = genericMessage),
+            cause = e,
+            code = authErrorCode(e, generic = genericCode),
+        )
 
     /** First-time social sign-in creates a profile; returning users get their existing one. */
     private suspend fun upsertOrFetchProfile(
@@ -178,6 +201,9 @@ class AuthRepositoryImpl(
                 createdAt = Clock.System.now().toEpochMilliseconds(),
                 // Google/Apple already verified the email — skip our OTP step.
                 emailVerified = true,
+                // Social sign-in doesn't tell us client vs provider — routing
+                // sends the user to the account-type step before anything else.
+                userTypeChosen = false,
             )
             userDs.upsertUser(profile)
             DataResult.Success(profile)
