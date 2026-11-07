@@ -99,7 +99,7 @@ val appModule: Module = module {
     factory { ProviderDetailsScreenModel(get(), get()) }
     factory { ProviderProfileSetupScreenModel(get(), get(), get()) }
     factory { ProviderDashboardScreenModel(get(), get(), get()) }
-    factory { AddServiceScreenModel(get(), get(), get()) }
+    factory { AddServiceScreenModel(get(), get(), get(), get()) }
     factory { MyServicesScreenModel(get(), get()) }
     factory { ClientProfileScreenModel(get()) }
     factory { ProviderProfileScreenModel(get(), get()) }

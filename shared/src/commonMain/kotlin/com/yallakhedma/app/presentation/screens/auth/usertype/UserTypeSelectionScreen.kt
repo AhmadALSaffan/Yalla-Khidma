@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.auth.usertype
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -19,7 +20,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -92,7 +92,7 @@ data class UserTypeSelectionScreen(private val mode: Mode = Mode.SignUp) : Scree
             modifier = Modifier
                 .fillMaxSize()
                 .background(Yk.Canvas)
-                .statusBarsPadding()
+                .safeTopPadding()
                 .navigationBarsPadding()
                 .padding(horizontal = 20.dp),
         ) {

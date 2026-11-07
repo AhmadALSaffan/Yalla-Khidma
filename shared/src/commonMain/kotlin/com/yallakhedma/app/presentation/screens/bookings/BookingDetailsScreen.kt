@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.bookings
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import com.yallakhedma.app.presentation.theme.Yk
 import com.yallakhedma.app.presentation.components.YkIcons
 import androidx.compose.material3.Icon
@@ -342,7 +343,7 @@ private fun HeroHeader(imageUrl: String?, onBack: () -> Unit) {
         }
         Box(
             modifier = Modifier
-                .padding(start = 16.dp, top = 46.dp)
+                .safeTopPadding().padding(start = 16.dp, top = 8.dp)
                 .size(40.dp)
                 .clip(CircleShape)
                 .background(Color.White.copy(alpha = 0.95f))

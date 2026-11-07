@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.main
 
+import com.yallakhedma.app.presentation.components.safeTop
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -84,7 +84,7 @@ fun MainTabsHost(tabs: List<MainTab>, selectedState: MutableIntState) {
         Box(
             Modifier
                 .fillMaxWidth()
-                .windowInsetsTopHeight(WindowInsets.statusBars)
+                .windowInsetsTopHeight(WindowInsets.safeTop)
                 .background(Yk.Canvas.copy(alpha = 0.94f)),
         )
 

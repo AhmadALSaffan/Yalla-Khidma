@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.bookings
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import com.yallakhedma.app.presentation.theme.Yk
 import com.yallakhedma.app.presentation.components.YkIcons
 import androidx.compose.material3.Icon
@@ -70,7 +71,7 @@ data class BookingRequestScreen(private val service: Service) : Screen {
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
                     .background(LogoOrange)
-                    .padding(start = 20.dp, end = 20.dp, top = 46.dp, bottom = 24.dp),
+                    .safeTopPadding().padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {

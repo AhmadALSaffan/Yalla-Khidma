@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.bookings
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -108,7 +108,7 @@ object MyBookingsScreen : Screen {
         var filter by rememberSaveable { mutableStateOf(BookingFilter.All) }
         val fallbackTitle = stringResource(Res.string.bookings_service_fallback)
 
-        Column(Modifier.fillMaxSize().background(Yk.Canvas).statusBarsPadding()) {
+        Column(Modifier.fillMaxSize().background(Yk.Canvas).safeTopPadding()) {
             Column(Modifier.padding(horizontal = 20.dp)) {
                 if (!inTabs) YkTopBar(onBack = { navigator.pop() }, modifier = Modifier.padding(top = 8.dp))
                 Spacer(Modifier.height(16.dp))

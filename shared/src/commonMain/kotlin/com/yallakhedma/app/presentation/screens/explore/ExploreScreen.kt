@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.explore
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -19,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
@@ -96,7 +96,7 @@ data class ExploreScreen(
             Modifier
                 .fillMaxSize()
                 .background(Yk.Canvas)
-                .statusBarsPadding(),
+                .safeTopPadding(),
         ) {
             Column(Modifier.padding(horizontal = 20.dp)) {
                 if (inTabs) {

@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.categories
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -66,7 +66,7 @@ object AllCategoriesScreen : Screen {
             Modifier
                 .fillMaxSize()
                 .background(Yk.Canvas)
-                .statusBarsPadding(),
+                .safeTopPadding(),
         ) {
             YkTopBar(onBack = { navigator.pop() }, modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 8.dp))
             LazyVerticalGrid(

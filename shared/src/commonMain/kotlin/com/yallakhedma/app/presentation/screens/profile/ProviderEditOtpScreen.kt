@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.profile
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import com.yallakhedma.app.presentation.theme.Yk
 import com.yallakhedma.app.presentation.components.YkIcons
 import androidx.compose.material3.Icon
@@ -74,7 +75,7 @@ object ProviderEditOtpScreen : Screen {
                 .fillMaxSize()
                 .background(Background)
                 .padding(horizontal = 20.dp)
-                .padding(top = 46.dp, bottom = 24.dp),
+                .safeTopPadding().padding(top = 12.dp, bottom = 24.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(

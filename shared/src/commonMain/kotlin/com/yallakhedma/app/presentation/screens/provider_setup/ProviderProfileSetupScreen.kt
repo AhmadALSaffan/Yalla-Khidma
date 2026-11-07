@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.provider_setup
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import com.yallakhedma.app.presentation.theme.Yk
 import com.yallakhedma.app.presentation.components.YkIcons
 import androidx.compose.material3.Icon
@@ -85,7 +86,7 @@ object ProviderProfileSetupScreen : Screen {
                 .background(Background)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp)
-                .padding(top = 46.dp, bottom = 32.dp),
+                .safeTopPadding().padding(top = 12.dp, bottom = 32.dp),
         ) {
             Text(
                 text = "أكمل ملفك المهني",

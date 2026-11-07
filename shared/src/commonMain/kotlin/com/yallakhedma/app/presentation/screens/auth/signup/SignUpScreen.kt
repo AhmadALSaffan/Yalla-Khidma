@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.auth.signup
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -23,7 +24,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -116,7 +116,7 @@ class SignUpScreen(private val initialType: UserType = UserType.Client) : Screen
             modifier = Modifier
                 .fillMaxSize()
                 .background(Yk.Canvas)
-                .statusBarsPadding()
+                .safeTopPadding()
                 .navigationBarsPadding()
                 .imePadding()
                 .verticalScroll(rememberScrollState())

@@ -12,6 +12,13 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import com.yallakhedma.app.presentation.i18n.UiText
+import com.yallakhedma.app.presentation.i18n.toUiText
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.error_coupon_code
+import yallakhidma.shared.generated.resources.error_coupon_percent
+import yallakhidma.shared.generated.resources.error_coupon_value
+import yallakhidma.shared.generated.resources.error_not_signed_in
 
 class AddCouponScreenModel(
     private val authRepository: AuthRepository,
@@ -46,23 +53,23 @@ class AddCouponScreenModel(
         val s = state.value
         if (s.saving || s.saved) return
         if (s.code.length < 3) {
-            _state.update { it.copy(error = "اكتب رمز كوبون من 3 أحرف فأكثر") }
+            _state.update { it.copy(error = UiText.of(Res.string.error_coupon_code)) }
             return
         }
         val number = s.value.toDoubleOrNull()
         if (number == null || number <= 0.0) {
-            _state.update { it.copy(error = "أدخل قيمة خصم صحيحة") }
+            _state.update { it.copy(error = UiText.of(Res.string.error_coupon_value)) }
             return
         }
         if (s.kind == Kind.Percent && number > 100.0) {
-            _state.update { it.copy(error = "نسبة الخصم لا تتجاوز 100%") }
+            _state.update { it.copy(error = UiText.of(Res.string.error_coupon_percent)) }
             return
         }
         screenModelScope.launch {
             _state.update { it.copy(saving = true, error = null) }
             val uid = authRepository.currentUser.firstOrNull()?.id.orEmpty()
             if (uid.isBlank()) {
-                _state.update { it.copy(saving = false, error = "لا يوجد مستخدم") }
+                _state.update { it.copy(saving = false, error = UiText.of(Res.string.error_not_signed_in)) }
                 return@launch
             }
             val coupon = Coupon(
@@ -74,7 +81,7 @@ class AddCouponScreenModel(
             )
             when (val r = couponRepository.add(coupon)) {
                 is DataResult.Success -> _state.update { it.copy(saving = false, saved = true) }
-                is DataResult.Error -> _state.update { it.copy(saving = false, error = r.message) }
+                is DataResult.Error -> _state.update { it.copy(saving = false, error = r.toUiText()) }
                 DataResult.Loading -> Unit
             }
         }
@@ -86,6 +93,6 @@ class AddCouponScreenModel(
         val value: String = "",
         val saving: Boolean = false,
         val saved: Boolean = false,
-        val error: String? = null,
+        val error: UiText? = null,
     )
 }

@@ -1,13 +1,7 @@
 package com.yallakhedma.app.presentation.screens.coupons
 
-import com.yallakhedma.app.presentation.theme.Yk
-import com.yallakhedma.app.presentation.components.YkIcons
-import androidx.compose.material3.Icon
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,12 +9,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,124 +24,126 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.yallakhedma.app.presentation.components.AppPrimaryButton
-import com.yallakhedma.app.presentation.components.AppTextField
-import com.yallakhedma.app.presentation.screens.coupons.AddCouponScreenModel.Kind
-
-private val Background = Color(0xFFFFFFFF)
-private val SurfaceContainerLow = Color(0xFFF2F3FF)
-private val OnSurface = Color(0xFF131B2E)
-private val OnSurfaceVariant = Color(0xFF5B4137)
-private val OutlineVariant = Color(0xFFE4BEB1)
-private val LogoOrange = Color(0xFFFF6B35)
-private val Primary = Color(0xFFA73A00)
-private val Danger = Color(0xFFEF4444)
+import com.yallakhedma.app.domain.model.Coupon
+import com.yallakhedma.app.presentation.components.ErrorBanner
+import com.yallakhedma.app.presentation.components.YkButton
+import com.yallakhedma.app.presentation.components.YkIcons
+import com.yallakhedma.app.presentation.components.YkTextField
+import com.yallakhedma.app.presentation.components.YkTopBar
+import com.yallakhedma.app.presentation.components.safeTopPadding
+import com.yallakhedma.app.presentation.i18n.asString
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.theme.YkRadius
+import org.jetbrains.compose.resources.stringResource
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.add_coupon_submit
+import yallakhidma.shared.generated.resources.add_coupon_subtitle
+import yallakhidma.shared.generated.resources.add_coupon_title
+import yallakhidma.shared.generated.resources.coupon_kind_amount
+import yallakhidma.shared.generated.resources.coupon_kind_percent
+import yallakhidma.shared.generated.resources.coupon_preview
+import yallakhidma.shared.generated.resources.field_coupon_code
+import yallakhidma.shared.generated.resources.field_coupon_code_ph
+import yallakhidma.shared.generated.resources.field_discount_value
 
 object AddCouponScreen : Screen {
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = koinScreenModel<AddCouponScreenModel>()
-        val state by screenModel.state.collectAsState()
+        val model = koinScreenModel<AddCouponScreenModel>()
+        val state by model.state.collectAsState()
 
         LaunchedEffect(state.saved) { if (state.saved) navigator.pop() }
 
         Column(
-            modifier = Modifier
+            Modifier
                 .fillMaxSize()
-                .background(Background)
-                .verticalScroll(rememberScrollState()),
+                .background(Yk.Canvas)
+                .safeTopPadding()
+                .navigationBarsPadding()
+                .imePadding()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp),
         ) {
+            YkTopBar(onBack = { navigator.pop() }, modifier = Modifier.padding(top = 8.dp))
+            Spacer(Modifier.height(12.dp))
+            Text(stringResource(Res.string.add_coupon_title), style = MaterialTheme.typography.displaySmall, color = Yk.Ink)
+            Spacer(Modifier.height(4.dp))
+            Text(stringResource(Res.string.add_coupon_subtitle), style = MaterialTheme.typography.bodyLarge, color = Yk.Ink2)
+            Spacer(Modifier.height(24.dp))
+
+            YkTextField(
+                value = state.code,
+                onValueChange = model::onCode,
+                label = stringResource(Res.string.field_coupon_code),
+                placeholder = stringResource(Res.string.field_coupon_code_ph),
+                leadingIcon = YkIcons.Ticket,
+                capitalization = KeyboardCapitalization.Characters,
+                forceLtr = true,
+            )
+            Spacer(Modifier.height(16.dp))
+
+            // Percent / amount toggle
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-                    .background(LogoOrange)
-                    .padding(start = 20.dp, end = 20.dp, top = 46.dp, bottom = 24.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
+                Modifier.fillMaxWidth().height(46.dp).clip(YkRadius.pill).background(Yk.Fill).padding(4.dp),
             ) {
-                Box(
-                    modifier = Modifier.size(40.dp).clip(CircleShape).clickable { navigator.pop() },
-                    contentAlignment = Alignment.Center,
-                ) { Icon(YkIcons.ArrowBack, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp)) }
-                Text("إضافة كوبون", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.size(40.dp))
-            }
-
-            Column(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 22.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp),
-            ) {
-                AppTextField(
-                    value = state.code,
-                    onValueChange = screenModel::onCode,
-                    label = "رمز الكوبون (أحرف وأرقام)",
-                )
-
-                Text("نوع الخصم", color = OnSurface, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    KindChip("نسبة %", selected = state.kind == Kind.Percent, modifier = Modifier.weight(1f)) {
-                        screenModel.onKind(Kind.Percent)
-                    }
-                    KindChip("مبلغ ثابت", selected = state.kind == Kind.Amount, modifier = Modifier.weight(1f)) {
-                        screenModel.onKind(Kind.Amount)
+                listOf(
+                    AddCouponScreenModel.Kind.Percent to stringResource(Res.string.coupon_kind_percent),
+                    AddCouponScreenModel.Kind.Amount to stringResource(Res.string.coupon_kind_amount),
+                ).forEach { (kind, label) ->
+                    val selected = state.kind == kind
+                    Box(
+                        Modifier
+                            .weight(1f)
+                            .fillMaxSize()
+                            .clip(YkRadius.pill)
+                            .background(if (selected) Yk.Canvas else Color.Transparent)
+                            .clickable(role = Role.Tab) { model.onKind(kind) },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(label, style = MaterialTheme.typography.titleSmall, color = if (selected) Yk.Ink else Yk.Ink3)
                     }
                 }
+            }
+            Spacer(Modifier.height(16.dp))
+            YkTextField(
+                value = state.value,
+                onValueChange = model::onValue,
+                label = stringResource(Res.string.field_discount_value),
+                placeholder = if (state.kind == AddCouponScreenModel.Kind.Percent) "20" else "50",
+                keyboardType = KeyboardType.Decimal,
+                forceLtr = true,
+            )
 
-                AppTextField(
-                    value = state.value,
-                    onValueChange = screenModel::onValue,
-                    label = if (state.kind == Kind.Percent) "نسبة الخصم (0-100)" else "قيمة الخصم (ر.س)",
-                    keyboardType = KeyboardType.Decimal,
-                )
-
-                state.error?.let { Text(it, color = Danger, fontSize = 13.sp) }
-
-                Spacer(Modifier.height(4.dp))
-                AppPrimaryButton(
-                    text = "حفظ الكوبون",
-                    onClick = screenModel::submit,
-                    loading = state.saving,
+            // Live preview
+            val number = state.value.toDoubleOrNull() ?: 0.0
+            if (state.code.isNotBlank() && number > 0) {
+                Spacer(Modifier.height(20.dp))
+                Text(stringResource(Res.string.coupon_preview), style = MaterialTheme.typography.labelLarge, color = Yk.Ink2)
+                Spacer(Modifier.height(8.dp))
+                CouponTicket(
+                    coupon = Coupon(
+                        code = state.code,
+                        discountPercent = if (state.kind == AddCouponScreenModel.Kind.Percent) number else 0.0,
+                        discountAmount = if (state.kind == AddCouponScreenModel.Kind.Amount) number else 0.0,
+                    ),
+                    onDelete = null,
                 )
             }
-        }
-    }
-}
 
-@Composable
-private fun KindChip(
-    label: String,
-    selected: Boolean,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-) {
-    Box(
-        modifier = modifier
-            .height(44.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(if (selected) LogoOrange else SurfaceContainerLow)
-            .border(
-                BorderStroke(1.dp, if (selected) Primary else OutlineVariant.copy(alpha = 0.4f)),
-                RoundedCornerShape(10.dp),
-            )
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            label,
-            color = if (selected) Color.White else OnSurface,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
-        )
+            Spacer(Modifier.height(24.dp))
+            ErrorBanner(state.error?.asString(), Modifier.padding(bottom = 12.dp))
+            YkButton(text = stringResource(Res.string.add_coupon_submit), onClick = model::submit, loading = state.saving)
+            Spacer(Modifier.height(24.dp))
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.auth.welcome
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -22,7 +23,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -100,7 +100,7 @@ object WelcomeScreen : Screen {
             modifier = Modifier
                 .fillMaxSize()
                 .background(Yk.Canvas)
-                .statusBarsPadding()
+                .safeTopPadding()
                 .navigationBarsPadding()
                 .padding(horizontal = 20.dp),
         ) {

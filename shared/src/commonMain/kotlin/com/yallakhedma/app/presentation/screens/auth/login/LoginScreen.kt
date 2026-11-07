@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.auth.login
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
@@ -81,7 +81,7 @@ object LoginScreen : Screen {
             modifier = Modifier
                 .fillMaxSize()
                 .background(Yk.Canvas)
-                .statusBarsPadding()
+                .safeTopPadding()
                 .navigationBarsPadding()
                 .imePadding()
                 .verticalScroll(rememberScrollState())

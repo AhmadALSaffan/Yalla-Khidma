@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.home
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -117,7 +117,7 @@ object ClientHomeScreen : Screen {
                 .fillMaxSize()
                 .background(Yk.Canvas)
                 .verticalScroll(rememberScrollState())
-                .statusBarsPadding()
+                .safeTopPadding()
                 .padding(bottom = bottomInset + 16.dp),
         ) {
             // ── Header ─────────────────────────────────────────────────────

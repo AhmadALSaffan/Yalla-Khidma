@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.verification
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import com.yallakhedma.app.presentation.components.YkIcons
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.BorderStroke
@@ -97,7 +98,7 @@ object IdVerificationScreen : Screen {
                     .padding(padding)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = spacing.screenHorizontal)
-                    .padding(top = spacing.screenTop, bottom = spacing.lg),
+                    .safeTopPadding().padding(top = 12.dp, bottom = spacing.lg),
             ) {
                 // "Signed in as X" banner so the user knows which account is being verified
                 SignedInBanner(

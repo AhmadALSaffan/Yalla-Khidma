@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.profile
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -74,7 +74,7 @@ object ClientEditProfileScreen : Screen {
             Modifier
                 .fillMaxSize()
                 .background(Yk.Canvas)
-                .statusBarsPadding()
+                .safeTopPadding()
                 .navigationBarsPadding()
                 .imePadding()
                 .verticalScroll(rememberScrollState())

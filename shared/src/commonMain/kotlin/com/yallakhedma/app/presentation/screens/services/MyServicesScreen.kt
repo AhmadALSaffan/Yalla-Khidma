@@ -1,15 +1,10 @@
 package com.yallakhedma.app.presentation.screens.services
 
-import com.yallakhedma.app.presentation.theme.Yk
-import com.yallakhedma.app.presentation.components.YkIcons
-import androidx.compose.material3.Icon
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,140 +12,96 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import coil3.compose.AsyncImage
-import com.yallakhedma.app.domain.model.Service
-import com.yallakhedma.app.presentation.components.AppPrimaryButton
-import com.yallakhedma.app.presentation.screens.home.HomeImageAssets
+import com.yallakhedma.app.presentation.components.EmptyState
+import com.yallakhedma.app.presentation.components.LocalBottomBarInset
+import com.yallakhedma.app.presentation.components.StaggeredItem
+import com.yallakhedma.app.presentation.components.YkButton
+import com.yallakhedma.app.presentation.components.YkIcons
+import com.yallakhedma.app.presentation.components.YkTopBar
+import com.yallakhedma.app.presentation.components.safeTopPadding
+import com.yallakhedma.app.presentation.components.shimmer
+import com.yallakhedma.app.presentation.screens.common.ServiceListCard
+import com.yallakhedma.app.presentation.screens.main.LocalInTabs
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.theme.YkRadius
+import org.jetbrains.compose.resources.stringResource
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.services_add
+import yallakhidma.shared.generated.resources.services_empty_body
+import yallakhidma.shared.generated.resources.services_empty_title
+import yallakhidma.shared.generated.resources.services_subtitle
+import yallakhidma.shared.generated.resources.services_title
 
-private val Background = Color(0xFFFFFFFF)
-private val SurfaceContainerLow = Color(0xFFF2F3FF)
-private val OnSurface = Color(0xFF131B2E)
-private val OnSurfaceVariant = Color(0xFF5B4137)
-private val OutlineVariant = Color(0xFFE4BEB1)
-private val LogoOrange = Color(0xFFFF6B35)
-private val Primary = Color(0xFFA73A00)
-private val PrimaryFixed = Color(0xFFFFDBCE)
-
+/** The provider's published services (provider "My services" tab). */
 object MyServicesScreen : Screen {
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = koinScreenModel<MyServicesScreenModel>()
-        val state by screenModel.state.collectAsState()
+        val model = koinScreenModel<MyServicesScreenModel>()
+        val state by model.state.collectAsState()
+        val inTabs = LocalInTabs.current
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(bottom = 32.dp),
-        ) {
-            // Orange header with back on the right
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-                    .background(LogoOrange)
-                    .padding(start = 20.dp, end = 20.dp, top = 46.dp, bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Box(
-                        modifier = Modifier.size(40.dp).clip(CircleShape).clickable { navigator.pop() },
-                        contentAlignment = Alignment.Center,
-                    ) { Icon(YkIcons.ArrowBack, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp)) }
-                    Text("خدماتي", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Spacer(Modifier.size(40.dp))
+        Column(Modifier.fillMaxSize().background(Yk.Canvas).safeTopPadding()) {
+            Column(Modifier.padding(horizontal = 20.dp)) {
+                if (!inTabs) YkTopBar(onBack = { navigator.pop() }, modifier = Modifier.padding(top = 8.dp))
+                Spacer(Modifier.height(16.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(stringResource(Res.string.services_title), style = MaterialTheme.typography.displaySmall, color = Yk.Ink)
+                        Spacer(Modifier.height(4.dp))
+                        Text(stringResource(Res.string.services_subtitle), style = MaterialTheme.typography.bodyLarge, color = Yk.Ink2)
+                    }
                 }
-                Text(
-                    text = "الخدمات التي نشرتها (${state.services.size})",
-                    color = Color.White.copy(alpha = 0.85f),
-                    fontSize = 13.sp,
+                Spacer(Modifier.height(16.dp))
+                YkButton(
+                    text = stringResource(Res.string.services_add),
+                    onClick = { navigator.push(AddServiceScreen) },
+                    height = 50.dp,
+                    leading = { Icon(YkIcons.Plus, null, tint = Color.White, modifier = Modifier.size(18.dp)) },
                 )
+                Spacer(Modifier.height(16.dp))
             }
-
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(20.dp),
+            LazyColumn(
+                Modifier.weight(1f),
+                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = LocalBottomBarInset.current + 24.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                AppPrimaryButton(
-                    text = "+ إضافة خدمة جديدة",
-                    onClick = { navigator.push(AddServiceScreen) },
-                )
-                Spacer(Modifier.height(4.dp))
                 when {
-                    state.loading && state.services.isEmpty() ->
-                        Text("جارٍ التحميل...", color = OnSurfaceVariant, fontSize = 13.sp)
-                    state.services.isEmpty() -> Box(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
-                        contentAlignment = Alignment.Center,
-                    ) { Text("ما نشرت أي خدمة بعد", color = OnSurfaceVariant, fontSize = 14.sp) }
-                    else -> state.services.forEach { svc ->
-                        MyServiceRow(svc, onClick = { navigator.push(ServiceDetailsScreen(svc)) })
+                    state.loading -> items(3) { Box(Modifier.fillMaxWidth().height(116.dp).shimmer(YkRadius.card)) }
+                    state.services.isEmpty() -> item {
+                        EmptyState(
+                            icon = YkIcons.Briefcase,
+                            title = stringResource(Res.string.services_empty_title),
+                            body = stringResource(Res.string.services_empty_body),
+                        )
+                    }
+                    else -> itemsIndexed(state.services, key = { _, s -> s.id }) { i, svc ->
+                        StaggeredItem(i) {
+                            ServiceListCard(
+                                service = svc,
+                                onClick = { navigator.push(ServiceDetailsScreen(svc)) },
+                            )
+                        }
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun MyServiceRow(service: Service, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Background)
-            .border(BorderStroke(1.dp, OutlineVariant.copy(alpha = 0.4f)), RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick)
-            .padding(10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Box(modifier = Modifier.size(60.dp).clip(RoundedCornerShape(12.dp)).background(PrimaryFixed)) {
-            val url = HomeImageAssets.imageUrl(service.imageUrl)
-            if (url != null) {
-                AsyncImage(
-                    model = url,
-                    contentDescription = service.title,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Text(service.title, color = OnSurface, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            if (service.categoryTag.isNotBlank()) {
-                Text(service.categoryTag, color = OnSurfaceVariant, fontSize = 12.sp)
-            }
-            Text(service.priceFrom, color = Primary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-        }
-        Icon(YkIcons.ChevronForward, contentDescription = null, tint = OnSurfaceVariant, modifier = Modifier.size(18.dp))
     }
 }

@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.services
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -94,7 +94,7 @@ class ServiceDetailsScreen(private val service: Service) : Screen {
                         contentDescription = stringResource(Res.string.cd_back),
                         onClick = { navigator.pop() },
                         background = Color.White,
-                        modifier = Modifier.statusBarsPadding().padding(start = 16.dp, top = 8.dp),
+                        modifier = Modifier.safeTopPadding().padding(start = 16.dp, top = 8.dp),
                     )
                 }
 

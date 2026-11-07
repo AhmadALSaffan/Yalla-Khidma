@@ -1,20 +1,8 @@
 package com.yallakhedma.app.presentation.screens.bookings
 
-import com.yallakhedma.app.presentation.theme.Yk
-import com.yallakhedma.app.presentation.components.YkIcons
-import androidx.compose.material3.Icon
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,378 +13,107 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import coil3.compose.AsyncImage
-import com.yallakhedma.app.domain.model.ServiceRequest
-import com.yallakhedma.app.presentation.screens.bookings.ProviderBookingsScreenModel.Filter
-import com.yallakhedma.app.presentation.screens.home.HomeImageAssets
-import kotlinx.datetime.toLocalDateTime
+import com.yallakhedma.app.presentation.components.EmptyState
+import com.yallakhedma.app.presentation.components.LocalBottomBarInset
+import com.yallakhedma.app.presentation.components.YkChip
+import com.yallakhedma.app.presentation.components.YkIcons
+import com.yallakhedma.app.presentation.components.YkTopBar
+import com.yallakhedma.app.presentation.components.safeTopPadding
+import com.yallakhedma.app.presentation.components.shimmer
+import com.yallakhedma.app.presentation.screens.common.ProviderRequestCard
+import com.yallakhedma.app.presentation.screens.main.LocalInTabs
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.theme.YkRadius
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.bookings_filter_accepted
+import yallakhidma.shared.generated.resources.bookings_filter_all
+import yallakhidma.shared.generated.resources.bookings_filter_paid
+import yallakhidma.shared.generated.resources.bookings_filter_pending
+import yallakhidma.shared.generated.resources.requests_empty_body
+import yallakhidma.shared.generated.resources.requests_empty_title
+import yallakhidma.shared.generated.resources.requests_filter_rejected
+import yallakhidma.shared.generated.resources.requests_subtitle
+import yallakhidma.shared.generated.resources.requests_title
 
-private val Background = Color(0xFFFFFFFF)
-private val SurfaceContainerLow = Color(0xFFF2F3FF)
-private val OnSurface = Color(0xFF131B2E)
-private val OnSurfaceVariant = Color(0xFF5B4137)
-private val OutlineVariant = Color(0xFFE4BEB1)
-private val LogoOrange = Color(0xFFFF6B35)
-private val Primary = Color(0xFFA73A00)
-private val PrimaryFixed = Color(0xFFFFDBCE)
-private val Success = Color(0xFF10B981)
-private val Warning = Color(0xFFF59E0B)
-private val Danger = Color(0xFFEF4444)
+private val FilterLabels: Map<ProviderBookingsScreenModel.Filter, StringResource> = mapOf(
+    ProviderBookingsScreenModel.Filter.All to Res.string.bookings_filter_all,
+    ProviderBookingsScreenModel.Filter.Pending to Res.string.bookings_filter_pending,
+    ProviderBookingsScreenModel.Filter.Accepted to Res.string.bookings_filter_accepted,
+    ProviderBookingsScreenModel.Filter.Paid to Res.string.bookings_filter_paid,
+    ProviderBookingsScreenModel.Filter.Rejected to Res.string.requests_filter_rejected,
+)
 
+/** Every booking request the provider received (provider "Requests" tab). */
 object ProviderBookingsScreen : Screen {
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = koinScreenModel<ProviderBookingsScreenModel>()
-        val state by screenModel.state.collectAsState()
+        val model = koinScreenModel<ProviderBookingsScreenModel>()
+        val state by model.state.collectAsState()
+        val inTabs = LocalInTabs.current
 
-        Column(
-            modifier = Modifier.fillMaxSize().background(Background),
-        ) {
-            // Orange header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-                    .background(LogoOrange)
-                    .padding(start = 20.dp, end = 20.dp, top = 46.dp, bottom = 24.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Box(
-                    modifier = Modifier.size(40.dp).clip(CircleShape).clickable { navigator.pop() },
-                    contentAlignment = Alignment.Center,
-                ) { Icon(YkIcons.ArrowBack, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp)) }
-                Text("إدارة الحجوزات", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.size(40.dp))
+        Column(Modifier.fillMaxSize().background(Yk.Canvas).safeTopPadding()) {
+            Column(Modifier.padding(horizontal = 20.dp)) {
+                if (!inTabs) YkTopBar(onBack = { navigator.pop() }, modifier = Modifier.padding(top = 8.dp))
+                Spacer(Modifier.height(16.dp))
+                Text(stringResource(Res.string.requests_title), style = MaterialTheme.typography.displaySmall, color = Yk.Ink)
+                Spacer(Modifier.height(4.dp))
+                Text(stringResource(Res.string.requests_subtitle), style = MaterialTheme.typography.bodyLarge, color = Yk.Ink2)
             }
-
-            // Filter chips
-            FilterRow(
-                current = state.filter,
-                counts = state.counts,
-                onPick = screenModel::setFilter,
-            )
-
-            AnimatedContent(
-                targetState = when {
-                    state.loading -> StateKind.Loading
-                    state.filtered.isEmpty() -> StateKind.Empty
-                    else -> StateKind.Content
-                },
-                transitionSpec = { fadeIn(tween(220)) togetherWith fadeOut(tween(180)) },
-                label = "bookings-state",
-                modifier = Modifier.fillMaxSize(),
-            ) { kind ->
-                when (kind) {
-                    StateKind.Loading -> Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) { CircularProgressIndicator(color = LogoOrange) }
-
-                    StateKind.Empty -> Box(
-                        modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            "ما في حجوزات بهذا الفلتر",
-                            color = OnSurfaceVariant,
-                            fontSize = 14.sp,
+            Row(
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                ProviderBookingsScreenModel.Filter.entries.forEach { f ->
+                    val count = state.counts[f] ?: 0
+                    YkChip(
+                        label = "${stringResource(FilterLabels.getValue(f))}  $count",
+                        selected = state.filter == f,
+                        onClick = { model.setFilter(f) },
+                    )
+                }
+            }
+            LazyColumn(
+                Modifier.weight(1f),
+                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = LocalBottomBarInset.current + 24.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                when {
+                    state.loading -> items(4) { Box(Modifier.fillMaxWidth().height(150.dp).shimmer(YkRadius.card)) }
+                    state.filtered.isEmpty() -> item {
+                        EmptyState(
+                            icon = YkIcons.Clipboard,
+                            title = stringResource(Res.string.requests_empty_title),
+                            body = stringResource(Res.string.requests_empty_body),
                         )
                     }
-
-                    StateKind.Content -> LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(
-                            start = 20.dp, end = 20.dp, top = 14.dp, bottom = 32.dp,
-                        ),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        items(state.filtered, key = { it.id }) { booking ->
-                            ProviderBookingCard(
-                                booking = booking,
-                                onAccept = { screenModel.accept(booking.id) },
-                                onReject = { screenModel.reject(booking.id) },
-                                modifier = Modifier.animateItem(
-                                    fadeInSpec = tween(300),
-                                    fadeOutSpec = tween(200),
-                                    placementSpec = tween(350),
-                                ),
-                            )
-                        }
+                    else -> items(state.filtered, key = { it.id }) { req ->
+                        ProviderRequestCard(
+                            request = req,
+                            onAccept = { model.accept(req.id) },
+                            onReject = { model.reject(req.id) },
+                            modifier = Modifier.animateItem(fadeInSpec = tween(240), fadeOutSpec = tween(160), placementSpec = tween(300)),
+                        )
                     }
                 }
             }
         }
     }
-}
-
-private enum class StateKind { Loading, Empty, Content }
-
-@Composable
-private fun FilterRow(
-    current: Filter,
-    counts: Map<Filter, Int>,
-    onPick: (Filter) -> Unit,
-) {
-    val items = listOf(
-        Filter.All to "الكل",
-        Filter.Pending to "قيد الانتظار",
-        Filter.Accepted to "مقبول",
-        Filter.Paid to "مدفوع",
-        Filter.Rejected to "مرفوض",
-    )
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        items(items, key = { it.first }) { (filter, label) ->
-            val selected = filter == current
-            val count = counts[filter] ?: 0
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(if (selected) LogoOrange else SurfaceContainerLow)
-                    .clickable { onPick(filter) }
-                    .padding(horizontal = 14.dp, vertical = 8.dp),
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Text(
-                        label,
-                        color = if (selected) Color.White else OnSurface,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    if (count > 0) {
-                        Box(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .background(if (selected) Color.White.copy(alpha = 0.25f) else Primary.copy(alpha = 0.1f))
-                                .padding(horizontal = 6.dp, vertical = 1.dp),
-                        ) {
-                            Text(
-                                count.toString(),
-                                color = if (selected) Color.White else Primary,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ProviderBookingCard(
-    booking: ServiceRequest,
-    onAccept: () -> Unit,
-    onReject: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(SurfaceContainerLow)
-            .border(BorderStroke(1.dp, OutlineVariant.copy(alpha = 0.3f)), RoundedCornerShape(16.dp))
-            .padding(14.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        // Top row — client + service + status
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            // Avatar (client photo or initial)
-            Box(
-                modifier = Modifier.size(44.dp).clip(CircleShape).background(PrimaryFixed),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    booking.clientName.firstOrNull()?.toString() ?: "؟",
-                    color = Primary,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-                val url = HomeImageAssets.imageUrl(booking.clientPhotoUrl)
-                if (url != null) {
-                    AsyncImage(
-                        model = url,
-                        contentDescription = booking.clientName,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize().clip(CircleShape),
-                    )
-                }
-            }
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(
-                    booking.serviceTitle.ifBlank { "خدمة" },
-                    color = OnSurface,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-                Text(
-                    booking.clientName.ifBlank { "عميل" },
-                    color = OnSurfaceVariant,
-                    fontSize = 12.sp,
-                )
-            }
-            Crossfade(
-                targetState = statusKey(booking),
-                animationSpec = tween(280),
-                label = "status-chip",
-            ) { key ->
-                StatusChip(key)
-            }
-        }
-
-        // Proposed price + date
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (booking.proposedPrice > 0.0) {
-                Text(
-                    "عرض العميل: ${formatMoney(booking.proposedPrice)} ${booking.currency}",
-                    color = Primary,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            } else {
-                Spacer(Modifier.size(1.dp))
-            }
-            Text(formatDate(booking.createdAt), color = OnSurfaceVariant, fontSize = 11.sp)
-        }
-
-        // Actions — only when pending
-        AnimatedVisibility(
-            visible = booking.status == ServiceRequest.STATUS_PENDING,
-            enter = fadeIn(tween(220)) + slideInVertically(tween(220)) { it / 2 },
-            exit = fadeOut(tween(160)),
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(40.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(LogoOrange)
-                        .clickable(onClick = onAccept),
-                    contentAlignment = Alignment.Center,
-                ) { Text("قبول", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) }
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(40.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .border(BorderStroke(1.dp, OutlineVariant), RoundedCornerShape(10.dp))
-                        .clickable(onClick = onReject),
-                    contentAlignment = Alignment.Center,
-                ) { Text("رفض", color = OnSurface, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) }
-            }
-        }
-
-        // Paid badge (when paid)
-        AnimatedVisibility(
-            visible = booking.paid,
-            enter = fadeIn(tween(220)) + slideInVertically(tween(220)) { it / 2 },
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Success.copy(alpha = 0.10f))
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(
-                    "تم الدفع",
-                    color = Success,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                if (booking.paymentMethodLast4.isNotBlank()) {
-                    Text(
-                        "•••• ${booking.paymentMethodLast4}",
-                        color = OnSurface,
-                        fontSize = 12.sp,
-                    )
-                }
-            }
-        }
-    }
-}
-
-private enum class StatusKey { Pending, Accepted, Rejected, Paid }
-
-private fun statusKey(b: ServiceRequest): StatusKey = when {
-    b.paid -> StatusKey.Paid
-    b.status == ServiceRequest.STATUS_ACCEPTED -> StatusKey.Accepted
-    b.status == ServiceRequest.STATUS_REJECTED -> StatusKey.Rejected
-    else -> StatusKey.Pending
-}
-
-@Composable
-private fun StatusChip(key: StatusKey) {
-    val (label, bg, fg) = when (key) {
-        StatusKey.Paid -> Triple("مدفوع", Success.copy(alpha = 0.12f), Success)
-        StatusKey.Accepted -> Triple("مقبول", Success.copy(alpha = 0.12f), Success)
-        StatusKey.Rejected -> Triple("مرفوض", Danger.copy(alpha = 0.12f), Danger)
-        StatusKey.Pending -> Triple("قيد الانتظار", Warning.copy(alpha = 0.15f), Warning)
-    }
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(bg)
-            .padding(horizontal = 10.dp, vertical = 4.dp),
-    ) {
-        Text(label, color = fg, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
-    }
-}
-
-private fun formatMoney(amount: Double): String {
-    val r = (amount * 100).toLong() / 100.0
-    return if (r % 1.0 == 0.0) r.toLong().toString() else r.toString()
-}
-
-private fun formatDate(epochMillis: Long): String {
-    if (epochMillis <= 0L) return ""
-    val dt = kotlinx.datetime.Instant.fromEpochMilliseconds(epochMillis)
-        .toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault())
-    val mm = dt.monthNumber.toString().padStart(2, '0')
-    val dd = dt.dayOfMonth.toString().padStart(2, '0')
-    val hh = dt.hour.toString().padStart(2, '0')
-    val mn = dt.minute.toString().padStart(2, '0')
-    return "${dt.year}-$mm-$dd  $hh:$mn"
 }

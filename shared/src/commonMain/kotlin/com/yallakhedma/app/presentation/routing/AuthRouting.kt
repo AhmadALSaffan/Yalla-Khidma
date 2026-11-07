@@ -7,7 +7,7 @@ import com.yallakhedma.app.domain.model.VerificationStatus
 import com.yallakhedma.app.presentation.screens.auth.otp.OtpScreen
 import com.yallakhedma.app.presentation.screens.auth.usertype.UserTypeSelectionScreen
 import com.yallakhedma.app.presentation.screens.auth.welcome.WelcomeScreen
-import com.yallakhedma.app.presentation.screens.dashboard.ProviderDashboardScreen
+import com.yallakhedma.app.presentation.screens.main.ProviderMainScreen
 import com.yallakhedma.app.presentation.screens.main.ClientMainScreen
 import com.yallakhedma.app.presentation.screens.provider_setup.ProviderProfileSetupScreen
 import com.yallakhedma.app.presentation.screens.verification.IdVerificationScreen
@@ -31,7 +31,7 @@ fun destinationForUser(user: User?): Screen = when {
         VerificationStatus.Pending -> WaitingForVerificationScreen
         // Verified providers fill their profile once, then reach their dashboard.
         VerificationStatus.Approved ->
-            if (user.providerProfileCompleted) ProviderDashboardScreen
+            if (user.providerProfileCompleted) ProviderMainScreen
             else ProviderProfileSetupScreen
     }
     else -> ClientMainScreen

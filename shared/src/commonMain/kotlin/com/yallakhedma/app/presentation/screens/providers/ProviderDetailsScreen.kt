@@ -1,5 +1,6 @@
 package com.yallakhedma.app.presentation.screens.providers
 
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -123,7 +123,7 @@ class ProviderDetailsScreen(private val initial: Provider) : Screen {
                             onClick = { navigator.pop() },
                             background = Color.White.copy(alpha = 0.22f),
                             tint = Color.White,
-                            modifier = Modifier.statusBarsPadding().padding(start = 16.dp, top = 8.dp),
+                            modifier = Modifier.safeTopPadding().padding(start = 16.dp, top = 8.dp),
                         )
                     }
                     Box(
