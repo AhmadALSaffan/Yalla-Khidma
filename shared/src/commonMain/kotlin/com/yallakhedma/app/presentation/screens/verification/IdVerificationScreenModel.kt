@@ -1,5 +1,12 @@
 package com.yallakhedma.app.presentation.screens.verification
 
+import com.yallakhedma.app.presentation.i18n.UiText
+import com.yallakhedma.app.presentation.i18n.toUiText
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.error_doc_required
+import yallakhidma.shared.generated.resources.error_doc_too_big
+import yallakhidma.shared.generated.resources.error_doc_upload
+import yallakhidma.shared.generated.resources.error_not_signed_in
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.yallakhedma.app.data.datasource.FirebaseAuthDataSource
@@ -35,12 +42,12 @@ class IdVerificationScreenModel(
         val bytes = s.pickedBytes
         val mime = s.pickedMimeType ?: "image/jpeg"
         if (bytes == null) {
-            _state.update { it.copy(error = "اختر صورة الوثيقة أولاً") }
+            _state.update { it.copy(error = UiText.of(Res.string.error_doc_required)) }
             return
         }
         val uid = authDataSource.currentUid()
         if (uid == null) {
-            _state.update { it.copy(error = "لا يوجد مستخدم مسجّل") }
+            _state.update { it.copy(error = UiText.of(Res.string.error_not_signed_in)) }
             return
         }
         screenModelScope.launch {
@@ -56,7 +63,10 @@ class IdVerificationScreenModel(
                     it.copy(isUploading = false, submitted = true)
                 }
                 is DataResult.Error -> _state.update {
-                    it.copy(isUploading = false, error = result.message)
+                    it.copy(
+                        isUploading = false,
+                        error = UiText.of(if (result.message.contains("5")) Res.string.error_doc_too_big else Res.string.error_doc_upload),
+                    )
                 }
                 DataResult.Loading -> Unit
             }

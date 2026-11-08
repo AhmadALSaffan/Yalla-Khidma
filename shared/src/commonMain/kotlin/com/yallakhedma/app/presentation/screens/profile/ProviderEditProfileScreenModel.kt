@@ -1,5 +1,12 @@
 package com.yallakhedma.app.presentation.screens.profile
 
+import com.yallakhedma.app.presentation.i18n.UiText
+import com.yallakhedma.app.presentation.i18n.toUiText
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.error_city_required
+import yallakhidma.shared.generated.resources.error_not_signed_in
+import yallakhidma.shared.generated.resources.error_photo_upload
+import yallakhidma.shared.generated.resources.error_profession_required
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.yallakhedma.app.data.datasource.StorageImagesDataSource
@@ -56,17 +63,17 @@ class ProviderEditProfileScreenModel(
     fun onCompletedJobs(v: String) = _state.update { it.copy(completedJobs = v.filter { c -> c.isDigit() }, error = null) }
     fun onServices(v: String) = _state.update { it.copy(servicesText = v, error = null) }
 
-    fun uploadPhoto(bytes: ByteArray) {
+    fun uploadPhoto(bytes: ByteArray, mimeType: String = "image/jpeg") {
         screenModelScope.launch {
             _state.update { it.copy(photoUploading = true, error = null) }
             val uid = authRepository.currentUid()
             if (uid == null) {
-                _state.update { it.copy(photoUploading = false, error = "لا يوجد مستخدم") }
+                _state.update { it.copy(photoUploading = false, error = UiText.of(Res.string.error_not_signed_in)) }
                 return@launch
             }
-            val url = runCatching { storageDataSource.uploadProviderPhoto(uid, bytes) }.getOrNull()
+            val url = runCatching { storageDataSource.uploadProviderPhoto(uid, bytes, mimeType) }.getOrNull()
             if (url == null) {
-                _state.update { it.copy(photoUploading = false, error = "تعذّر رفع الصورة") }
+                _state.update { it.copy(photoUploading = false, error = UiText.of(Res.string.error_photo_upload)) }
             } else {
                 _state.update { it.copy(photoUploading = false, photoUrl = url) }
             }
@@ -75,13 +82,13 @@ class ProviderEditProfileScreenModel(
 
     fun submit() {
         val s = state.value
-        if (s.profession.isBlank()) { _state.update { it.copy(error = "المهنة مطلوبة") }; return }
-        if (s.city.isBlank()) { _state.update { it.copy(error = "المدينة مطلوبة") }; return }
+        if (s.profession.isBlank()) { _state.update { it.copy(error = UiText.of(Res.string.error_profession_required)) }; return }
+        if (s.city.isBlank()) { _state.update { it.copy(error = UiText.of(Res.string.error_city_required)) }; return }
         screenModelScope.launch {
             _state.update { it.copy(isSaving = true, error = null) }
             val uid = authRepository.currentUid()
             if (uid == null) {
-                _state.update { it.copy(isSaving = false, error = "لا يوجد مستخدم") }
+                _state.update { it.copy(isSaving = false, error = UiText.of(Res.string.error_not_signed_in)) }
                 return@launch
             }
             val existing = providerRepository.observeById(uid).firstOrNull()
@@ -100,7 +107,7 @@ class ProviderEditProfileScreenModel(
             )
             when (val r = providerRepository.saveProfile(provider)) {
                 is DataResult.Success -> _state.update { it.copy(isSaving = false, saved = true) }
-                is DataResult.Error -> _state.update { it.copy(isSaving = false, error = r.message) }
+                is DataResult.Error -> _state.update { it.copy(isSaving = false, error = r.toUiText()) }
                 DataResult.Loading -> Unit
             }
         }
@@ -119,6 +126,6 @@ class ProviderEditProfileScreenModel(
         val loaded: Boolean = false,
         val isSaving: Boolean = false,
         val saved: Boolean = false,
-        val error: String? = null,
+        val error: UiText? = null,
     )
 }

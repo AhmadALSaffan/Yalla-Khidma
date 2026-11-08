@@ -1,20 +1,34 @@
 package com.yallakhedma.app.presentation.screens.splash
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.graphicsLayer
+import com.yallakhedma.app.data.local.AppPreferences
+import com.yallakhedma.app.presentation.components.BrandMark
+import com.yallakhedma.app.presentation.screens.onboarding.OnboardingScreen
+import com.yallakhedma.app.presentation.theme.Yk
+import org.jetbrains.compose.resources.stringResource
+import yallakhidma.shared.generated.resources.app_name
+import yallakhidma.shared.generated.resources.app_tagline
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
@@ -24,11 +38,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -45,16 +58,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import yallakhidma.shared.generated.resources.Res
-import yallakhidma.shared.generated.resources.icon
-
-// Stitch splash palette (orange gradient brand screen).
-private val Primary = Color(0xFFA73A00)
-private val PrimaryContainer = Color(0xFFFF5C00)
-private val OnPrimaryContainer = Color(0xFF521800)
-private val PrimaryFixed = Color(0xFFFFDBCE)
 
 object SplashScreen : Screen {
 
@@ -64,6 +69,7 @@ object SplashScreen : Screen {
         val authRepository = koinInject<AuthRepository>()
         val categoryRepository = koinInject<CategoryRepository>()
         val platformContext = LocalPlatformContext.current
+        val prefs = koinInject<AppPreferences>()
 
         LaunchedEffect(Unit) {
             // Warm Coil's cache while the splash is showing, so images appear
@@ -106,53 +112,16 @@ object SplashScreen : Screen {
             // Give the image preloads a brief window to finish (they've been
             // running during the splash delay already). Capped so a slow image
             // never blocks the user on the splash.
-            withTimeoutOrNull(PRELOAD_TIMEOUT_MS) { preloadJobs.joinAll() }
+            // Signed-out users go to onboarding/welcome, which shows none of
+            // these images — don't hold them on the splash.
+            if (user != null) withTimeoutOrNull(PRELOAD_TIMEOUT_MS) { preloadJobs.joinAll() }
 
-            navigator.replaceAll(destinationForUser(user))
+            navigator.replaceAll(
+                if (user == null && !prefs.onboardingSeen) OnboardingScreen else destinationForUser(user),
+            )
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.linearGradient(colors = listOf(Primary, PrimaryContainer)),
-                ),
-            contentAlignment = Alignment.Center,
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // Logo in a white circle
-                Box(
-                    modifier = Modifier
-                        .size(160.dp)
-                        .clip(CircleShape)
-                        .background(Color.White),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Image(
-                        painter = painterResource(Res.drawable.icon),
-                        contentDescription = "شعار يلّا خِدمة",
-                        modifier = Modifier.size(128.dp),
-                    )
-                }
-
-                Spacer(Modifier.height(32.dp))
-                Text(
-                    text = "يلّا خِدمة",
-                    color = OnPrimaryContainer,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-
-                Spacer(Modifier.height(32.dp))
-                BouncingDots()
-                Spacer(Modifier.height(12.dp))
-                Text(
-                    text = "نجهز لك أفضل الخدمات...",
-                    color = PrimaryFixed,
-                    fontSize = 16.sp,
-                )
-            }
-        }
+        SplashContent()
     }
 
     private const val SPLASH_DURATION_MS = 2000L
@@ -162,25 +131,97 @@ object SplashScreen : Screen {
 }
 
 @Composable
-private fun BouncingDots() {
-    val transition = rememberInfiniteTransition(label = "dots")
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        repeat(3) { index ->
-            val offsetY by transition.animateFloat(
-                initialValue = 0f,
-                targetValue = -8f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 500, delayMillis = index * 100),
-                    repeatMode = RepeatMode.Reverse,
+private fun SplashContent() {
+    // Entrance choreography: mark springs in → wordmark rises → tagline fades → loader.
+    val mark = remember { Animatable(0f) }
+    val words = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        launch { mark.animateTo(1f, spring(dampingRatio = 0.55f, stiffness = 220f)) }
+        delay(260)
+        words.animateTo(1f, tween(520, easing = FastOutSlowInEasing))
+    }
+    val glow = rememberInfiniteTransition(label = "splash-glow")
+    val pulse by glow.animateFloat(
+        initialValue = 0.85f,
+        targetValue = 1.1f,
+        animationSpec = infiniteRepeatable(tween(1400, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+        label = "pulse",
+    )
+    val sweep by glow.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(1300, easing = LinearEasing)),
+        label = "sweep",
+    )
+
+    Box(
+        modifier = Modifier.fillMaxSize().background(Yk.Canvas),
+        contentAlignment = Alignment.Center,
+    ) {
+        // Soft brand glow behind the mark.
+        Box(
+            modifier = Modifier
+                .size(260.dp)
+                .graphicsLayer { scaleX = pulse * mark.value; scaleY = pulse * mark.value; alpha = 0.9f }
+                .background(
+                    Brush.radialGradient(listOf(Yk.OrangeTint, Yk.OrangeSoft.copy(alpha = 0.4f), Color.Transparent)),
+                    CircleShape,
                 ),
-                label = "dot$index",
-            )
+        )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box(
                 modifier = Modifier
-                    .offset(y = offsetY.dp)
-                    .size(8.dp)
+                    .graphicsLayer {
+                        scaleX = 0.6f + 0.4f * mark.value
+                        scaleY = 0.6f + 0.4f * mark.value
+                        alpha = mark.value.coerceIn(0f, 1f)
+                    }
+                    .size(136.dp)
+                    .shadow(20.dp, CircleShape, ambientColor = Yk.Orange.copy(alpha = 0.4f), spotColor = Yk.Orange.copy(alpha = 0.4f))
+                    .background(Color.White, CircleShape)
+                    .clip(CircleShape),
+                contentAlignment = Alignment.Center,
+            ) { BrandMark(size = 104.dp) }
+            Spacer(Modifier.height(20.dp))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.graphicsLayer {
+                    alpha = words.value
+                    translationY = (1f - words.value) * 24.dp.toPx()
+                },
+            ) {
+                Text(
+                    text = stringResource(Res.string.app_name),
+                    style = MaterialTheme.typography.displaySmall,
+                    color = Yk.Ink,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = stringResource(Res.string.app_tagline),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Yk.Ink2,
+                )
+            }
+        }
+        // Indeterminate brand loader at the bottom.
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = 56.dp)
+                .width(72.dp)
+                .height(4.dp)
+                .clip(CircleShape)
+                .background(Yk.OrangeSoft)
+                .graphicsLayer { alpha = words.value },
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(28.dp)
+                    .graphicsLayer { translationX = (sweep * 100.dp.toPx()) - 28.dp.toPx() }
                     .clip(CircleShape)
-                    .background(OnPrimaryContainer),
+                    .background(Yk.Orange),
             )
         }
     }

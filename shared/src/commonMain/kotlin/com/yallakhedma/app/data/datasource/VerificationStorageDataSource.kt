@@ -1,17 +1,13 @@
 package com.yallakhedma.app.data.datasource
 
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.storage.Data
-import dev.gitlive.firebase.storage.storage
+import com.yallakhedma.app.data.remote.OpeninaryClient
 
-class VerificationStorageDataSource {
+class VerificationStorageDataSource(private val openinary: OpeninaryClient) {
 
     /**
-     * Uploads bytes to `verifications/{userId}/id_document` and returns the download URL.
+     * Uploads the ID document image and returns its URL. The file name is a
+     * random UUID so the (public) Openinary URL can't be guessed.
      */
-    suspend fun uploadIdDocument(userId: String, bytes: ByteArray): String {
-        val ref = Firebase.storage.reference("verifications/$userId/id_document")
-        ref.putData(Data(bytes))
-        return ref.getDownloadUrl()
-    }
+    suspend fun uploadIdDocument(userId: String, bytes: ByteArray, mimeType: String = "image/jpeg"): String =
+        openinary.uploadImage(bytes, folder = "verifications/$userId", mimeType = mimeType)
 }

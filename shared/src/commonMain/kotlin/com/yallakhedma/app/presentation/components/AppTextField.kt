@@ -1,22 +1,15 @@
 package com.yallakhedma.app.presentation.components
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.foundation.text.KeyboardOptions
 
+/**
+ * Legacy entry point — delegates to the design-system [YkTextField].
+ * Emails, passwords and numbers stay left-to-right; free text follows the
+ * app language direction.
+ */
 @Composable
 fun AppTextField(
     value: String,
@@ -32,31 +25,23 @@ fun AppTextField(
     singleLine: Boolean = true,
     visualTransformation: VisualTransformation? = null,
 ) {
-    // Force LTR text editing. LayoutDirection.Ltr alone isn't enough — the
-    // OutlinedTextField's internal BasicTextField follows TextStyle.textDirection
-    // for caret position and typed-character flow. We must override both.
-    val ltrStyle = LocalTextStyle.current.copy(
-        textDirection = TextDirection.Ltr,
-        textAlign = TextAlign.Start,
+    val ltr = isPassword || keyboardType in setOf(
+        KeyboardType.Email, KeyboardType.Password, KeyboardType.Number,
+        KeyboardType.Phone, KeyboardType.Decimal, KeyboardType.NumberPassword, KeyboardType.Uri,
     )
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = modifier.fillMaxWidth(),
-            label = { Text(label) },
-            placeholder = placeholder?.let { { Text(it) } },
-            isError = isError,
-            singleLine = singleLine,
-            textStyle = ltrStyle,
-            shape = MaterialTheme.shapes.extraLarge,
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-            visualTransformation = when {
-                isPassword && !passwordVisible -> PasswordVisualTransformation()
-                visualTransformation != null -> visualTransformation
-                else -> VisualTransformation.None
-            },
-            trailingIcon = trailingIcon,
-        )
-    }
+    YkTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        label = label,
+        placeholder = placeholder,
+        isError = isError,
+        keyboardType = keyboardType,
+        isPassword = isPassword,
+        passwordVisible = passwordVisible,
+        trailing = trailingIcon,
+        singleLine = singleLine,
+        forceLtr = ltr,
+        visualTransformation = visualTransformation,
+    )
 }

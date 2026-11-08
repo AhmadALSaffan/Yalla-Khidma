@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -7,6 +8,43 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.sqldelight)
+}
+
+// ── Openinary (image hosting) keys ──────────────────────────────────────────
+// Read from the git-ignored local.properties and compiled into an internal
+// Kotlin object, so the API key never lands in the repository:
+//   openinary.apiKey=oik_...
+//   openinary.baseUrl=https://cdn.openinary.dev   (optional)
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+val openinaryApiKey: String = localProps.getProperty("openinary.apiKey", "").trim()
+val openinaryBaseUrl: String = localProps.getProperty("openinary.baseUrl", "https://cdn.openinary.dev").trim().trimEnd('/')
+val openinaryGenDir = layout.buildDirectory.dir("generated/openinary/kotlin")
+val generateOpeninaryKeys by tasks.registering {
+    inputs.property("apiKey", openinaryApiKey)
+    inputs.property("baseUrl", openinaryBaseUrl)
+    outputs.dir(openinaryGenDir)
+    val outDir = openinaryGenDir
+    val key = openinaryApiKey
+    val base = openinaryBaseUrl
+    doLast {
+        fun esc(v: String) = v.replace("\\", "\\\\").replace("\"", "\\\"").replace("$", "\${'$'}")
+        val dir = outDir.get().asFile.resolve("com/yallakhedma/app/config")
+        dir.mkdirs()
+        dir.resolve("OpeninaryKeys.kt").writeText(
+            """
+            |// GENERATED from local.properties — do not edit or commit.
+            |package com.yallakhedma.app.config
+            |
+            |internal object OpeninaryKeys {
+            |    const val API_KEY: String = "${esc(key)}"
+            |    const val BASE_URL: String = "${esc(base)}"
+            |}
+            |""".trimMargin(),
+        )
+    }
 }
 
 kotlin {
@@ -56,6 +94,9 @@ kotlin {
             implementation(libs.google.identity.googleid)
             // OTP email is sent server-side now (Cloud Functions) — the client
             // no longer needs JavaMail/SMTP.
+        }
+        commonMain {
+            kotlin.srcDir(generateOpeninaryKeys)
         }
         commonMain.dependencies {
             // Compose Multiplatform

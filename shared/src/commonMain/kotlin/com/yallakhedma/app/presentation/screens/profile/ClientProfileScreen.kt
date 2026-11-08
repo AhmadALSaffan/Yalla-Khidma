@@ -1,8 +1,7 @@
 package com.yallakhedma.app.presentation.screens.profile
 
-import androidx.compose.foundation.BorderStroke
+import com.yallakhedma.app.presentation.components.safeTopPadding
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -17,13 +16,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.Image
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,246 +31,208 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.yallakhedma.app.presentation.screens.auth.login.LoginScreen
+import com.yallakhedma.app.presentation.components.Avatar
+import com.yallakhedma.app.presentation.components.LocalBottomBarInset
+import com.yallakhedma.app.presentation.components.RemoteImage
+import com.yallakhedma.app.presentation.components.YkIcons
+import com.yallakhedma.app.presentation.components.YkTopBar
+import com.yallakhedma.app.presentation.components.ykCard
+import com.yallakhedma.app.presentation.i18n.LanguageManager
 import com.yallakhedma.app.presentation.screens.bookings.MyBookingsScreen
+import com.yallakhedma.app.presentation.screens.main.ClientMainScreen
+import com.yallakhedma.app.presentation.screens.main.LocalInTabs
+import com.yallakhedma.app.presentation.screens.main.LocalTabController
 import com.yallakhedma.app.presentation.screens.payment.PaymentMethodsScreen
-import org.jetbrains.compose.resources.DrawableResource
-import org.jetbrains.compose.resources.painterResource
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.theme.YkRadius
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import yallakhidma.shared.generated.resources.Res
-import yallakhidma.shared.generated.resources.visamaster
-import yallakhidma.shared.generated.resources.ic_profile_about
-import yallakhidma.shared.generated.resources.ic_profile_bookings
-import yallakhidma.shared.generated.resources.ic_profile_edit
-import yallakhidma.shared.generated.resources.ic_profile_language
-import yallakhidma.shared.generated.resources.ic_profile_notifications
-import yallakhidma.shared.generated.resources.ic_profile_support
+import yallakhidma.shared.generated.resources.profile_about
+import yallakhidma.shared.generated.resources.profile_bookings
+import yallakhidma.shared.generated.resources.profile_client_badge
+import yallakhidma.shared.generated.resources.profile_edit
+import yallakhidma.shared.generated.resources.profile_help
+import yallakhidma.shared.generated.resources.profile_notifications
+import yallakhidma.shared.generated.resources.profile_payment
+import yallakhidma.shared.generated.resources.profile_section_account
+import yallakhidma.shared.generated.resources.profile_section_prefs
+import yallakhidma.shared.generated.resources.profile_section_support
+import yallakhidma.shared.generated.resources.profile_sign_out
+import yallakhidma.shared.generated.resources.profile_soon
+import yallakhidma.shared.generated.resources.profile_title
+import yallakhidma.shared.generated.resources.profile_version
+import yallakhidma.shared.generated.resources.settings_language
 
-private val Background = Color(0xFFFFFFFF)
-private val SurfaceContainerLow = Color(0xFFF2F3FF)
-private val OnSurface = Color(0xFF131B2E)
-private val OnSurfaceVariant = Color(0xFF5B4137)
-private val OutlineVariant = Color(0xFFE4BEB1)
-private val LogoOrange = Color(0xFFFF6B35)
-private val Primary = Color(0xFFA73A00)
-private val PrimaryContainer = Color(0xFFFF5C00)
-private val PrimaryFixed = Color(0xFFFFDBCE)
-private val Danger = Color(0xFFEF4444)
-
+/** Client profile & settings (tab content of [ClientMainScreen]). */
 object ClientProfileScreen : Screen {
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = koinScreenModel<ClientProfileScreenModel>()
-        val state by screenModel.state.collectAsState()
+        val model = koinScreenModel<ClientProfileScreenModel>()
+        val state by model.state.collectAsState()
+        val languageManager = koinInject<LanguageManager>()
+        val language by languageManager.language.collectAsState()
+        val inTabs = LocalInTabs.current
+        val tabs = LocalTabController.current
         val user = state.user
-
-        // After signing out the user goes null — route to login.
-        var hadUser by remember { mutableStateOf(false) }
-        LaunchedEffect(user) {
-            if (user != null) hadUser = true
-            else if (hadUser) navigator.replaceAll(LoginScreen)
-        }
-
-        var showAvatarPreview by remember { mutableStateOf(false) }
-        val photoUrl = user?.photoUrl?.takeIf { it.isNotBlank() }
-            ?.let { com.yallakhedma.app.presentation.screens.home.HomeImageAssets.imageUrl(it) }
+        var preview by remember { mutableStateOf(false) }
+        // Signed-out routing is handled by ClientMainScreen.
 
         Column(
-            modifier = Modifier
+            Modifier
                 .fillMaxSize()
-                .background(Background)
+                .background(Yk.Fill)
                 .verticalScroll(rememberScrollState())
-                .padding(bottom = 32.dp),
+                .safeTopPadding()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = LocalBottomBarInset.current + 24.dp),
         ) {
-            // Orange hero header
-            Column(
-                modifier = Modifier
+            if (!inTabs) YkTopBar(onBack = { navigator.pop() }, modifier = Modifier.padding(top = 8.dp))
+            Spacer(Modifier.height(16.dp))
+            Text(stringResource(Res.string.profile_title), style = MaterialTheme.typography.displaySmall, color = Yk.Ink)
+            Spacer(Modifier.height(20.dp))
+
+            // Identity card
+            Row(
+                Modifier.fillMaxWidth().ykCard(elevation = 4.dp).padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+            ) {
+                Avatar(
+                    name = user?.name.orEmpty(),
+                    photo = user?.photoUrl,
+                    size = 64.dp,
+                    ring = Yk.OrangeTint,
+                    modifier = Modifier.pointerInput(user?.photoUrl) {
+                        if (!user?.photoUrl.isNullOrBlank()) detectTapGestures(onLongPress = { preview = true })
+                    },
+                )
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(user?.name ?: "—", style = MaterialTheme.typography.titleLarge, color = Yk.Ink)
+                    user?.email?.takeIf { it.isNotBlank() }?.let {
+                        Text(it, style = MaterialTheme.typography.bodySmall, color = Yk.Ink2)
+                    }
+                    Text(
+                        stringResource(Res.string.profile_client_badge),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Yk.OrangeDeep,
+                        modifier = Modifier.padding(top = 4.dp).clip(YkRadius.pill).background(Yk.OrangeSoft).padding(horizontal = 10.dp, vertical = 3.dp),
+                    )
+                }
+                Box(
+                    Modifier.size(40.dp).clip(CircleShape).background(Yk.Fill).clickable(role = Role.Button) { navigator.push(ClientEditProfileScreen) },
+                    contentAlignment = Alignment.Center,
+                ) { Icon(YkIcons.Edit, stringResource(Res.string.profile_edit), tint = Yk.Ink, modifier = Modifier.size(18.dp)) }
+            }
+
+            MenuGroup(stringResource(Res.string.profile_section_account)) {
+                MenuItem(YkIcons.User, stringResource(Res.string.profile_edit)) { navigator.push(ClientEditProfileScreen) }
+                MenuItem(YkIcons.CalendarCheck, stringResource(Res.string.profile_bookings)) {
+                    // MyBookingsScreen is a tab — switch to it rather than pushing the same screen.
+                    tabs?.select(ClientMainScreen.TAB_BOOKINGS) ?: navigator.push(MyBookingsScreen)
+                }
+                MenuItem(YkIcons.CreditCard, stringResource(Res.string.profile_payment), last = true) { navigator.push(PaymentMethodsScreen) }
+            }
+
+            MenuGroup(stringResource(Res.string.profile_section_prefs)) {
+                MenuItem(YkIcons.Globe, stringResource(Res.string.settings_language), trailing = language.nativeName) { languageManager.toggle() }
+                MenuItem(YkIcons.Bell, stringResource(Res.string.profile_notifications), badge = stringResource(Res.string.profile_soon), last = true) {}
+            }
+
+            MenuGroup(stringResource(Res.string.profile_section_support)) {
+                MenuItem(YkIcons.HelpCircle, stringResource(Res.string.profile_help), badge = stringResource(Res.string.profile_soon)) {}
+                MenuItem(YkIcons.Info, stringResource(Res.string.profile_about), trailing = "1.0", last = true) {}
+            }
+
+            Spacer(Modifier.height(20.dp))
+            Row(
+                Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
-                    .background(LogoOrange)
-                    .padding(start = 20.dp, end = 20.dp, top = 46.dp, bottom = 30.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                    .clip(YkRadius.card)
+                    .background(Yk.DangerSoft)
+                    .clickable(role = Role.Button, onClick = model::signOut)
+                    .padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Box(
-                        modifier = Modifier.size(40.dp).clip(CircleShape).clickable { navigator.pop() },
-                        contentAlignment = Alignment.Center,
-                    ) { Text("→", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold) }
-                    Text("حسابي", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Spacer(Modifier.size(40.dp))
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(72.dp)
-                            .clip(CircleShape)
-                            .background(Color.White)
-                            .pointerInput(photoUrl) {
-                                if (photoUrl != null) {
-                                    detectTapGestures(onLongPress = { showAvatarPreview = true })
-                                }
-                            },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = user?.name?.firstOrNull()?.toString() ?: "؟",
-                            color = Primary,
-                            fontSize = 30.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        if (photoUrl != null) {
-                            coil3.compose.AsyncImage(
-                                model = photoUrl,
-                                contentDescription = user?.name,
-                                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize().clip(CircleShape),
-                            )
-                        }
-                    }
-                    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text(user?.name ?: "—", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                        user?.email?.takeIf { it.isNotBlank() }?.let {
-                            Text(it, color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
-                        }
-                        user?.phone?.takeIf { it.isNotBlank() }?.let {
-                            Text(it, color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
-                        }
-                    }
-                }
+                Icon(YkIcons.LogOut, null, tint = Yk.Danger, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.size(8.dp))
+                Text(stringResource(Res.string.profile_sign_out), style = MaterialTheme.typography.titleMedium, color = Yk.Danger)
             }
-
-            Spacer(Modifier.height(24.dp))
-
-            Column(
-                modifier = Modifier.padding(horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Text("الإعدادات", color = OnSurface, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                MenuRow(Res.drawable.ic_profile_bookings, "حجوزاتي") { navigator.push(MyBookingsScreen) }
-                MenuRow(Res.drawable.ic_profile_edit, "تعديل الملف الشخصي") { navigator.push(ClientEditProfileScreen) }
-                MenuRow(Res.drawable.visamaster, "طرق الدفع", colored = true) {
-                    navigator.push(PaymentMethodsScreen)
-                }
-                MenuRow(Res.drawable.ic_profile_notifications, "الإشعارات") { }
-                MenuRow(Res.drawable.ic_profile_language, "اللغة") { }
-                MenuRow(Res.drawable.ic_profile_support, "الدعم والمساعدة") { }
-                MenuRow(Res.drawable.ic_profile_about, "حول التطبيق") { }
-
-                Spacer(Modifier.height(24.dp))
-                SignOutButton(onClick = screenModel::signOut)
-            }
-        }
-
-        if (showAvatarPreview && photoUrl != null) {
-            AvatarPreviewDialog(
-                photoUrl = photoUrl,
-                contentDescription = user?.name,
-                onDismiss = { showAvatarPreview = false },
+            Spacer(Modifier.height(12.dp))
+            Text(
+                stringResource(Res.string.profile_version, "1.0"),
+                style = MaterialTheme.typography.labelMedium,
+                color = Yk.Ink3,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
             )
         }
-    }
-}
 
-@Composable
-private fun AvatarPreviewDialog(
-    photoUrl: String,
-    contentDescription: String?,
-    onDismiss: () -> Unit,
-) {
-    Dialog(onDismissRequest = onDismiss) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable(onClick = onDismiss),
-            contentAlignment = Alignment.Center,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(280.dp)
-                    .clip(CircleShape)
-                    .background(Color.White),
-                contentAlignment = Alignment.Center,
-            ) {
-                coil3.compose.AsyncImage(
-                    model = photoUrl,
-                    contentDescription = contentDescription,
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize().clip(CircleShape),
-                )
+        val photo = user?.photoUrl
+        if (preview && !photo.isNullOrBlank()) {
+            Dialog(onDismissRequest = { preview = false }) {
+                Box(
+                    Modifier.fillMaxSize().clickable { preview = false },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    RemoteImage(photo, user.name, Modifier.size(280.dp).clip(CircleShape), placeholder = Color.White)
+                }
             }
         }
     }
 }
 
+/** A titled group of settings rows inside one card. */
 @Composable
-private fun MenuRow(icon: DrawableResource, label: String, colored: Boolean = false, onClick: () -> Unit) {
+fun MenuGroup(title: String, content: @Composable () -> Unit) {
+    Spacer(Modifier.height(24.dp))
+    Text(title, style = MaterialTheme.typography.labelLarge, color = Yk.Ink3, modifier = Modifier.padding(start = 4.dp, bottom = 8.dp))
+    Column(Modifier.fillMaxWidth().ykCard(elevation = 2.dp)) { content() }
+}
+
+/** One settings row: icon tile · label · (badge | trailing value) · chevron. */
+@Composable
+fun MenuItem(
+    icon: ImageVector,
+    label: String,
+    trailing: String? = null,
+    badge: String? = null,
+    last: Boolean = false,
+    onClick: () -> Unit,
+) {
     Row(
-        modifier = Modifier
+        Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(SurfaceContainerLow)
-            .border(BorderStroke(1.dp, OutlineVariant.copy(alpha = 0.3f)), RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick)
+            .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Box(
-            modifier = Modifier.size(38.dp).clip(CircleShape).background(PrimaryFixed.copy(alpha = 0.5f)),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (colored) {
-                // Multi-color icon (e.g. Visa + Mastercard) — keep original colors.
-                Image(
-                    painter = painterResource(icon),
-                    contentDescription = label,
-                    modifier = Modifier.size(22.dp),
-                )
-            } else {
-                Icon(
-                    painter = painterResource(icon),
-                    contentDescription = label,
-                    tint = Primary,
-                    modifier = Modifier.size(20.dp),
-                )
-            }
+        Box(Modifier.size(38.dp).clip(YkRadius.sm).background(Yk.OrangeSoft), contentAlignment = Alignment.Center) {
+            Icon(icon, null, tint = Yk.Orange, modifier = Modifier.size(19.dp))
         }
-        Text(label, color = OnSurface, fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
-        Text("‹", color = OnSurfaceVariant, fontSize = 20.sp)
+        Text(label, style = MaterialTheme.typography.titleSmall, color = Yk.Ink, modifier = Modifier.weight(1f))
+        if (badge != null) {
+            Text(
+                badge,
+                style = MaterialTheme.typography.labelSmall,
+                color = Yk.Ink2,
+                modifier = Modifier.clip(YkRadius.pill).background(Yk.Fill).padding(horizontal = 8.dp, vertical = 3.dp),
+            )
+        }
+        if (trailing != null) Text(trailing, style = MaterialTheme.typography.bodyMedium, color = Yk.Ink3)
+        Icon(YkIcons.ChevronForward, null, tint = Yk.Ink3, modifier = Modifier.size(18.dp))
     }
-}
-
-@Composable
-private fun SignOutButton(onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(Danger.copy(alpha = 0.1f))
-            .border(BorderStroke(1.dp, Danger.copy(alpha = 0.4f)), RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick)
-            .padding(vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        Text("تسجيل الخروج", color = Danger, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-    }
+    if (!last) HorizontalDivider(Modifier.padding(start = 64.dp), color = Yk.Line)
 }

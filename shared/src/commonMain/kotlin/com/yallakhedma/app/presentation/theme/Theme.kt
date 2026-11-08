@@ -8,31 +8,36 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import com.yallakhedma.app.presentation.i18n.AppLanguage
 
 private val LightColors = lightColorScheme(
-    primary = Primary,
+    primary = Yk.Orange,
     onPrimary = Color.White,
-    primaryContainer = PrimaryLight,
-    onPrimaryContainer = Color.White,
-    secondary = Primary,
+    primaryContainer = Yk.OrangeTint,
+    onPrimaryContainer = Yk.OrangeDeep,
+    secondary = Yk.Night,
     onSecondary = Color.White,
-    background = BgLight,
-    onBackground = TextPrimaryLight,
-    surface = SurfaceLight,
-    onSurface = TextPrimaryLight,
-    surfaceVariant = CardLight,
-    onSurfaceVariant = TextSecondaryLight,
-    error = Danger,
+    background = Yk.Canvas,
+    onBackground = Yk.Ink,
+    surface = Yk.Canvas,
+    onSurface = Yk.Ink,
+    surfaceVariant = Yk.Fill,
+    onSurfaceVariant = Yk.Ink2,
+    surfaceContainerLowest = Yk.Canvas,
+    surfaceContainerLow = Yk.Fill,
+    surfaceContainer = Yk.Fill,
+    error = Yk.Danger,
     onError = Color.White,
-    outline = BorderLight,
+    outline = Yk.LineStrong,
+    outlineVariant = Yk.Line,
 )
 
 private val DarkColors = darkColorScheme(
-    primary = Primary,
+    primary = Yk.Orange,
     onPrimary = Color.White,
     primaryContainer = PrimaryDark,
     onPrimaryContainer = Color.White,
-    secondary = Primary,
+    secondary = Yk.Orange,
     onSecondary = Color.White,
     background = BgDark,
     onBackground = TextPrimaryDark,
@@ -40,27 +45,31 @@ private val DarkColors = darkColorScheme(
     onSurface = TextPrimaryDark,
     surfaceVariant = CardDark,
     onSurfaceVariant = TextSecondaryDark,
-    error = Danger,
+    error = Yk.Danger,
     onError = Color.White,
     outline = BorderDark,
 )
 
+/**
+ * App theme. Layout direction and font family follow the selected [language]:
+ * Arabic → RTL + IBM Plex Sans Arabic, English → LTR + Inter.
+ */
 @Composable
 fun AppTheme(
-    // Forced light-only — the app's brand identity is a clean white canvas.
-    // Flip to isSystemInDarkTheme() later if dark mode is added back.
+    // Light-only by brand decision (clean white canvas). Dark palette kept for later.
     darkTheme: Boolean = false,
-    rtl: Boolean = true,
+    language: AppLanguage = AppLanguage.Arabic,
     content: @Composable () -> Unit,
 ) {
-    val direction = if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
+    val direction = if (language.isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
+    val family = if (language == AppLanguage.Arabic) ArabicFontFamily() else EnglishFontFamily()
     CompositionLocalProvider(
         LocalLayoutDirection provides direction,
         LocalSpacing provides Spacing(),
     ) {
         MaterialTheme(
             colorScheme = if (darkTheme) DarkColors else LightColors,
-            typography = AppTypography,
+            typography = appTypography(family),
             shapes = AppShapes,
             content = content,
         )

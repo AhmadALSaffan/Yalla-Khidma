@@ -35,6 +35,12 @@ interface AuthRepository {
     /** Marks the provider's profile as completed (after the setup form). */
     suspend fun markProviderProfileCompleted(): DataResult<Unit>
 
+    /**
+     * Sets the account type for a signed-in user who hasn't picked one yet
+     * (first Google/Apple sign-in). Creates the provider listing if needed.
+     */
+    suspend fun chooseUserType(type: UserType): DataResult<User>
+
     /** Updates the signed-in user's profile fields. */
     suspend fun updateUserProfile(user: User): DataResult<Unit>
 
@@ -60,6 +66,24 @@ interface AuthRepository {
         defaultUserType: UserType = UserType.Client,
     ): DataResult<User>
 
+    /** How the current account signs in — decides how to confirm identity. */
+    fun signInMethod(): SignInMethod
+
+    /** Sends Firebase's email-verification link to the signed-in user. */
+    suspend fun sendEmailVerification(languageCode: String): DataResult<Unit>
+
+    /**
+     * Reloads the Firebase user; if the email is now verified, records it on
+     * the profile (users/{uid}.emailVerified) and returns true.
+     */
+    suspend fun refreshEmailVerified(): DataResult<Boolean>
+
+    /** Re-confirms identity before sensitive actions (e.g. editing the profile). */
+    suspend fun reauthenticateWithPassword(password: String): DataResult<Unit>
+    suspend fun reauthenticateWithGoogle(idToken: String): DataResult<Unit>
+
     // TODO: phone OTP. Phone auth needs platform-specific wiring (Android: Activity context
     // for PhoneAuthProvider; iOS: APNs via Firebase).
 }
+
+enum class SignInMethod { Password, Google, Other }

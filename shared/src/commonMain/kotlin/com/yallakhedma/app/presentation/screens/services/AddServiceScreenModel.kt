@@ -12,16 +12,35 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.catch
+import com.yallakhedma.app.domain.model.ServiceCategory
+import com.yallakhedma.app.domain.repository.CategoryRepository
+import com.yallakhedma.app.presentation.i18n.UiText
+import com.yallakhedma.app.presentation.i18n.toUiText
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.error_not_signed_in
+import yallakhidma.shared.generated.resources.error_photo_upload
+import yallakhidma.shared.generated.resources.error_price_required
+import yallakhidma.shared.generated.resources.error_title_required
 import kotlinx.datetime.Clock
 
 class AddServiceScreenModel(
     private val serviceRepository: ServiceRepository,
     private val authRepository: AuthRepository,
     private val storageDataSource: StorageImagesDataSource,
+    categoryRepository: CategoryRepository,
 ) : ScreenModel {
 
     private val _state = MutableStateFlow(State())
     val state = _state.asStateFlow()
+
+    init {
+        screenModelScope.launch {
+            categoryRepository.observeAll()
+                .catch { }
+                .collect { list -> _state.update { it.copy(categories = list.sortedBy { c -> c.order }) } }
+        }
+    }
 
     fun onTitle(v: String) = _state.update { it.copy(title = v, error = null) }
     fun onCategory(v: String) = _state.update { it.copy(category = v, error = null) }
@@ -36,18 +55,18 @@ class AddServiceScreenModel(
     fun onLocationPicked(label: String, lat: Double, lng: Double) =
         _state.update { it.copy(distance = label, latitude = lat, longitude = lng, error = null) }
 
-    fun uploadImage(bytes: ByteArray) {
+    fun uploadImage(bytes: ByteArray, mimeType: String = "image/jpeg") {
         screenModelScope.launch {
             _state.update { it.copy(imageUploading = true, error = null) }
             val uid = authRepository.currentUid()
             if (uid == null) {
-                _state.update { it.copy(imageUploading = false, error = "لا يوجد مستخدم") }
+                _state.update { it.copy(imageUploading = false, error = UiText.of(Res.string.error_not_signed_in)) }
                 return@launch
             }
             val key = Clock.System.now().toEpochMilliseconds().toString()
-            val url = runCatching { storageDataSource.uploadServiceImage(uid, key, bytes) }.getOrNull()
+            val url = runCatching { storageDataSource.uploadServiceImage(uid, key, bytes, mimeType) }.getOrNull()
             if (url == null) {
-                _state.update { it.copy(imageUploading = false, error = "تعذّر رفع الصورة") }
+                _state.update { it.copy(imageUploading = false, error = UiText.of(Res.string.error_photo_upload)) }
             } else {
                 _state.update { it.copy(imageUploading = false, imageUrl = url) }
             }
@@ -56,13 +75,13 @@ class AddServiceScreenModel(
 
     fun submit() {
         val s = state.value
-        if (s.title.isBlank()) { _state.update { it.copy(error = "عنوان الخدمة مطلوب") }; return }
-        if (s.price.isBlank()) { _state.update { it.copy(error = "السعر مطلوب") }; return }
+        if (s.title.isBlank()) { _state.update { it.copy(error = UiText.of(Res.string.error_title_required)) }; return }
+        if (s.price.isBlank()) { _state.update { it.copy(error = UiText.of(Res.string.error_price_required)) }; return }
         screenModelScope.launch {
             _state.update { it.copy(isSaving = true, error = null) }
             val uid = authRepository.currentUid()
             if (uid == null) {
-                _state.update { it.copy(isSaving = false, error = "لا يوجد مستخدم") }
+                _state.update { it.copy(isSaving = false, error = UiText.of(Res.string.error_not_signed_in)) }
                 return@launch
             }
             val providerName = authRepository.currentUser.firstOrNull()?.name.orEmpty()
@@ -81,7 +100,7 @@ class AddServiceScreenModel(
             )
             when (val r = serviceRepository.addService(service)) {
                 is DataResult.Success -> _state.update { it.copy(isSaving = false, saved = true) }
-                is DataResult.Error -> _state.update { it.copy(isSaving = false, error = r.message) }
+                is DataResult.Error -> _state.update { it.copy(isSaving = false, error = r.toUiText()) }
                 DataResult.Loading -> Unit
             }
         }
@@ -99,7 +118,8 @@ class AddServiceScreenModel(
         val imageUrl: String = "",
         val imageUploading: Boolean = false,
         val isSaving: Boolean = false,
-        val error: String? = null,
+        val error: UiText? = null,
         val saved: Boolean = false,
+        val categories: List<ServiceCategory> = emptyList(),
     )
 }

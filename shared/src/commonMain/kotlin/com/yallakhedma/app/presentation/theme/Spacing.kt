@@ -16,7 +16,6 @@ data class Spacing(
     val mega: androidx.compose.ui.unit.Dp = 64.dp,
     // semantic
     val screenHorizontal: androidx.compose.ui.unit.Dp = 16.dp,
-    val screenTop: androidx.compose.ui.unit.Dp = 46.dp,
     val cardPadding: androidx.compose.ui.unit.Dp = 16.dp,
 )
 

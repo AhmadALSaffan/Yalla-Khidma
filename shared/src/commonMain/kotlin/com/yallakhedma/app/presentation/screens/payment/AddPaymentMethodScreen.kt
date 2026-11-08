@@ -1,22 +1,15 @@
 package com.yallakhedma.app.presentation.screens.payment
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,121 +20,117 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.yallakhedma.app.presentation.components.AppPrimaryButton
-import com.yallakhedma.app.presentation.components.AppTextField
-import org.jetbrains.compose.resources.painterResource
-
-private val Background = Color(0xFFFFFFFF)
-private val OnSurface = Color(0xFF131B2E)
-private val OnSurfaceVariant = Color(0xFF5B4137)
-private val Primary = Color(0xFFFF6B35)
-private val Danger = Color(0xFFEF4444)
+import com.yallakhedma.app.presentation.components.ErrorBanner
+import com.yallakhedma.app.presentation.components.YkButton
+import com.yallakhedma.app.presentation.components.YkFormScreen
+import com.yallakhedma.app.presentation.components.YkIcons
+import com.yallakhedma.app.presentation.components.YkTextField
+import com.yallakhedma.app.presentation.i18n.asString
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.theme.YkRadius
+import com.yallakhedma.app.util.CardBrand
+import org.jetbrains.compose.resources.stringResource
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.add_card_note
+import yallakhidma.shared.generated.resources.add_card_submit
+import yallakhidma.shared.generated.resources.add_card_title
+import yallakhidma.shared.generated.resources.card_holder_ph
+import yallakhidma.shared.generated.resources.field_card_number
+import yallakhidma.shared.generated.resources.field_cardholder
+import yallakhidma.shared.generated.resources.field_cvv
+import yallakhidma.shared.generated.resources.field_expiry
 
 object AddPaymentMethodScreen : Screen {
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = koinScreenModel<AddPaymentMethodScreenModel>()
-        val state by screenModel.state.collectAsState()
-
+        val model = koinScreenModel<AddPaymentMethodScreenModel>()
+        val state by model.state.collectAsState()
+        val numberTransform = remember { CardNumberVisualTransformation() }
+        val expiryTransform = remember { ExpiryVisualTransformation() }
         LaunchedEffect(state.saved) { if (state.saved) navigator.pop() }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Background)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
-                .padding(top = 46.dp, bottom = 32.dp),
+        YkFormScreen(
+            title = stringResource(Res.string.add_card_title),
+            onBack = { navigator.pop() },
+            bottomBar = {
+                ErrorBanner(state.error?.asString(), Modifier.padding(bottom = 10.dp))
+                YkButton(
+                    text = stringResource(Res.string.add_card_submit),
+                    onClick = model::submit,
+                    loading = state.saving,
+                    leading = { Icon(YkIcons.Lock, null, tint = Color.White, modifier = Modifier.size(16.dp)) },
+                )
+            },
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Box(
-                    modifier = Modifier.size(40.dp).clip(CircleShape).clickable { navigator.pop() },
-                    contentAlignment = Alignment.Center,
-                ) { Text("→", color = Primary, fontSize = 24.sp, fontWeight = FontWeight.Bold) }
-                Text("إضافة بطاقة", color = OnSurface, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-            }
-            Spacer(Modifier.height(6.dp))
-            Text(
-                text = "🔒 يتم تشفير البطاقة قبل حفظها. لا نخزّن رمز CVV.",
-                color = OnSurfaceVariant,
-                fontSize = 12.sp,
+            CardPreview(
+                brand = state.brand,
+                number = state.cardNumber,
+                holder = state.cardholder,
+                expiry = state.expiry,
             )
-
-            Spacer(Modifier.height(20.dp))
-            // Card number + live brand badge
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Box(modifier = Modifier.weight(1f)) {
-                    AppTextField(
-                        value = state.cardNumber,
-                        onValueChange = screenModel::onCardNumber,
-                        label = "رقم البطاقة",
-                        keyboardType = KeyboardType.Number,
-                        visualTransformation = remember { CardNumberVisualTransformation() },
-                    )
-                }
-                Image(
-                    painter = painterResource(state.brand.drawable),
-                    contentDescription = state.brand.displayName,
-                    modifier = Modifier.size(width = 44.dp, height = 28.dp),
+            Spacer(Modifier.height(24.dp))
+            YkTextField(
+                value = state.cardNumber,
+                onValueChange = model::onCardNumber,
+                label = stringResource(Res.string.field_card_number),
+                placeholder = "0000 0000 0000 0000",
+                leadingIcon = YkIcons.CreditCard,
+                keyboardType = KeyboardType.Number,
+                forceLtr = true,
+                visualTransformation = numberTransform,
+                trailing = if (state.brand != CardBrand.OTHER) ({ BrandBadge(state.brand) }) else null,
+            )
+            Spacer(Modifier.height(16.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                YkTextField(
+                    value = state.expiry,
+                    onValueChange = model::onExpiry,
+                    label = stringResource(Res.string.field_expiry),
+                    placeholder = "MM/YY",
+                    keyboardType = KeyboardType.Number,
+                    forceLtr = true,
+                    visualTransformation = expiryTransform,
+                    modifier = Modifier.weight(1f),
+                )
+                YkTextField(
+                    value = state.cvv,
+                    onValueChange = model::onCvv,
+                    label = stringResource(Res.string.field_cvv),
+                    placeholder = if (state.brand == CardBrand.AMEX) "••••" else "•••",
+                    keyboardType = KeyboardType.NumberPassword,
+                    isPassword = true,
+                    forceLtr = true,
+                    modifier = Modifier.weight(1f),
                 )
             }
-
             Spacer(Modifier.height(16.dp))
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.weight(1f)) {
-                    AppTextField(
-                        value = state.expiry,
-                        onValueChange = screenModel::onExpiry,
-                        label = "MM/YY",
-                        keyboardType = KeyboardType.Number,
-                        visualTransformation = remember { ExpiryVisualTransformation() },
-                    )
-                }
-                Spacer(Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    val cvvLen = if (state.brand == com.yallakhedma.app.util.CardBrand.AMEX) 4 else 3
-                    AppTextField(
-                        value = state.cvv,
-                        onValueChange = screenModel::onCvv,
-                        label = "CVV ($cvvLen أرقام)",
-                        keyboardType = KeyboardType.NumberPassword,
-                        isPassword = true,
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(16.dp))
-            AppTextField(
+            YkTextField(
                 value = state.cardholder,
-                onValueChange = screenModel::onCardholder,
-                label = "اسم حامل البطاقة",
+                onValueChange = model::onCardholder,
+                label = stringResource(Res.string.field_cardholder),
+                placeholder = stringResource(Res.string.card_holder_ph),
+                leadingIcon = YkIcons.User,
+                capitalization = KeyboardCapitalization.Characters,
+                forceLtr = true,
             )
-
-            state.error?.let { msg ->
-                Spacer(Modifier.height(12.dp))
-                Text(msg, color = Danger, fontSize = 13.sp)
+            Spacer(Modifier.height(16.dp))
+            Row(
+                Modifier.fillMaxWidth().clip(YkRadius.sm).background(Yk.Fill).padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Icon(YkIcons.ShieldCheck, null, tint = Yk.Success, modifier = Modifier.size(18.dp))
+                Text(stringResource(Res.string.add_card_note), style = MaterialTheme.typography.bodySmall, color = Yk.Ink2)
             }
-
-            Spacer(Modifier.height(24.dp))
-            AppPrimaryButton(
-                text = "حفظ البطاقة",
-                onClick = screenModel::submit,
-                loading = state.saving,
-            )
         }
     }
 }

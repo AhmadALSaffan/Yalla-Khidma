@@ -7,7 +7,7 @@ data class IdVerificationState(
     val pickedBytes: ByteArray? = null,
     val pickedMimeType: String? = null,
     val isUploading: Boolean = false,
-    val error: String? = null,
+    val error: com.yallakhedma.app.presentation.i18n.UiText? = null,
     val submitted: Boolean = false,
 ) {
     val hasFile: Boolean get() = pickedBytes != null
