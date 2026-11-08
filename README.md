@@ -1,231 +1,159 @@
-
+<div align="center">
+  <img src="docs/media/yalla-khedma-demo-hd.gif" alt="Yalla Khedma demo" width="100%">
+</div>
 
 <div align="center">
-  <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/logo/icon.png" alt="Yalla Khedma Logo" width="10%">
-</div>
-<div align="center">
- <h1>🛠️ يلّا خِدمة · Yalla Khedma</h1>
- <h3>A bilingual Arabic-first services marketplace for KMP (Android + iOS)</h3>
-</div>
-<p>
-  <img src="https://img.shields.io/badge/Kotlin-2.0+-7F52FF?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin" />
+  <h1>يلّا خِدمة · Yalla Khedma</h1>
+  <h3>An Arabic-first, bilingual services marketplace built with Kotlin Multiplatform (Android + iOS)</h3>
+
+  <img src="https://img.shields.io/badge/Kotlin-2.3-7F52FF?style=flat-square&logo=kotlin&logoColor=white" alt="Kotlin" />
   <img src="https://img.shields.io/badge/Compose-Multiplatform-4285F4?style=flat-square&logo=jetpackcompose&logoColor=white" alt="Compose Multiplatform" />
-  <img src="https://img.shields.io/badge/Firebase-Auth%20%C2%B7%20Firestore%20%C2%B7%20Storage-FFCA28?style=flat-square&logo=firebase&logoColor=black" alt="Firebase" />
-  <img src="https://img.shields.io/badge/Navigation-Voyager-FF6B35?style=flat-square" alt="Voyager" />
-  <img src="https://img.shields.io/badge/DI-Koin-F4B400?style=flat-square" alt="Koin" />
+  <img src="https://img.shields.io/badge/Firebase-Auth%20%C2%B7%20Firestore-FFCA28?style=flat-square&logo=firebase&logoColor=black" alt="Firebase" />
+  <img src="https://img.shields.io/badge/Images-Openinary-FF6B35?style=flat-square" alt="Openinary" />
+  <img src="https://img.shields.io/badge/Languages-Arabic%20%C2%B7%20English-121418?style=flat-square" alt="AR / EN" />
   <img src="https://img.shields.io/badge/Architecture-Clean%20%C2%B7%20MVI-FF8B9B?style=flat-square" alt="Clean Architecture" />
   <img src="https://img.shields.io/badge/Status-In%20Development-orange?style=flat-square" alt="Status" />
-</p>
-
 </div>
 
 ---
 
 ## Overview
 
-**Yalla Khedma** (يلّا خِدمة — *"your service, one tap away"*) is a native cross-platform marketplace that connects clients with verified service providers (plumbers, electricians, tutors, designers, cleaners…) across the Arab region. Built entirely in **Kotlin Multiplatform** with **Compose Multiplatform**, it ships from a single codebase to both Android and iOS — fully RTL, fully bilingual.
+**Yalla Khedma** (يلّا خِدمة — *"your service, one tap away"*) connects clients with verified service providers (plumbers, electricians, tutors, designers, cleaners…) across the Arab region. It is written entirely in **Kotlin Multiplatform** with **Compose Multiplatform**, so one codebase ships to Android and iOS.
 
-The model is simple: clients use the app for free, providers pay a monthly subscription ($9.99 / $24.99 / $49.99) to be listed. Clients negotiate a price with the provider, the provider accepts, and the client pays securely from a saved card — with optional discount coupons.
+Arabic is the primary language with a full RTL layout, and the whole app switches to English (LTR, Inter font) from a single toggle — without losing your place.
 
-> Brand: orange `#FF6B35` on white · clean · energetic · شعبي
+Clients use the app for free; providers pay a monthly subscription to be listed. Clients propose a price, the provider accepts, and the client pays from a saved card — with optional discount coupons.
+
+> Brand: orange `#FF6B35` on white · clean · energetic
 > Tagline: **خِدمَتُك بضغطة زِر** — *Your service, one tap away*
 
 ---
 
 ## Screenshots
 
-### 🔐 Auth & Verification
+### Onboarding & sign-in
 
-| Splash | Login | Sign Up | ID Verification | Waiting Approval |
-|---|---|---|---|---|
-| <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/other%20screens/Splash.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/other%20screens/Login.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/other%20screens/Sign%20Up.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/other%20screens/ID%20Verification.png" width="190"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/other%20screens/Waiting%20Approval.png" width="190"> |
-
-### 🏠 Client — Browse
-
-| Client Home | All Categories | All Providers | All Services |
+| Motion onboarding | | | Welcome (Google-first) |
 |---|---|---|---|
-| <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/Client%20Home.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/All%20Categories.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/All%20Providers.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/All%20Services.png" width="200"> |
+| <img src="docs/screenshots/onboarding-1.png" width="200"> | <img src="docs/screenshots/onboarding-2.png" width="200"> | <img src="docs/screenshots/onboarding-3.png" width="200"> | <img src="docs/screenshots/welcome.png" width="200"> |
 
-| Provider Details | Service Details |
-|---|---|
-| <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/Provider%20Details.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/Service%20Details.png" width="200"> |
-
-### 📝 Booking, Payment & Coupons
-
-| Booking Request | My Bookings | Booking Details | Pay Booking |
+| Log in | Account type | Sign up | Forgot password |
 |---|---|---|---|
-| <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/Booking%20Request.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/Booking%20Details.png?updatedAt=1780396101880" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/Booking%20Details.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/Pay%20Booking.png" width="200"> |
+| <img src="docs/screenshots/login.png" width="200"> | <img src="docs/screenshots/account-type.png" width="200"> | <img src="docs/screenshots/signup.png" width="200"> | <img src="docs/screenshots/forgot-password.png" width="200"> |
 
-| Payment Methods | Add Payment Method | Booking Details (Paid + Coupon) |
+### Client
+
+| Home | Explore · services | Explore · pros | Categories |
+|---|---|---|---|
+| <img src="docs/screenshots/client-home.png" width="200"> | <img src="docs/screenshots/explore-services.png" width="200"> | <img src="docs/screenshots/explore-pros.png" width="200"> | <img src="docs/screenshots/categories.png" width="200"> |
+
+| Provider details | Service details | My bookings | Profile |
+|---|---|---|---|
+| <img src="docs/screenshots/provider-details.png" width="200"> | <img src="docs/screenshots/service-details.png" width="200"> | <img src="docs/screenshots/my-bookings.png" width="200"> | <img src="docs/screenshots/client-profile.png" width="200"> |
+
+### Provider
+
+| Dashboard | Requests | My services | Add service |
+|---|---|---|---|
+| <img src="docs/screenshots/provider-dashboard.png" width="200"> | <img src="docs/screenshots/provider-requests.png" width="200"> | <img src="docs/screenshots/provider-services.png" width="200"> | <img src="docs/screenshots/add-service.png" width="200"> |
+
+| Coupons | Profile | Confirm it's you |
 |---|---|---|
-| <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/Payment%20Methods.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/Add%20Payment%20Method.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/Add%20Payment%20Method.png" width="200"> |
+| <img src="docs/screenshots/coupons.png" width="200"> | <img src="docs/screenshots/provider-profile.png" width="200"> | <img src="docs/screenshots/confirm-identity.png" width="200"> |
 
-### 👤 Client — Profile
+### Arabic (RTL)
 
-| Client Profile | Edit Profile | Avatar Preview (long-press) |
-|---|---|---|
-| <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/Client%20Profile.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/Edit%20Profile.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/clinet%20screen/Avatar%20Preview%20(long-press).png" width="200"> |
-
-### 🧰 Provider — Setup & Dashboard
-
-| Provider Setup | Provider Dashboard | My Services | Add Service |
+| تعريف متحرك | | يلّا نبدأ | لوحة التحكم |
 |---|---|---|---|
-| <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/provider%20screen/Provider%20Setup.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/provider%20screen/Provider%20Dashboard.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/provider%20screen/My%20Services.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/provider%20screen/Add%20Service.png" width="200"> |
+| <img src="docs/screenshots/ar-onboarding.png" width="200"> | <img src="docs/screenshots/ar-onboarding-2.png" width="200"> | <img src="docs/screenshots/ar-welcome.png" width="200"> | <img src="docs/screenshots/ar-dashboard.png" width="200"> |
 
-### 📅 Provider — Bookings & Coupons
-
-| Manage Bookings (Filters) | Coupons List |
-|---|---|
-| <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/provider%20screen/My%20Services.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/provider%20screen/Coupons%20List.png" width="200"> |
-
-### 🪪 Provider — Profile
-
-| Provider Profile | OTP Gate |
-|---|---|
-| <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/provider%20screen/Provider%20Details.png" width="200"> | <img src="https://ik.imagekit.io/qeitebnxx/Yalla%20Khidma/provider%20screen/OTP%20Gate.png" width="200"> |
+> A 1280×720 MP4 of the demo is at [`docs/media/yalla-khedma-demo.mp4`](docs/media/yalla-khedma-demo.mp4); a 400×225 GIF is at [`docs/media/yalla-khedma-demo.gif`](docs/media/yalla-khedma-demo.gif).
 
 ---
 
 ## Features
 
-### Authentication & Onboarding
-- 🔐 **Email/password + Google Sign-In** via Firebase Auth (Credential Manager on Android, GoogleSignIn SDK on iOS through a Swift bridge)
-- 🪪 **ID verification flow** — providers upload a document; admin approves; status updates push the user forward automatically
-- 👥 **Two account types** — client and provider, chosen at sign-up
+### Onboarding & authentication
+- **Story-style motion onboarding** — three coded animation "clips" synced to a segmented progress bar; auto-advances, swipeable, skippable
+- **Google-first sign-in** — one tap for new and returning users; email/password is the secondary path
+- **Account type after Google** — a brand-new Google account picks client or provider before anything else
+- **Email verification by link** — Firebase's free verification email; the screen detects the click automatically
+- **Forgot password** — enumeration-safe reset link
+- **ID verification** for providers with a live waiting screen
 
-### For Clients
-- 🏠 **Curated home** — greeting + location header, hero banner, category grid (8 tiles), featured providers, nearby services
-- 🔍 **Browse & search** — all categories, all providers, all services with live Firestore snapshots
-- 📍 **GPS distance sorting** — Haversine distance with permission-aware location picker and reverse geocoding
-- 📝 **Booking with price negotiation** — propose your own price; provider accepts or rejects
-- 💳 **Saved payment methods** — Visa · Mastercard · Amex · Discover · Mada with brand auto-detection (PAN BIN) and AES-256-GCM encryption on the stored PAN
-- 🎟️ **Coupon redemption** — apply a provider's coupon (% or flat) at payment time; original price strikes through, discount shows in green
-- 📚 **My Bookings** — list + detail page with full receipt: original price, coupon, paid amount, card brand + last 4
-- 👤 **Profile** — long-press avatar to enlarge, edit profile, manage payment methods
+### For clients
+- **Home** — greeting, location chip, search entry, promo banner, categories from Firestore, top-rated pros, services near you
+- **Explore** — search plus category filter over services and pros, with a Services / Pros toggle
+- **GPS distance sorting** — Haversine distance with a permission-aware location picker
+- **Provider & service pages** — stats, specialties, services offered, call / WhatsApp, sticky "Book" bar
+- **Booking with price negotiation**, saved cards (AES-256-GCM, brand auto-detect) and coupons
+- **My bookings** — status filters and a "Pay now" shortcut for accepted bookings
 
-### For Providers
-- 📊 **Dashboard** — greeting, stats, pending requests with the client's offered price front-and-center
-- 🧰 **Service management** — add new services, manage existing
-- 📅 **Booking management** — filter by status (الكل / قيد الانتظار / مقبول / مدفوع / مرفوض) with live counts, accept/reject inline
-- 🎟️ **Coupon creation** — issue percent or flat-amount discount codes scoped to your own services
-- 🔒 **OTP-gated profile edits** — email OTP via SMTP before sensitive changes
-- 👤 **Provider profile** — verified badge, stats (rating, bookings, completed), edit profile
+### For providers
+- **Dashboard** — new requests, this month's earnings from paid bookings, rating, total bookings, and a live last-7-days bookings chart
+- **Requests** — status filters with counts; accept / decline inline
+- **My services** + **Add service** — photo upload, category chips, price, duration, GPS location
+- **Coupons** — ticket-style list and a live preview while creating a code
+- **Profile** — identity + stats card; editing is protected by re-authentication (password or Google)
 
 ### Cross-cutting
-- 🌐 **Bilingual (AR + EN)** with full RTL layout (locked on so brand stays consistent)
-- 🎨 **Light mode only** — clean white surfaces, orange accents — matches the brand identity
-- ✨ **Animations everywhere** — slide page transitions (Voyager), `AnimatedContent` for state swaps, `animateItem` in every list, `Crossfade` for status chips, press-scale on primary buttons
-- 📷 **Photo uploads** — clients can attach a photo to a booking; providers see it inline
-- 🔄 **Real-time updates** — Firestore snapshot listeners across bookings, providers, services, coupons, payment methods
+- **Arabic + English** — in-app switch that flips RTL/LTR and the font (IBM Plex Sans Arabic / Inter) and keeps the back stack
+- **Design system** — one set of tokens, components and icons (`Yk*` components, `YkIcons`)
+- **Locked pill bottom bar** — tap or press-and-slide to scrub between tabs, with haptics and a springy highlight
+- **Safe-area aware** — top padding follows the status bar or camera cutout, whichever is taller
+- **Real-time** — Firestore snapshot listeners for bookings, providers, services, coupons and payment methods
 
 ---
 
 ## Progress Checklist
 
-A live map of what's already shipped and what's still on the roadmap.
-
 ### ✅ Done
 
 #### Foundation
-- [x] KMP + Compose Multiplatform project scaffold (`shared` + `androidApp` + `iosApp`)
-- [x] Firebase project setup (Auth · Firestore · Storage) — package `com.yallakhedma.app`
-- [x] Koin DI with `expect`/`actual` `platformModule`
-- [x] Voyager navigation rooted at `SplashScreen` + global `SlideTransition`
-- [x] Light-mode-locked + RTL-locked theme (brand identity stays consistent)
-- [x] `Spacing.screenTop = 46dp` standard top inset across screens
-- [x] Coil 3 image loader with Ktor fetcher wired in `Application.onCreate`
-- [x] Immersive system bar via `WindowInsetsControllerCompat`
+- [x] KMP + Compose Multiplatform (`shared` + `androidApp` + `iosApp`)
+- [x] Firebase Auth + Firestore via the GitLive Kotlin SDK — works on the free Spark plan
+- [x] Koin DI, Voyager navigation, Coil 3 images
+- [x] Design system: tokens, IBM Plex Sans Arabic / Inter fonts, shared components, icon set
+- [x] Arabic / English with in-app switch (persisted)
+- [x] Safe-area top padding for notches and punch-holes
 
 #### Authentication
-- [x] Email / password sign-up + sign-in
-- [x] Google Sign-In (Android Credential Manager + iOS Swift bridge)
-- [x] Two account types (Client / Provider) chosen at sign-up
-- [x] Splash → routing logic via `AuthRouting.destinationForUser`
-- [x] Persisted session via Multiplatform Settings
-- [x] ID verification flow — upload doc + admin-approval waiting screen with live status
+- [x] Motion onboarding (first launch only)
+- [x] Google-first Welcome screen, email login, sign-up, forgot password
+- [x] Account-type step for new Google users
+- [x] Email verification by link (no Cloud Functions needed)
+- [x] Provider ID verification + waiting screen
 
-#### Client experience
-- [x] Curated home screen (greeting, banner, categories, featured providers, nearby services)
-- [x] All Categories / All Providers / All Services list screens
-- [x] Service Details + Provider Details
-- [x] GPS location picker with Haversine distance sorting + reverse geocoding
-- [x] Booking with price negotiation (`BookingRequestScreen`)
-- [x] My Bookings list with live-image fallback for old docs
-- [x] Booking Details page with full breakdown (original / coupon / paid amount)
-- [x] Long-press avatar → 280dp preview dialog
-- [x] Client profile + edit profile
+#### Client
+- [x] Client tab shell (Home · Explore · Bookings · Profile)
+- [x] Home, Explore, Categories, Provider details, Service details
+- [x] Booking with price negotiation, payment methods, coupons
+- [x] My bookings with filters, profile and edit profile
 
-#### Provider experience
-- [x] Provider profile setup
-- [x] Provider Dashboard (stats + pending requests showing client's offered price)
-- [x] My Services list + Add Service screen
-- [x] Booking management page with status filter chips (الكل / قيد الانتظار / مقبول / مدفوع / مرفوض)
-- [x] Inline accept / reject with animated visibility
-- [x] Provider profile + edit profile (OTP-gated)
-- [x] Email OTP via JavaMail SMTP with auto-host detection (gmail/outlook/yandex/mail.ru)
+#### Provider
+- [x] Provider tab shell (Dashboard · Requests · My services · Profile)
+- [x] Live dashboard metrics + weekly chart
+- [x] Requests with filters, accept / decline
+- [x] My services, Add service, Coupons, Add coupon
+- [x] Re-authentication before editing the profile
 
-#### Payments
-- [x] Add / list / delete payment methods (saved cards)
-- [x] AES-256-GCM encryption of stored PANs
-- [x] Brand auto-detection by BIN (Visa · Mastercard · Amex · Discover · Mada)
-- [x] Vector-XML card brand drawables (transparent backgrounds) — work on Android & iOS
-- [x] Amex 4-6-5 grouping + 15-digit cap + 4-digit CVV
-- [x] `VisualTransformation` for card number + expiry (caret stays put)
-- [x] LTR text editing inside the RTL app
-- [x] Brand-aware max-length cap with friendly error (no crash)
-- [x] Pay flow tied to bookings — `markPaid` writes brand + last4 + paid amount
+#### Storage
+- [x] Image uploads to Openinary (profile photos, service images, ID documents)
 
-#### Coupons
-- [x] Provider can create / list / delete coupons (percent or flat)
-- [x] Coupons scoped per provider (code from provider A can't redeem on provider B)
-- [x] Coupon redemption at checkout with line-through original + green discount banner
-- [x] Coupon snapshot on the paid booking (`couponCode` + `couponLabel`) — receipt stays correct even if coupon later edited
-- [x] Headline price on Booking Details shows actual paid amount when paid (struck-through original alongside)
-
-#### UX polish & animations
-- [x] `SlideTransition` between every screen
-- [x] `AnimatedContent` for loading → empty → content swaps
-- [x] `Modifier.animateItem(...)` on every LazyColumn (bookings, coupons)
-- [x] `Crossfade` for status chips (pending → accepted → paid → rejected)
-- [x] Press-scale to 0.97 on `AppPrimaryButton` + spinner/label crossfade
-- [x] `AnimatedVisibility` (slide + fade) for accept/reject + paid badges + coupon banner
-- [x] Bottom nav vector drawable icons
-
-### 🚧 In Progress
-
-- [ ] Real geo filtering for "خدمات قريبة" (currently shows all, sorted by Haversine)
-- [ ] Polish iOS-specific edge cases (back gesture, status-bar tint)
+### 🚧 In progress
+- [ ] Redesign the remaining legacy screens: booking request / details / payment, payment methods, provider setup, provider edit profile, ID verification
+- [ ] Move banner and category images from Firebase Storage to Openinary
+- [ ] iOS build fixes (`Clock.System`, `ByteArray` → `NSData`, Koin `GlobalContext`) and in-app Google button on iOS
 
 ### 📋 Backlog
-
-#### Communication
-- [ ] Chats list screen (`/12-chat-conversation`)
-- [ ] Chat conversation screen (1-to-1 messaging, image + voice messages)
-- [ ] Push notifications via FCM
-- [ ] Notifications inbox page
-
-#### Trust & growth
-- [ ] Reviews + ratings system (client → provider after `STATUS_PAID`)
-- [ ] Provider portfolio / works gallery
-- [ ] Profile photo upload (currently only booking photos)
-- [ ] Search screen with category + price + rating filters
-- [ ] Phone-number OTP (currently email OTP only)
-
-#### Monetisation
-- [ ] Subscription plans page (Basic $9.99 / Pro $24.99 / VIP $49.99) — design in CLAUDE.md
-- [ ] **Real payment processor integration** (Stripe / Moyasar / HyperPay) — current `markPaid` is a DB flip, no charge
-- [ ] Real subscription enforcement (gate listing visibility on tier)
-- [ ] Promotional pricing + free trial
-
-#### Internationalisation
-- [ ] English UI strings + AR/EN runtime switch in profile
-- [ ] Locale-aware money formatting
-
-#### Operational
-- [ ] Closed testing release on Play Store
-- [ ] iOS TestFlight release
-- [ ] About app page + Support / Help page
-- [ ] Onboarding slides (intentionally skipped per CLAUDE.md — revisit if needed)
+- [ ] Chats list + conversation (text, image, voice)
+- [ ] Push notifications (FCM) + notifications inbox
+- [ ] Reviews and ratings after a paid booking
+- [ ] Subscription plans (Basic $9.99 / Pro $24.99 / VIP $49.99) + checkout
+- [ ] Real payment processor (Stripe / Moyasar / HyperPay) — `markPaid` is currently a database flag
+- [ ] Phone-number sign-in
+- [ ] Play Store closed testing · TestFlight
 
 ---
 
@@ -233,34 +161,31 @@ A live map of what's already shipped and what's still on the roadmap.
 
 | Layer | Technology | Notes |
 |---|---|---|
-| Language | Kotlin | 2.0+ |
+| Language | Kotlin 2.3 | |
 | Platforms | Android + iOS | shared `commonMain` |
-| UI | Compose Multiplatform | declarative, RTL-locked |
+| UI | Compose Multiplatform | RTL / LTR follows the language |
 | Architecture | Clean Architecture + MVI | Data → Domain → Presentation |
-| Navigation | Voyager + `SlideTransition` | Screen + ScreenModel |
+| Navigation | Voyager | Screen + ScreenModel, custom tab host |
 | DI | Koin | `expect`/`actual` `platformModule` |
-| Backend | Firebase (Auth · Firestore · Storage) | via GitLive Firebase Kotlin SDK |
-| Networking | Ktor Client | Coil image loader uses Ktor fetcher |
-| Serialization | kotlinx.serialization | `@Serializable` data models |
+| Backend | Firebase Auth + Firestore | GitLive Firebase Kotlin SDK |
+| Images | Openinary Cloud | uploads via Ktor multipart |
+| Networking | Ktor Client | OkHttp (Android) · Darwin (iOS) |
+| Strings | Compose Multiplatform resources | `values/` (Arabic) · `values-en/` |
 | Async | Coroutines + Flow | `StateFlow` per screen |
-| Image Loading | Coil 3 | with Ktor fetcher factory |
-| Local Cache | Multiplatform Settings | session + small key/value |
-| Crypto | javax.crypto AES-256-GCM | encrypts card PANs on-device |
-| Email | JavaMail (SMTP) | OTP for profile edits |
-| Fonts | IBM Plex Sans Arabic / Tajawal · Inter | Arabic + Latin |
+| Local storage | Multiplatform Settings | language, onboarding flag |
+| Crypto | AES-256-GCM | encrypts card PANs on-device |
+| Fonts | IBM Plex Sans Arabic · Inter | bundled |
 
 ---
 
 ## Architecture
 
-Yalla Khedma is split into three layers with a strict one-way dependency rule.
-
 ```text
 Presentation  (Screen + ScreenModel · Voyager)
       ↓
-Domain        (Repository interfaces + Models + UseCase logic)
+Domain        (Repository interfaces + Models)
       ↓
-Data          (Repository impls → Firestore / Storage / Auth / SMTP)
+Data          (Repository impls → Firebase Auth / Firestore · Openinary)
 ```
 
 ### Project Structure
@@ -269,50 +194,39 @@ Data          (Repository impls → Firestore / Storage / Auth / SMTP)
 yalla-khedma/
 ├── shared/                                  ← KMP module
 │   └── src/
-│       ├── commonMain/kotlin/com/yallakhedma/app/
-│       │   ├── data/
-│       │   │   ├── datasource/             FirebaseAuth, Firestore, Storage, SMTP
-│       │   │   ├── repository/             *RepositoryImpl
-│       │   │   └── crypto/                 PaymentCardCrypto (expect)
-│       │   ├── domain/
-│       │   │   ├── model/                  User, Provider, Service, ServiceRequest,
-│       │   │   │                           PaymentMethod, Coupon, Category…
-│       │   │   ├── repository/             *Repository interfaces
-│       │   │   └── util/                   DataResult<T>
-│       │   ├── presentation/
-│       │   │   ├── screens/
-│       │   │   │   ├── splash/             SplashScreen + routing
-│       │   │   │   ├── auth/               login · signup · otp
-│       │   │   │   ├── verification/       IdVerificationScreen + Waiting
-│       │   │   │   ├── home/               ClientHomeScreen + asset helpers
-│       │   │   │   ├── categories/         AllCategoriesScreen
-│       │   │   │   ├── providers/          AllProvidersScreen + ProviderDetailsScreen
-│       │   │   │   ├── services/           AllServices · ServiceDetails · AddService · MyServices
-│       │   │   │   ├── bookings/           BookingRequest · MyBookings · BookingDetails
-│       │   │   │   │                       · PayBooking · ProviderBookings
-│       │   │   │   ├── payment/            PaymentMethods · AddPaymentMethod
-│       │   │   │   ├── coupons/            ProviderCoupons · AddCoupon
-│       │   │   │   ├── profile/            Client/Provider profile + edit + OTP gate
-│       │   │   │   ├── dashboard/          ProviderDashboardScreen
-│       │   │   │   └── provider_setup/     ProviderProfileSetupScreen
-│       │   │   ├── components/             AppPrimaryButton · AppTextField · AppSwitch
-│       │   │   ├── theme/                  Color · Typography · Shapes · AppTheme
-│       │   │   └── routing/                AuthRouting (single source of post-auth dest)
-│       │   ├── di/                         AppModule (Koin) + platform `expect`
-│       │   ├── util/                       CardBrand · Geo · ClientLocationHolder
-│       │   └── App.kt
-│       ├── androidMain/                    Android `actual`s (crypto, social auth, OTP)
-│       └── iosMain/                        iOS `actual`s (+ AuthBridge.swift)
-│
+│       ├── commonMain/
+│       │   ├── composeResources/
+│       │   │   ├── values/strings.xml      Arabic (default)
+│       │   │   ├── values-en/strings.xml   English
+│       │   │   ├── font/                   IBM Plex Sans Arabic · Inter
+│       │   │   └── drawable/
+│       │   └── kotlin/com/yallakhedma/app/
+│       │       ├── data/
+│       │       │   ├── datasource/         Firebase Auth, Firestore, image storage
+│       │       │   ├── remote/             OpeninaryClient (image uploads)
+│       │       │   ├── local/              AppPreferences
+│       │       │   └── repository/         *RepositoryImpl
+│       │       ├── domain/                 models · repository interfaces · DataResult
+│       │       ├── presentation/
+│       │       │   ├── components/         Yk* design-system components, YkIcons, YkBottomBar
+│       │       │   ├── i18n/               AppLanguage, LanguageManager, UiText, locale override
+│       │       │   ├── theme/              Yk tokens · typography · shapes · AppTheme
+│       │       │   ├── routing/            AuthRouting (single post-auth decision point)
+│       │       │   └── screens/
+│       │       │       ├── onboarding/     motion scenes + story pager
+│       │       │       ├── auth/           welcome · login · signup · forgot · verify · usertype
+│       │       │       ├── main/           MainTabsHost · ClientMainScreen · ProviderMainScreen
+│       │       │       ├── home/ explore/ categories/ providers/ services/
+│       │       │       ├── bookings/ payment/ coupons/ profile/ dashboard/
+│       │       │       └── common/         shared marketplace + request cards
+│       │       └── App.kt
+│       ├── androidMain/                    Android actuals (locale, crypto, Google sign-in)
+│       └── iosMain/                        iOS actuals
 ├── androidApp/                              ← Android entry
-│   └── src/main/
-│       ├── kotlin/                          YallaKhedmaApp · MainActivity
-│       └── res/                             launcher icons, google-services.json
-│
-├── iosApp/                                  ← iOS entry
-│
-├── designs/                                 ← Stitch UI references
-├── firestore-test-data.md                   ← rules + seed data
+├── iosApp/                                  ← iOS entry (+ AuthBridge.swift)
+├── docs/
+│   ├── screenshots/                        README screenshots
+│   └── media/                              demo GIF + MP4
 └── gradle/libs.versions.toml
 ```
 
@@ -320,31 +234,18 @@ yalla-khedma/
 
 ## Navigation
 
-A single Voyager `Navigator` rooted at `SplashScreen` with a global `SlideTransition`. Splash inspects the persisted session and routes to one of:
-
 ```text
 SplashScreen
-  ├─► LoginScreen                  (no session)
-  ├─► IdVerificationScreen         (provider, no doc uploaded)
-  ├─► WaitingForVerification       (provider, doc pending)
-  ├─► ClientHomeScreen             (client, verified)
-  └─► ProviderDashboardScreen      (provider, approved)
+  ├─► OnboardingScreen            (first launch) ──► WelcomeScreen
+  ├─► WelcomeScreen               (signed out)
+  │     ├─► Google ─────────────► UserTypeSelection (new account) ──► …
+  │     └─► LoginScreen ──► SignUp / ForgotPassword
+  ├─► EmailVerificationScreen     (email not verified yet)
+  ├─► IdVerification / Waiting    (provider, not approved)
+  ├─► ClientMainScreen            Home · Explore · Bookings · Profile
+  └─► ProviderMainScreen          Dashboard · Requests · My services · Profile
 
-ClientHomeScreen
-  ├─► AllCategoriesScreen
-  ├─► AllProvidersScreen ──► ProviderDetailsScreen ──► ServiceDetailsScreen
-  ├─► AllServicesScreen  ──► ServiceDetailsScreen   ──► BookingRequestScreen
-  ├─► ClientProfileScreen
-  │     ├─► MyBookingsScreen ──► BookingDetailsScreen ──► PayBookingScreen
-  │     ├─► PaymentMethodsScreen ──► AddPaymentMethodScreen
-  │     └─► ClientEditProfileScreen
-
-ProviderDashboardScreen
-  ├─► ProviderBookingsScreen      (status-filtered, accept/reject)
-  ├─► ProviderCouponsScreen       ──► AddCouponScreen
-  ├─► AddServiceScreen / MyServicesScreen
-  └─► ProviderProfileScreen
-        └─► ProviderEditOtpScreen ──► ProviderEditProfileScreen
+ProviderProfile ──► ConfirmIdentityScreen ──► ProviderEditProfileScreen
 ```
 
 ---
@@ -352,53 +253,43 @@ ProviderDashboardScreen
 ## Getting Started
 
 ### Prerequisites
-
-- Android Studio **Hedgehog (2023.1.1)** or newer
-- Xcode 15+ (for iOS)
-- JDK 17+
-- A **Firebase project** with Firestore, Storage, and Authentication (Email/Password + Google) enabled
-- An SMTP account (Gmail, Outlook, Yandex, or Mail.ru work out-of-the-box) for OTP email
+- Android Studio (latest stable), JDK 17+
+- Xcode 15+ for iOS
+- A **Firebase project** (the free Spark plan is enough) with **Authentication** (Email/Password + Google) and **Firestore**
+- An **Openinary** account for image uploads — [app.openinary.dev](https://app.openinary.dev)
 
 ### 1 — Clone
-
 ```bash
-git clone https://github.com/your-username/YallaKhidma.git
-cd YallaKhidma
+git clone https://github.com/AhmadALSaffan/Yalla-Khidma.git
+cd Yalla-Khidma
 ```
 
-### 2 — Firebase setup
+### 2 — Firebase
+1. Create a project with package `com.yallakhedma.app`
+2. Put `google-services.json` in `androidApp/` and `GoogleService-Info.plist` in `iosApp/`
+3. Enable **Email/Password** and **Google** sign-in, and **Firestore**
+4. Paste the rules from [`firestore.rules`](./firestore.rules) into Firestore → Rules (seed data: [`firestore-test-data.md`](./firestore-test-data.md))
 
-1. Open the [Firebase Console](https://console.firebase.google.com/) → create a project with package `com.yallakhedma.app`
-2. Download `google-services.json` → drop it in `androidApp/`
-3. Download `GoogleService-Info.plist` → drop it in `iosApp/`
-4. Enable **Email/Password** and **Google** under Authentication → Sign-in method
-5. Enable **Firestore** and **Storage**
+### 3 — Openinary key
+In Openinary go to **Settings → API keys**, create a key, and add it to `local.properties` in the project root (this file is git-ignored):
 
-### 3 — Firestore rules
+```properties
+openinary.apiKey=oik_your_key
+openinary.baseUrl=https://cdn.openinary.dev
+```
 
-Paste the contents of [`firestore-test-data.md`](./firestore-test-data.md) into **Firestore → Rules**. It includes rules for `users`, `providers`, `services`, `requests`, `coupons`, `payment_methods` (subcollection), and the `verifications/` / `banner/` / `categories/` Storage folders.
+The build turns these into a generated `OpeninaryKeys` object, so the key never lands in the repository.
 
-### 4 — SMTP credentials for OTP (optional)
+> Openinary Cloud delivery URLs are public. Uploaded files get random names, but anyone with a link can open it.
 
-Edit `shared/src/androidMain/kotlin/com/yallakhedma/app/data/auth/EmailOtpSender.android.kt` with your SMTP host/user/password. The implementation auto-detects gmail / outlook / yandex / mail.ru hosts from the username; override `host` manually for anything else.
-
-### 5 — Build & Run
-
-**Android:**
+### 4 — Build & run
 
 ```bash
 ./gradlew :androidApp:assembleDebug
 # or press ▶ Run in Android Studio
 ```
 
-**iOS:**
-
-```bash
-cd iosApp
-pod install
-open iosApp.xcworkspace
-# ▶ Run in Xcode
-```
+For iOS, open `iosApp/iosApp.xcodeproj` in Xcode and run.
 
 ---
 
@@ -406,35 +297,28 @@ open iosApp.xcworkspace
 
 ```text
 users/{userId}
-  email · phone · name · userType · country · city · language ·
-  photoUrl · idVerificationStatus · idDocumentType · idDocumentUrl
+  email · phone · name · userType · userTypeChosen · emailVerified ·
+  photoUrl · idVerificationStatus · idDocumentType · idDocumentUrl ·
+  providerProfileCompleted
+  payment_methods/{methodId}   brand · last4 · encryptedPan · iv · …
 
-  payment_methods/{methodId}           ← subcollection
-    brand · last4 · cardholderName · expMonth · expYear ·
-    encryptedPan · iv · createdAt
-
-providers/{providerId}                  (doc id == userId)
-  name · profession · photoUrl · city · category · rating ·
-  bookingsCount · completedJobs · verified · basePrice
+providers/{providerId}          (doc id == userId)
+  name · profession · photoUrl · city · bio · rating · reviewsCount ·
+  bookingsCount · completedJobs · yearsExperience · verified · services[]
 
 services/{serviceId}
-  title · description · categoryTag · priceFrom · imageUrl ·
+  title · description · categoryTag · priceFrom · durationText · imageUrl ·
   providerId · providerName · rating · latitude · longitude
 
 requests/{requestId}
-  serviceId · serviceTitle · providerId · clientId · clientName ·
-  clientPhotoUrl · status · createdAt ·
-  serviceImageUrl · serviceDescription · servicePrice · serviceCategoryTag ·
-  providerName · providerPhotoUrl · providerProfession ·
-  proposedPrice · currency ·
-  paid · paidAt · paymentMethodBrand · paymentMethodLast4 ·
-  paidAmount · couponCode · couponLabel
+  serviceId · providerId · clientId · status · proposedPrice · currency ·
+  paid · paidAt · paidAmount · couponCode · paymentMethodBrand · …
 
 coupons/{couponId}
   providerId · code · discountPercent · discountAmount · active · createdAt
 
 categories/{categoryId}
-  name · icon · subcategories[]
+  nameAr · nameEn · imagePath · order
 ```
 
 ---
@@ -443,22 +327,17 @@ categories/{categoryId}
 
 | Token | Value |
 |---|---|
-| Primary (brand orange) | `#FF6B35` |
-| Primary deep (header accents) | `#A73A00` |
-| Surface (light, locked) | `#FFFFFF` |
-| Surface container low | `#F2F3FF` |
-| On-surface text | `#131B2E` |
-| On-surface variant | `#5B4137` |
-| Outline variant | `#E4BEB1` |
-| Success | `#10B981` |
-| Warning | `#F59E0B` |
-| Danger | `#EF4444` |
-| Card corner radius | `12dp` (cards) · `8dp` (buttons) · `24dp` (inputs) |
-| Screen horizontal padding | `20dp` |
-| Top inset (`Spacing.screenTop`) | `46dp` |
-| Spacing scale | `4 · 8 · 12 · 16 · 20 · 24 · 32 · 40 · 48 · 64` |
+| Brand orange | `#FF6B35` |
+| Orange deep | `#C2410C` |
+| Orange soft / tint | `#FFF4EE` / `#FFE3D5` |
+| Ink (text) | `#121418` · `#4B5262` · `#8B91A0` |
+| Canvas / fill | `#FFFFFF` / `#F6F7F9` |
+| Night (dark CTA, bottom bar) | `#15161B` |
+| Success · Warning · Danger | `#10B981` · `#F59E0B` · `#E5484D` |
+| Radii | 8 chips · 12 small · 16 buttons & fields · 20 cards · 28 hero panels |
+| Fonts | IBM Plex Sans Arabic (Arabic) · Inter (English) |
 
-All screens use `AppTheme(darkTheme = false)` with `LayoutDirection.Rtl` locked. Card brand drawables (Visa · Mastercard · Amex · Discover · Mada) live as vector XML in `shared/src/commonMain/composeResources/drawable/` so they render identically on both platforms.
+Tokens live in `presentation/theme/Color.kt` (`Yk`) and `Shapes.kt` (`YkRadius`); components in `presentation/components/`.
 
 ---
 
@@ -466,36 +345,26 @@ All screens use `AppTheme(darkTheme = false)` with `LayoutDirection.Rtl` locked.
 
 | Where | What |
 |---|---|
-| Every screen transition | `SlideTransition` from Voyager |
-| Loading → content swap | `AnimatedContent` with `fadeIn`/`fadeOut` |
-| All lists (bookings, coupons, services) | `Modifier.animateItem(...)` for placement |
-| Status chips (pending / accepted / paid / rejected) | `Crossfade` between states |
-| `AppPrimaryButton` | press-scale to `0.97` + `AnimatedContent` between spinner and label |
-| Accept/reject + paid badge | `AnimatedVisibility` with `fadeIn + slideInVertically` |
-| Coupon applied banner | `AnimatedVisibility` fade |
+| Onboarding | Three timeline-driven scenes (typing search, verified badge, tracker + check + confetti) synced to story bars |
+| Bottom bar | Spring highlight, press-and-slide scrubbing, directional tab transitions |
+| Splash / Welcome | Spring logo entrance, floating category chips, breathing rings |
+| Lists | Staggered entrance + `animateItem` placement, shimmer skeletons |
+| Buttons & cards | Press-scale, loading crossfade |
+| OTP-free verification | Animated mail badge, auto-detect on click |
 
 ---
 
 ## Contributing
 
-This is a personal project — feedback, suggestions, and pull requests are warmly welcome!
+Feedback, suggestions and pull requests are welcome.
 
 1. Fork the repo
-2. Create your feature branch: `git checkout -b feature/your-feature`
-3. Commit your changes: `git commit -m "feat: add your feature"`
-4. Push to the branch: `git push origin feature/your-feature`
-5. Open a Pull Request
-
----
-
-## License
-
-```text
-This is my project — any help, feedback, or contributions are more than welcome!
-```
+2. Create a branch: `git checkout -b feature/your-feature`
+3. Commit: `git commit -m "feat: add your feature"`
+4. Push and open a Pull Request
 
 ---
 
 <div align="center">
-  Built with ❤️ by <a href="https://github.com/your-username">AHMED AL SAFFAN</a>
+  Built with ❤️ by <a href="https://github.com/AhmadALSaffan">Ahmad AL Saffan</a>
 </div>
