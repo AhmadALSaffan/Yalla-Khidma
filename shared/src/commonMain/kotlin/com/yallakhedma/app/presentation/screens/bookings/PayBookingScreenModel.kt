@@ -1,5 +1,12 @@
 package com.yallakhedma.app.presentation.screens.bookings
 
+import com.yallakhedma.app.presentation.i18n.UiText
+import com.yallakhedma.app.presentation.i18n.toUiText
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.error_choose_method
+import yallakhidma.shared.generated.resources.error_coupon_invalid
+import yallakhidma.shared.generated.resources.error_coupon_required
+import yallakhidma.shared.generated.resources.error_payment_failed
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.yallakhedma.app.domain.model.Coupon
@@ -62,11 +69,11 @@ class PayBookingScreenModel(
         if (s.couponApplying) return
         val code = s.couponCode.trim()
         if (code.isBlank()) {
-            _state.update { it.copy(couponError = "أدخل رمز الكوبون") }
+            _state.update { it.copy(couponError = UiText.of(Res.string.error_coupon_required)) }
             return
         }
         if (providerId.isBlank()) {
-            _state.update { it.copy(couponError = "تعذّر التحقق من الكوبون") }
+            _state.update { it.copy(couponError = UiText.of(Res.string.error_coupon_invalid)) }
             return
         }
         screenModelScope.launch {
@@ -74,7 +81,7 @@ class PayBookingScreenModel(
             val coupon = couponRepository.findByCode(providerId, code)
             if (coupon == null) {
                 _state.update {
-                    it.copy(couponApplying = false, appliedCoupon = null, couponError = "كوبون غير صالح")
+                    it.copy(couponApplying = false, appliedCoupon = null, couponError = UiText.of(Res.string.error_coupon_invalid))
                 }
             } else {
                 _state.update { it.copy(couponApplying = false, appliedCoupon = coupon, couponError = null) }
@@ -91,7 +98,7 @@ class PayBookingScreenModel(
         if (s.paying || s.paid) return
         val method = s.methods.firstOrNull { it.id == s.selectedId }
         if (method == null) {
-            _state.update { it.copy(error = "اختر طريقة دفع") }
+            _state.update { it.copy(error = UiText.of(Res.string.error_choose_method)) }
             return
         }
         val coupon = s.appliedCoupon
@@ -111,7 +118,7 @@ class PayBookingScreenModel(
             )
             when (r) {
                 is DataResult.Success -> _state.update { it.copy(paying = false, paid = true) }
-                is DataResult.Error -> _state.update { it.copy(paying = false, error = r.message) }
+                is DataResult.Error -> _state.update { it.copy(paying = false, error = UiText.of(Res.string.error_payment_failed)) }
                 DataResult.Loading -> Unit
             }
         }
@@ -123,10 +130,10 @@ class PayBookingScreenModel(
         val loading: Boolean = true,
         val paying: Boolean = false,
         val paid: Boolean = false,
-        val error: String? = null,
+        val error: UiText? = null,
         val couponCode: String = "",
         val couponApplying: Boolean = false,
         val appliedCoupon: Coupon? = null,
-        val couponError: String? = null,
+        val couponError: UiText? = null,
     )
 }

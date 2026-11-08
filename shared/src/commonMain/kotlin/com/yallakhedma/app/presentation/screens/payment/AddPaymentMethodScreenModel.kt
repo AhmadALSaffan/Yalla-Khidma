@@ -1,5 +1,16 @@
 package com.yallakhedma.app.presentation.screens.payment
 
+import com.yallakhedma.app.presentation.i18n.UiText
+import com.yallakhedma.app.presentation.i18n.toUiText
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.error_card_cvv
+import yallakhidma.shared.generated.resources.error_card_encrypt
+import yallakhidma.shared.generated.resources.error_card_expiry
+import yallakhidma.shared.generated.resources.error_card_max
+import yallakhidma.shared.generated.resources.error_card_number
+import yallakhidma.shared.generated.resources.error_card_unsupported
+import yallakhidma.shared.generated.resources.error_cardholder
+import yallakhidma.shared.generated.resources.error_not_signed_in
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.yallakhedma.app.data.crypto.PaymentCardCrypto
@@ -45,7 +56,7 @@ class AddPaymentMethodScreenModel(
                 cardNumber = digits,
                 brand = brand,
                 cvv = trimmedCvv,
-                error = if (overflow) "تم بلوغ الحد الأقصى لرقم البطاقة ($maxLen رقم)" else null,
+                error = if (overflow) UiText.of(Res.string.error_card_max) else null,
             )
         }
     }
@@ -67,37 +78,33 @@ class AddPaymentMethodScreenModel(
         val s = state.value
         val pan = s.cardNumber.filter { it.isDigit() }
         if (pan.length < 13 || pan.length > 19) {
-            _state.update { it.copy(error = "رقم البطاقة غير صحيح") }
+            _state.update { it.copy(error = UiText.of(Res.string.error_card_number)) }
             return
         }
         if (s.brand == CardBrand.OTHER) {
             _state.update {
-                it.copy(error = "نوع البطاقة غير مدعوم. نقبل فقط: Visa أو Mastercard أو American Express أو Discover أو مدى")
+                it.copy(error = UiText.of(Res.string.error_card_unsupported))
             }
             return
         }
         val expDigits = s.expiry
         if (expDigits.length != 4) {
-            _state.update { it.copy(error = "تاريخ الانتهاء غير صحيح") }
+            _state.update { it.copy(error = UiText.of(Res.string.error_card_expiry)) }
             return
         }
         val mm = expDigits.substring(0, 2).toIntOrNull()
         val yy = expDigits.substring(2, 4).toIntOrNull()
         if (mm == null || yy == null || mm !in 1..12) {
-            _state.update { it.copy(error = "تاريخ الانتهاء غير صحيح") }
+            _state.update { it.copy(error = UiText.of(Res.string.error_card_expiry)) }
             return
         }
         val cvvLen = if (s.brand == CardBrand.AMEX) 4 else 3
         if (s.cvv.length != cvvLen) {
-            val msg = if (s.brand == CardBrand.AMEX)
-                "رمز الأمان لبطاقات أمريكان إكسبريس يتكوّن من 4 أرقام"
-            else
-                "رمز الأمان يتكوّن من 3 أرقام"
-            _state.update { it.copy(error = msg) }
+            _state.update { it.copy(error = UiText.of(Res.string.error_card_cvv)) }
             return
         }
         if (s.cardholder.isBlank()) {
-            _state.update { it.copy(error = "اسم حامل البطاقة مطلوب") }
+            _state.update { it.copy(error = UiText.of(Res.string.error_cardholder)) }
             return
         }
 
@@ -105,12 +112,12 @@ class AddPaymentMethodScreenModel(
             _state.update { it.copy(saving = true, error = null) }
             val uid = authRepository.currentUid()
             if (uid == null) {
-                _state.update { it.copy(saving = false, error = "لا يوجد مستخدم") }
+                _state.update { it.copy(saving = false, error = UiText.of(Res.string.error_not_signed_in)) }
                 return@launch
             }
             val encrypted = runCatching { crypto.encrypt(pan) }.getOrNull()
             if (encrypted == null || encrypted.ciphertextBase64.isBlank()) {
-                _state.update { it.copy(saving = false, error = "تعذّر تشفير البطاقة") }
+                _state.update { it.copy(saving = false, error = UiText.of(Res.string.error_card_encrypt)) }
                 return@launch
             }
 
@@ -126,7 +133,7 @@ class AddPaymentMethodScreenModel(
             )
             when (val r = paymentRepository.add(uid, method)) {
                 is DataResult.Success -> _state.update { it.copy(saving = false, saved = true) }
-                is DataResult.Error -> _state.update { it.copy(saving = false, error = r.message) }
+                is DataResult.Error -> _state.update { it.copy(saving = false, error = r.toUiText()) }
                 DataResult.Loading -> Unit
             }
         }
@@ -140,6 +147,6 @@ class AddPaymentMethodScreenModel(
         val cvv: String = "",
         val saving: Boolean = false,
         val saved: Boolean = false,
-        val error: String? = null,
+        val error: UiText? = null,
     )
 }

@@ -1,5 +1,10 @@
 package com.yallakhedma.app.presentation.screens.bookings
 
+import com.yallakhedma.app.presentation.i18n.UiText
+import com.yallakhedma.app.presentation.i18n.toUiText
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.error_price_invalid
+import yallakhidma.shared.generated.resources.error_request_failed
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.yallakhedma.app.domain.model.Provider
@@ -58,7 +63,7 @@ class BookingRequestScreenModel(
         if (s.submitting || s.submitted) return
         val price = s.price.toDoubleOrNull()
         if (price == null || price <= 0.0) {
-            _state.update { it.copy(error = "أدخل سعراً صحيحاً") }
+            _state.update { it.copy(error = UiText.of(Res.string.error_price_invalid)) }
             return
         }
         screenModelScope.launch {
@@ -66,7 +71,7 @@ class BookingRequestScreenModel(
             val client = authRepository.currentUser.firstOrNull()
             val clientId = client?.id.orEmpty()
             if (service.providerId.isBlank() || clientId.isBlank()) {
-                _state.update { it.copy(submitting = false, error = "تعذّر إرسال الطلب") }
+                _state.update { it.copy(submitting = false, error = UiText.of(Res.string.error_request_failed)) }
                 return@launch
             }
             val provider = state.value.provider
@@ -92,7 +97,7 @@ class BookingRequestScreenModel(
                     providerRepository.incrementBookings(service.providerId)
                     _state.update { it.copy(submitting = false, submitted = true) }
                 }
-                is DataResult.Error -> _state.update { it.copy(submitting = false, error = r.message) }
+                is DataResult.Error -> _state.update { it.copy(submitting = false, error = UiText.of(Res.string.error_request_failed)) }
                 DataResult.Loading -> Unit
             }
         }
@@ -103,6 +108,6 @@ class BookingRequestScreenModel(
         val price: String = "",
         val submitting: Boolean = false,
         val submitted: Boolean = false,
-        val error: String? = null,
+        val error: UiText? = null,
     )
 }

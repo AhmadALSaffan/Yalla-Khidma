@@ -1,5 +1,12 @@
 package com.yallakhedma.app.presentation.screens.provider_setup
 
+import com.yallakhedma.app.presentation.i18n.UiText
+import com.yallakhedma.app.presentation.i18n.toUiText
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.error_city_required
+import yallakhidma.shared.generated.resources.error_not_signed_in
+import yallakhidma.shared.generated.resources.error_photo_upload
+import yallakhidma.shared.generated.resources.error_profession_required
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.yallakhedma.app.data.datasource.StorageImagesDataSource
@@ -38,12 +45,12 @@ class ProviderProfileSetupScreenModel(
             _state.update { it.copy(photoUploading = true, error = null) }
             val uid = authRepository.currentUid()
             if (uid == null) {
-                _state.update { it.copy(photoUploading = false, error = "لا يوجد مستخدم") }
+                _state.update { it.copy(photoUploading = false, error = UiText.of(Res.string.error_not_signed_in)) }
                 return@launch
             }
             val url = runCatching { storageDataSource.uploadProviderPhoto(uid, bytes, mimeType) }.getOrNull()
             if (url == null) {
-                _state.update { it.copy(photoUploading = false, error = "تعذّر رفع الصورة") }
+                _state.update { it.copy(photoUploading = false, error = UiText.of(Res.string.error_photo_upload)) }
             } else {
                 _state.update { it.copy(photoUploading = false, photoUrl = url) }
             }
@@ -53,18 +60,18 @@ class ProviderProfileSetupScreenModel(
     fun submit() {
         val s = state.value
         if (s.profession.isBlank()) {
-            _state.update { it.copy(error = "المهنة مطلوبة") }
+            _state.update { it.copy(error = UiText.of(Res.string.error_profession_required)) }
             return
         }
         if (s.city.isBlank()) {
-            _state.update { it.copy(error = "المدينة مطلوبة") }
+            _state.update { it.copy(error = UiText.of(Res.string.error_city_required)) }
             return
         }
         screenModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
             val uid = authRepository.currentUid()
             if (uid == null) {
-                _state.update { it.copy(isLoading = false, error = "لا يوجد مستخدم") }
+                _state.update { it.copy(isLoading = false, error = UiText.of(Res.string.error_not_signed_in)) }
                 return@launch
             }
             val name = authRepository.currentUser.firstOrNull()?.name.orEmpty()
@@ -91,12 +98,12 @@ class ProviderProfileSetupScreenModel(
 
             val saveResult = providerRepository.saveProfile(provider)
             if (saveResult is DataResult.Error) {
-                _state.update { it.copy(isLoading = false, error = saveResult.message) }
+                _state.update { it.copy(isLoading = false, error = saveResult.toUiText()) }
                 return@launch
             }
             when (val markResult = authRepository.markProviderProfileCompleted()) {
                 is DataResult.Success -> _state.update { it.copy(isLoading = false, saved = true) }
-                is DataResult.Error -> _state.update { it.copy(isLoading = false, error = markResult.message) }
+                is DataResult.Error -> _state.update { it.copy(isLoading = false, error = markResult.toUiText()) }
                 DataResult.Loading -> Unit
             }
         }
@@ -113,7 +120,7 @@ class ProviderProfileSetupScreenModel(
         val completedJobs: String = "",
         val servicesText: String = "",
         val isLoading: Boolean = false,
-        val error: String? = null,
+        val error: UiText? = null,
         val saved: Boolean = false,
     )
 }

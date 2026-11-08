@@ -52,6 +52,10 @@ Clients use the app for free; providers pay a monthly subscription to be listed.
 |---|---|---|---|
 | <img src="docs/screenshots/provider-details.png" width="200"> | <img src="docs/screenshots/service-details.png" width="200"> | <img src="docs/screenshots/my-bookings.png" width="200"> | <img src="docs/screenshots/client-profile.png" width="200"> |
 
+| Request a booking | Checkout | Add a card |
+|---|---|---|
+| <img src="docs/screenshots/booking-request.png" width="200"> | <img src="docs/screenshots/checkout.png" width="200"> | <img src="docs/screenshots/add-card.png" width="200"> |
+
 ### Provider
 
 | Dashboard | Requests | My services | Add service |
@@ -61,6 +65,10 @@ Clients use the app for free; providers pay a monthly subscription to be listed.
 | Coupons | Profile | Confirm it's you |
 |---|---|---|
 | <img src="docs/screenshots/coupons.png" width="200"> | <img src="docs/screenshots/provider-profile.png" width="200"> | <img src="docs/screenshots/confirm-identity.png" width="200"> |
+
+| Verification pending | Profile setup |
+|---|---|
+| <img src="docs/screenshots/verification-waiting.png" width="200"> | <img src="docs/screenshots/provider-setup.png" width="200"> |
 
 ### Arabic (RTL)
 
@@ -130,6 +138,7 @@ Clients use the app for free; providers pay a monthly subscription to be listed.
 - [x] Home, Explore, Categories, Provider details, Service details
 - [x] Booking with price negotiation, payment methods, coupons
 - [x] My bookings with filters, profile and edit profile
+- [x] Booking details, checkout with coupons, saved cards with live card preview
 
 #### Provider
 - [x] Provider tab shell (Dashboard · Requests · My services · Profile)
@@ -137,12 +146,12 @@ Clients use the app for free; providers pay a monthly subscription to be listed.
 - [x] Requests with filters, accept / decline
 - [x] My services, Add service, Coupons, Add coupon
 - [x] Re-authentication before editing the profile
+- [x] ID verification, live review status, profile setup and edit
 
 #### Storage
 - [x] Image uploads to Openinary (profile photos, service images, ID documents)
 
 ### 🚧 In progress
-- [ ] Redesign the remaining legacy screens: booking request / details / payment, payment methods, provider setup, provider edit profile, ID verification
 - [ ] Move banner and category images from Firebase Storage to Openinary
 - [ ] iOS build fixes (`Clock.System`, `ByteArray` → `NSData`, Koin `GlobalContext`) and in-app Google button on iOS
 

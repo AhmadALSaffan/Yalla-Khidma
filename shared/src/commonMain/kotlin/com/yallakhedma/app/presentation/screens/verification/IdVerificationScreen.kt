@@ -1,47 +1,49 @@
 package com.yallakhedma.app.presentation.screens.verification
 
-import com.yallakhedma.app.presentation.components.safeTopPadding
-import com.yallakhedma.app.presentation.components.YkIcons
-import androidx.compose.material3.Icon
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
@@ -49,362 +51,230 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.yallakhedma.app.domain.model.DocumentType
 import com.yallakhedma.app.domain.repository.AuthRepository
-import com.yallakhedma.app.presentation.components.AppPrimaryButton
+import com.yallakhedma.app.presentation.components.Avatar
+import com.yallakhedma.app.presentation.components.ErrorBanner
+import com.yallakhedma.app.presentation.components.YkButton
+import com.yallakhedma.app.presentation.components.YkChip
+import com.yallakhedma.app.presentation.components.YkFormScreen
+import com.yallakhedma.app.presentation.components.YkIcons
+import com.yallakhedma.app.presentation.i18n.asString
 import com.yallakhedma.app.presentation.routing.SignedOutDestination
-import com.yallakhedma.app.presentation.theme.LocalSpacing
+import com.yallakhedma.app.presentation.theme.Yk
+import com.yallakhedma.app.presentation.theme.YkRadius
 import com.yallakhedma.app.util.rememberImagePicker
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.decodeToImageBitmap
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
+import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.idv_change
+import yallakhidma.shared.generated.resources.idv_doc_type
+import yallakhidma.shared.generated.resources.idv_national_id
+import yallakhidma.shared.generated.resources.idv_passport
+import yallakhidma.shared.generated.resources.idv_pick_first
+import yallakhidma.shared.generated.resources.idv_remove
+import yallakhidma.shared.generated.resources.idv_selected
+import yallakhidma.shared.generated.resources.idv_signed_in
+import yallakhidma.shared.generated.resources.idv_submit
+import yallakhidma.shared.generated.resources.idv_subtitle
+import yallakhidma.shared.generated.resources.idv_switch
+import yallakhidma.shared.generated.resources.idv_tip
+import yallakhidma.shared.generated.resources.idv_title
+import yallakhidma.shared.generated.resources.idv_upload
+import yallakhidma.shared.generated.resources.idv_upload_hint
 
 object IdVerificationScreen : Screen {
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val screenModel = koinScreenModel<IdVerificationScreenModel>()
+        val model = koinScreenModel<IdVerificationScreenModel>()
         val authRepository = koinInject<AuthRepository>()
-        val state by screenModel.state.collectAsState()
-        val currentUser by authRepository.currentUser.collectAsState(initial = null)
+        val state by model.state.collectAsState()
+        val user by authRepository.currentUser.collectAsState(initial = null)
         val scope = rememberCoroutineScope()
-        val spacing = LocalSpacing.current
+        val pickImage = rememberImagePicker(onPicked = model::onImagePicked)
 
         LaunchedEffect(state.submitted) {
             if (state.submitted) navigator.replaceAll(WaitingForVerificationScreen)
         }
 
-        val launchPicker = rememberImagePicker(onPicked = screenModel::onImagePicked)
-
-        Scaffold(
-            containerColor = MaterialTheme.colorScheme.background,
+        YkFormScreen(
+            title = stringResource(Res.string.idv_title),
+            subtitle = stringResource(Res.string.idv_subtitle),
+            onBack = null,
             bottomBar = {
-                Surface(
-                    color = MaterialTheme.colorScheme.background,
-                    tonalElevation = 6.dp,
-                ) {
-                    Box(Modifier.padding(spacing.lg)) {
-                        AppPrimaryButton(
-                            text = if (state.hasFile) "إرسال للتدقيق" else "اختر صورة أولاً",
-                            onClick = screenModel::submit,
-                            loading = state.isUploading,
-                            enabled = state.hasFile,
-                        )
-                    }
-                }
+                ErrorBanner(state.error?.asString(), Modifier.padding(bottom = 10.dp))
+                YkButton(
+                    text = stringResource(if (state.hasFile) Res.string.idv_submit else Res.string.idv_pick_first),
+                    onClick = model::submit,
+                    loading = state.isUploading,
+                    enabled = state.hasFile,
+                    leading = { Icon(YkIcons.ShieldCheck, null, tint = Color.White, modifier = Modifier.size(18.dp)) },
+                )
             },
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = spacing.screenHorizontal)
-                    .safeTopPadding().padding(top = 12.dp, bottom = spacing.lg),
+        ) {
+            // Signed-in account
+            val label = user?.email?.takeIf { it.isNotBlank() } ?: user?.phone.orEmpty()
+            Row(
+                Modifier.fillMaxWidth().clip(YkRadius.card).background(Yk.Fill).padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                // "Signed in as X" banner so the user knows which account is being verified
-                SignedInBanner(
-                    name = currentUser?.name,
-                    email = currentUser?.email ?: currentUser?.phone,
-                    onSignOut = {
-                        scope.launch {
-                            authRepository.signOut()
-                            navigator.replaceAll(SignedOutDestination)
-                        }
-                    },
-                )
-                Spacer(Modifier.height(spacing.xl))
-
-                // Header
-                Text(
-                    text = "توثيق الهوية",
-                    style = MaterialTheme.typography.displaySmall,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                )
-                Spacer(Modifier.height(spacing.sm))
-                Text(
-                    text = "يرجى رفع صورة واضحة للهوية الوطنية أو جواز السفر لتوثيق حسابك والبدء في استقبال الطلبات.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                Spacer(Modifier.height(spacing.xxl))
-
-                // Document selection + upload card (with orange left stripe)
-                StripedCard {
+                Avatar(user?.name.orEmpty(), null, 40.dp)
+                Column(Modifier.weight(1f)) {
                     Text(
-                        text = "اختر نوع الوثيقة",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontWeight = FontWeight.SemiBold,
+                        stringResource(Res.string.idv_signed_in, user?.name.orEmpty()),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Yk.Ink,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
-                    Spacer(Modifier.height(spacing.lg))
-
-                    // Two doc type cards (in RTL, first child appears on the right)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(spacing.md),
-                    ) {
-                        DocumentTypeCard(
-                            label = "هوية وطنية",
-                            selected = state.documentType == DocumentType.NationalId,
-                            onClick = { screenModel.onDocumentTypeChange(DocumentType.NationalId) },
-                            modifier = Modifier.weight(1f),
-                        )
-                        DocumentTypeCard(
-                            label = "جواز سفر",
-                            selected = state.documentType == DocumentType.Passport,
-                            onClick = { screenModel.onDocumentTypeChange(DocumentType.Passport) },
-                            modifier = Modifier.weight(1f),
-                        )
+                    if (label.isNotBlank()) {
+                        Text(label, style = MaterialTheme.typography.bodySmall, color = Yk.Ink3, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
-
-                    Spacer(Modifier.height(spacing.lg))
-
-                    UploadZone(
-                        hasFile = state.hasFile,
-                        fileSizeKb = state.pickedBytes?.size?.div(1024),
-                        onClick = launchPicker,
-                        onClear = screenModel::onClearImage,
-                    )
-
-                    Spacer(Modifier.height(spacing.lg))
-
-                    InfoNote(
-                        text = "يجب أن تكون الصورة واضحة، غير مقصوصة الحواف، وتظهر جميع البيانات بوضوح لتجنب رفض الطلب.",
-                    )
                 }
-
-                state.error?.let { msg ->
-                    Spacer(Modifier.height(spacing.md))
-                    Text(
-                        text = msg,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
+                Text(
+                    stringResource(Res.string.idv_switch),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Yk.OrangeDeep,
+                    modifier = Modifier
+                        .clip(YkRadius.chip)
+                        .clickable(role = Role.Button) {
+                            scope.launch {
+                                authRepository.signOut()
+                                navigator.replaceAll(SignedOutDestination)
+                            }
+                        }
+                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                )
             }
-        }
-    }
-}
 
-/** White card with a vertical orange stripe on its leading edge (right side in RTL). */
-@Composable
-private fun StripedCard(content: @Composable () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-    ) {
-        Row(modifier = Modifier.height(IntrinsicSize.Max)) {
-            Box(
-                modifier = Modifier
-                    .width(4.dp)
-                    .fillMaxHeight()
-                    .background(MaterialTheme.colorScheme.primary),
-            )
-            Column(modifier = Modifier.padding(20.dp)) { content() }
-        }
-    }
-}
-
-@Composable
-private fun DocumentTypeCard(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val borderColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
-    val bg = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface
-    Card(
-        modifier = modifier.clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(if (selected) 2.dp else 1.dp, borderColor),
-        colors = CardDefaults.cardColors(containerColor = bg),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Icon(
-                imageVector = if (label.contains("جواز")) YkIcons.Book else YkIcons.IdCard,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(32.dp),
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontWeight = FontWeight.Bold,
-            )
-        }
-    }
-}
-
-@Composable
-private fun UploadZone(
-    hasFile: Boolean,
-    fileSizeKb: Int?,
-    onClick: () -> Unit,
-    onClear: () -> Unit,
-) {
-    val borderColor = if (hasFile) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
-    val bg = if (hasFile) MaterialTheme.colorScheme.primary.copy(alpha = 0.05f) else Color.Transparent
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(2.dp, borderColor),
-        colors = CardDefaults.cardColors(containerColor = bg),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 28.dp, horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(YkIcons.Camera, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
-            }
+            Spacer(Modifier.height(24.dp))
+            Text(stringResource(Res.string.idv_doc_type), style = MaterialTheme.typography.headlineSmall, color = Yk.Ink)
             Spacer(Modifier.height(12.dp))
-            if (hasFile) {
-                Text(
-                    text = "تم اختيار الصورة",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                YkChip(
+                    label = stringResource(Res.string.idv_national_id),
+                    selected = state.documentType == DocumentType.NationalId,
+                    onClick = { model.onDocumentTypeChange(DocumentType.NationalId) },
+                    leading = YkIcons.IdCard,
                 )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = "الحجم: ${fileSizeKb ?: 0} KB · اضغط لتغيير الصورة",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                YkChip(
+                    label = stringResource(Res.string.idv_passport),
+                    selected = state.documentType == DocumentType.Passport,
+                    onClick = { model.onDocumentTypeChange(DocumentType.Passport) },
+                    leading = YkIcons.Book,
                 )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = "إزالة",
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.clickable(onClick = onClear),
-                )
-            } else {
-                Text(
-                    text = "اضغط هنا لرفع الصورة",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    text = "أو قم بسحب وإفلات الملف هنا",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(12.dp))
-                Text(
-                    text = "يدعم: JPG, PNG, PDF (الحد الأقصى 5 ميجابايت)",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            }
+
+            Spacer(Modifier.height(20.dp))
+            AnimatedContent(
+                targetState = state.pickedBytes,
+                transitionSpec = { (fadeIn(tween(220)) + scaleIn(initialScale = 0.96f)) togetherWith fadeOut(tween(150)) },
+                contentKey = { it != null },
+                label = "doc",
+            ) { bytes ->
+                if (bytes == null) {
+                    UploadDropZone(onClick = pickImage)
+                } else {
+                    PickedDocument(
+                        bytes = bytes,
+                        onChange = pickImage,
+                        onRemove = model::onClearImage,
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+            Row(
+                Modifier.fillMaxWidth().clip(YkRadius.sm).background(Yk.WarningSoft).padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Icon(YkIcons.Info, null, tint = Yk.Warning, modifier = Modifier.size(18.dp))
+                Text(stringResource(Res.string.idv_tip), style = MaterialTheme.typography.bodySmall, color = Yk.Ink2)
             }
         }
     }
 }
 
-/** Top banner: "تسجل الدخول كـ {name} ({email}) — ليس أنت؟ تسجيل خروج". */
 @Composable
-private fun SignedInBanner(
-    name: String?,
-    email: String?,
-    onSignOut: () -> Unit,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+private fun UploadDropZone(onClick: () -> Unit) {
+    val dash = Yk.Orange.copy(alpha = 0.55f)
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .aspectRatio(1.6f)
+            .clip(YkRadius.card)
+            .background(Yk.OrangeSoft)
+            .drawBehind {
+                drawRoundRect(
+                    color = dash,
+                    style = Stroke(width = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(14f, 10f))),
+                    cornerRadius = CornerRadius(20.dp.toPx()),
+                )
+            }
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
+        Box(
+            Modifier.size(64.dp).clip(CircleShape).background(Yk.Canvas).border(1.dp, Yk.OrangeTint, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) { Icon(YkIcons.Camera, null, tint = Yk.Orange, modifier = Modifier.size(28.dp)) }
+        Spacer(Modifier.height(14.dp))
+        Text(stringResource(Res.string.idv_upload), style = MaterialTheme.typography.titleMedium, color = Yk.Ink, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(4.dp))
+        Text(stringResource(Res.string.idv_upload_hint), style = MaterialTheme.typography.bodySmall, color = Yk.Ink3)
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun PickedDocument(bytes: ByteArray, onChange: () -> Unit, onRemove: () -> Unit) {
+    val bitmap = remember(bytes) { runCatching { bytes.decodeToImageBitmap() }.getOrNull() }
+    Column(Modifier.fillMaxWidth().clip(YkRadius.card).border(1.dp, Yk.Line, YkRadius.card)) {
+        Box(Modifier.fillMaxWidth().aspectRatio(1.6f).background(Yk.Fill)) {
+            if (bitmap != null) {
+                Image(bitmap, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+            } else {
+                Icon(YkIcons.IdCard, null, tint = Yk.Ink3, modifier = Modifier.size(48.dp).align(Alignment.Center))
+            }
+            Box(
+                Modifier
+                    .align(Alignment.TopStart)
+                    .padding(12.dp)
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(Yk.Success),
+                contentAlignment = Alignment.Center,
+            ) { Icon(YkIcons.Check, null, tint = Color.White, modifier = Modifier.size(18.dp)) }
+        }
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
+            Modifier.fillMaxWidth().background(Yk.Canvas).padding(horizontal = 14.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "تسجّلت الدخول كـ ${name ?: "..."}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                if (!email.isNullOrBlank()) {
-                    Text(
-                        text = email,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
             Text(
-                text = "تغيير الحساب",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.clickable(onClick = onSignOut),
+                stringResource(Res.string.idv_selected, (bytes.size / 1024).coerceAtLeast(1)),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Yk.Ink2,
+                modifier = Modifier.weight(1f),
             )
-        }
-    }
-}
-
-@Composable
-private fun InfoNote(text: String) {
-    val blueBg = Color(0xFFE0EBFF)
-    val blueText = Color(0xFF1E3A8A)
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = blueBg),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.Top,
-        ) {
-            Icon(YkIcons.Info, contentDescription = null, tint = blueText, modifier = Modifier.size(20.dp))
-            Spacer(Modifier.width(8.dp))
-            Column {
-                Text(
-                    text = "ملاحظة هامة:",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = blueText,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = text,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = blueText,
-                )
-            }
+            Text(
+                stringResource(Res.string.idv_change),
+                style = MaterialTheme.typography.labelLarge,
+                color = Yk.OrangeDeep,
+                modifier = Modifier.clip(YkRadius.chip).clickable(role = Role.Button, onClick = onChange).padding(horizontal = 8.dp, vertical = 6.dp),
+            )
+            Text(
+                stringResource(Res.string.idv_remove),
+                style = MaterialTheme.typography.labelLarge,
+                color = Yk.Danger,
+                modifier = Modifier.clip(YkRadius.chip).clickable(role = Role.Button, onClick = onRemove).padding(horizontal = 8.dp, vertical = 6.dp),
+            )
         }
     }
 }
