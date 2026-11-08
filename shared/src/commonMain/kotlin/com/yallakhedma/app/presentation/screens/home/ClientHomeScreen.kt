@@ -222,6 +222,13 @@ object ClientHomeScreen : Screen {
                 }
             }
 
+            // ── Post a request ───────────────────────────────────────────
+            Spacer(Modifier.height(24.dp))
+            com.yallakhedma.app.presentation.screens.requests.PostRequestCard(
+                onClick = { navigator.push(com.yallakhedma.app.presentation.screens.requests.NewRequestScreen()) },
+                modifier = Modifier.padding(horizontal = 20.dp),
+            )
+
             // ── Top rated pros ────────────────────────────────────────────
             Spacer(Modifier.height(28.dp))
             SectionHeader(

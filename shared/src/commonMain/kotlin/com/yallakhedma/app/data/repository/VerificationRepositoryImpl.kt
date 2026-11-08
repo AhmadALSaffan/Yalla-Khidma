@@ -20,7 +20,7 @@ class VerificationRepositoryImpl(
         mimeType: String,
     ): DataResult<String> = runCatching {
         if (bytes.size > MAX_BYTES) {
-            return DataResult.Error("الملف أكبر من 5 ميجابايت")
+            return DataResult.Error(DOC_TOO_BIG)
         }
         val url = storageDs.uploadIdDocument(userId, bytes, mimeType)
 
@@ -38,7 +38,10 @@ class VerificationRepositoryImpl(
         DataResult.Success(url)
     }.getOrElse { DataResult.Error(it.message ?: "تعذّر رفع الوثيقة", it) }
 
-    private companion object {
-        const val MAX_BYTES = 5 * 1024 * 1024 // 5 MB per the UI spec
+    companion object {
+        // Raw picks above this are refused; anything smaller is compressed to
+        // ≤ 500 KB by the uploader before it leaves the device.
+        const val MAX_BYTES = 20 * 1024 * 1024
+        const val DOC_TOO_BIG = "DOC_TOO_BIG"
     }
 }

@@ -23,6 +23,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import yallakhidma.shared.generated.resources.Res
 import yallakhidma.shared.generated.resources.nav_dashboard
+import yallakhidma.shared.generated.resources.nav_messages
 import yallakhidma.shared.generated.resources.nav_profile
 import yallakhidma.shared.generated.resources.nav_requests
 import yallakhidma.shared.generated.resources.nav_services
@@ -36,7 +37,8 @@ object ProviderMainScreen : Screen {
     const val TAB_DASHBOARD = 0
     const val TAB_REQUESTS = 1
     const val TAB_SERVICES = 2
-    const val TAB_PROFILE = 3
+    const val TAB_MESSAGES = 3
+    const val TAB_PROFILE = 4
 
     @Composable
     override fun Content() {
@@ -58,6 +60,7 @@ object ProviderMainScreen : Screen {
                 MainTab(YkNavItem(YkIcons.GridFilled, stringResource(Res.string.nav_dashboard)), ProviderDashboardScreen),
                 MainTab(YkNavItem(YkIcons.CalendarFilled, stringResource(Res.string.nav_requests)), ProviderBookingsScreen),
                 MainTab(YkNavItem(YkIcons.BriefcaseFilled, stringResource(Res.string.nav_services)), MyServicesScreen),
+                MainTab(YkNavItem(YkIcons.MessageFilled, stringResource(Res.string.nav_messages)), com.yallakhedma.app.presentation.screens.chats.ChatsScreen),
                 MainTab(YkNavItem(YkIcons.UserFilled, stringResource(Res.string.nav_profile)), ProviderProfileScreen),
             ),
             selectedState = providerSelectedTab,

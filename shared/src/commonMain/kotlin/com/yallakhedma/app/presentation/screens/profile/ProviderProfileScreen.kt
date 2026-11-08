@@ -52,6 +52,7 @@ import com.yallakhedma.app.presentation.theme.YkRadius
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.sub_menu
 import yallakhidma.shared.generated.resources.pprofile_badge
 import yallakhidma.shared.generated.resources.pprofile_coupons
 import yallakhidma.shared.generated.resources.pprofile_edit
@@ -149,7 +150,10 @@ object ProviderProfileScreen : Screen {
                 MenuItem(YkIcons.Briefcase, stringResource(Res.string.pprofile_my_services)) {
                     tabs?.select(ProviderMainScreen.TAB_SERVICES)
                 }
-                MenuItem(YkIcons.Ticket, stringResource(Res.string.pprofile_coupons), last = true) { navigator.push(ProviderCouponsScreen) }
+                MenuItem(YkIcons.Ticket, stringResource(Res.string.pprofile_coupons)) { navigator.push(ProviderCouponsScreen) }
+                MenuItem(YkIcons.Sparkles, stringResource(Res.string.sub_menu), last = true) {
+                    navigator.push(com.yallakhedma.app.presentation.screens.subscription.SubscriptionPlansScreen)
+                }
             }
 
             MenuGroup(stringResource(Res.string.profile_section_account)) {

@@ -25,6 +25,7 @@ import yallakhidma.shared.generated.resources.Res
 import yallakhidma.shared.generated.resources.nav_bookings
 import yallakhidma.shared.generated.resources.nav_explore
 import yallakhidma.shared.generated.resources.nav_home
+import yallakhidma.shared.generated.resources.nav_messages
 import yallakhidma.shared.generated.resources.nav_profile
 
 // Kept at file level (not on the Screen object, which Voyager Java-serializes
@@ -38,7 +39,8 @@ object ClientMainScreen : Screen {
     const val TAB_HOME = 0
     const val TAB_EXPLORE = 1
     const val TAB_BOOKINGS = 2
-    const val TAB_PROFILE = 3
+    const val TAB_MESSAGES = 3
+    const val TAB_PROFILE = 4
 
     @Composable
     override fun Content() {
@@ -62,6 +64,7 @@ object ClientMainScreen : Screen {
                 MainTab(YkNavItem(YkIcons.HomeFilled, stringResource(Res.string.nav_home)), ClientHomeScreen),
                 MainTab(YkNavItem(YkIcons.SearchFilled, stringResource(Res.string.nav_explore)), exploreTab),
                 MainTab(YkNavItem(YkIcons.CalendarFilled, stringResource(Res.string.nav_bookings)), MyBookingsScreen),
+                MainTab(YkNavItem(YkIcons.MessageFilled, stringResource(Res.string.nav_messages)), com.yallakhedma.app.presentation.screens.chats.ChatsScreen),
                 MainTab(YkNavItem(YkIcons.UserFilled, stringResource(Res.string.nav_profile)), ClientProfileScreen),
             ),
             selectedState = selectedTab,

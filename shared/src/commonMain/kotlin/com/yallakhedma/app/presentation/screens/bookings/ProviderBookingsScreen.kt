@@ -24,6 +24,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import com.yallakhedma.app.presentation.screens.requests.SegmentedTabs
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -41,6 +44,8 @@ import com.yallakhedma.app.presentation.theme.YkRadius
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.seg_bookings
+import yallakhidma.shared.generated.resources.seg_open_jobs
 import yallakhidma.shared.generated.resources.bookings_filter_accepted
 import yallakhidma.shared.generated.resources.bookings_filter_all
 import yallakhidma.shared.generated.resources.bookings_filter_paid
@@ -67,6 +72,9 @@ object ProviderBookingsScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val model = koinScreenModel<ProviderBookingsScreenModel>()
         val state by model.state.collectAsState()
+        val jobsModel = koinScreenModel<com.yallakhedma.app.presentation.screens.requests.OpenJobsScreenModel>()
+        val jobsState by jobsModel.state.collectAsState()
+        var segment by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableIntStateOf(0) }
         val inTabs = LocalInTabs.current
 
         Column(Modifier.fillMaxSize().background(Yk.Canvas).safeTopPadding()) {
@@ -77,6 +85,13 @@ object ProviderBookingsScreen : Screen {
                 Spacer(Modifier.height(4.dp))
                 Text(stringResource(Res.string.requests_subtitle), style = MaterialTheme.typography.bodyLarge, color = Yk.Ink2)
             }
+            SegmentedTabs(
+                labels = listOf(stringResource(Res.string.seg_bookings), stringResource(Res.string.seg_open_jobs)),
+                selected = segment,
+                onSelect = { segment = it },
+                modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp),
+            )
+            if (segment == 0) {
             Row(
                 Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -109,10 +124,30 @@ object ProviderBookingsScreen : Screen {
                             request = req,
                             onAccept = { model.accept(req.id) },
                             onReject = { model.reject(req.id) },
+                            onMessage = {
+                                navigator.push(
+                                    com.yallakhedma.app.presentation.screens.chats.ChatScreen(
+                                        com.yallakhedma.app.presentation.screens.chats.chatSeed(
+                                            clientId = req.clientId, clientName = req.clientName, clientPhoto = req.clientPhotoUrl,
+                                            providerId = req.providerId, providerName = req.providerName,
+                                            providerPhoto = req.providerPhotoUrl, providerProfession = req.providerProfession,
+                                        ),
+                                    ),
+                                )
+                            },
                             modifier = Modifier.animateItem(fadeInSpec = tween(240), fadeOutSpec = tween(160), placementSpec = tween(300)),
                         )
                     }
                 }
+            }
+            } else {
+                com.yallakhedma.app.presentation.screens.requests.OpenJobsList(
+                    state = jobsState,
+                    onCategory = jobsModel::setCategory,
+                    onOpen = { navigator.push(com.yallakhedma.app.presentation.screens.requests.OpenJobDetailsScreen(it.id)) },
+                    bottomPadding = LocalBottomBarInset.current + 24.dp,
+                    modifier = Modifier.weight(1f).padding(top = 12.dp),
+                )
             }
         }
     }

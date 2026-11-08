@@ -92,6 +92,20 @@ class ProviderDetailsScreen(private val initial: Provider) : Screen {
 
         val provider = state.provider ?: initial
         val phone = provider.phone.filter { it.isDigit() || it == '+' }
+        val me by org.koin.compose.koinInject<com.yallakhedma.app.domain.repository.AuthRepository>().currentUser.collectAsState(initial = null)
+        val openChat: () -> Unit = {
+            me?.let { u ->
+                navigator.push(
+                    com.yallakhedma.app.presentation.screens.chats.ChatScreen(
+                        com.yallakhedma.app.presentation.screens.chats.chatSeed(
+                            clientId = u.id, clientName = u.name, clientPhoto = u.photoUrl,
+                            providerId = provider.id, providerName = provider.name,
+                            providerPhoto = provider.photoUrl, providerProfession = provider.profession,
+                        ),
+                    ),
+                )
+            }
+        }
 
         Box(Modifier.fillMaxSize().background(Yk.Canvas)) {
             Column(
@@ -247,9 +261,9 @@ class ProviderDetailsScreen(private val initial: Provider) : Screen {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     YkButton(
                         text = stringResource(Res.string.common_message),
-                        onClick = { runCatching { uri.openUri("https://wa.me/${phone.removePrefix("+")}") } },
+                        onClick = openChat,
                         style = YkButtonStyle.Outline,
-                        enabled = phone.isNotBlank(),
+                        enabled = me != null && me?.id != provider.id,
                         leading = { Icon(YkIcons.Message, null, tint = Yk.Ink, modifier = Modifier.size(18.dp)) },
                         modifier = Modifier.weight(1f),
                     )

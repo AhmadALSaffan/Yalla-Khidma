@@ -28,4 +28,7 @@ data class Provider(
     val verified: Boolean = false,
     val phone: String = "",
     val services: List<String> = emptyList(),
+
+    // Current plan key ("basic" | "pro" | "vip"), blank when not subscribed.
+    val subscriptionTier: String = "",
 )
