@@ -42,6 +42,7 @@ class ServiceDetailsScreenModel(
     /** Books the service: creates a request for the provider + bumps the counter. */
     fun book(service: Service) {
         if (state.value.booked || state.value.booking) return
+        if (service.isDemo) return // fictional demo listing — nothing to book
         screenModelScope.launch {
             _state.update { it.copy(booking = true, error = null) }
             val client = authRepository.currentUser.firstOrNull()

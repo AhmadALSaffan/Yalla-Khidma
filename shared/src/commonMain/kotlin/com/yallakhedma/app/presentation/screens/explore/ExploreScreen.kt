@@ -68,6 +68,8 @@ import yallakhidma.shared.generated.resources.explore_search_placeholder
 import yallakhidma.shared.generated.resources.explore_tab_providers
 import yallakhidma.shared.generated.resources.explore_tab_services
 import yallakhidma.shared.generated.resources.explore_title
+import yallakhidma.shared.generated.resources.discovery_entry
+import yallakhidma.shared.generated.resources.discovery_entry_body
 
 /**
  * Search + browse. Used as the client's Explore tab and pushed standalone for
@@ -115,6 +117,8 @@ data class ExploreScreen(
                     onValueChange = model::setQuery,
                     placeholder = stringResource(Res.string.explore_search_placeholder),
                 )
+                Spacer(Modifier.height(10.dp))
+                DescribeEntry(onClick = { navigator.push(com.yallakhedma.app.presentation.screens.discovery.DiscoveryScreen()) })
                 Spacer(Modifier.height(14.dp))
                 ModeToggle(state.mode, model::setMode)
             }
@@ -228,5 +232,27 @@ private fun ModeToggle(mode: ExploreMode, onChange: (ExploreMode) -> Unit) {
                 )
             }
         }
+    }
+}
+
+/** Entry to natural-language discovery ("describe your problem"). */
+@Composable
+fun DescribeEntry(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(YkRadius.button)
+            .background(Yk.OrangeSoft)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        androidx.compose.material3.Icon(YkIcons.Sparkles, null, tint = Yk.Orange, modifier = Modifier.height(18.dp))
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(Res.string.discovery_entry), style = MaterialTheme.typography.titleSmall, color = Yk.OrangeDeep)
+            Text(stringResource(Res.string.discovery_entry_body), style = MaterialTheme.typography.bodySmall, color = Yk.Ink2)
+        }
+        androidx.compose.material3.Icon(YkIcons.ChevronForward, null, tint = Yk.OrangeDeep, modifier = Modifier.height(16.dp))
     }
 }

@@ -79,8 +79,9 @@ val appModule: Module = module {
     // Repositories
     single<AuthRepository> { AuthRepositoryImpl(get(), get(), get()) }
     single<VerificationRepository> { VerificationRepositoryImpl(get(), get()) }
-    single<ProviderRepository> { ProviderRepositoryImpl(get()) }
-    single<ServiceRepository> { ServiceRepositoryImpl(get()) }
+    // Demo-aware wrappers: "demo-" ids resolve to the bundled discovery fixtures.
+    single<ProviderRepository> { com.yallakhedma.app.data.demo.DemoAwareProviderRepository(ProviderRepositoryImpl(get())) }
+    single<ServiceRepository> { com.yallakhedma.app.data.demo.DemoAwareServiceRepository(ServiceRepositoryImpl(get())) }
     single<CategoryRepository> { CategoryRepositoryImpl(get()) }
     single<CouponRepository> { CouponRepositoryImpl(get()) }
     single<RequestRepository> { RequestRepositoryImpl(get()) }
@@ -99,6 +100,7 @@ val appModule: Module = module {
     factory { IdVerificationScreenModel(get(), get()) }
     factory { ClientHomeScreenModel(get(), get(), get()) }
     factory { com.yallakhedma.app.presentation.screens.explore.ExploreScreenModel(get(), get(), get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.discovery.DiscoveryScreenModel(get(), get()) }
     factory { AllCategoriesScreenModel(get()) }
     factory { ServiceDetailsScreenModel(get(), get(), get()) }
     factory { ProviderDetailsScreenModel(get(), get()) }

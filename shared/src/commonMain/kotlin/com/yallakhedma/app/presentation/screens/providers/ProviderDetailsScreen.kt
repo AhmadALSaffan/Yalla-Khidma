@@ -263,7 +263,7 @@ class ProviderDetailsScreen(private val initial: Provider) : Screen {
                         text = stringResource(Res.string.common_message),
                         onClick = openChat,
                         style = YkButtonStyle.Outline,
-                        enabled = me != null && me?.id != provider.id,
+                        enabled = me != null && me?.id != provider.id && !com.yallakhedma.app.data.demo.DemoDiscoveryCatalog.isDemoId(provider.id),
                         leading = { Icon(YkIcons.Message, null, tint = Yk.Ink, modifier = Modifier.size(18.dp)) },
                         modifier = Modifier.weight(1f),
                     )

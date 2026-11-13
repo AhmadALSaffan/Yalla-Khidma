@@ -5,6 +5,7 @@ import com.yallakhedma.app.presentation.i18n.toUiText
 import yallakhidma.shared.generated.resources.Res
 import yallakhidma.shared.generated.resources.error_price_invalid
 import yallakhidma.shared.generated.resources.error_request_failed
+import yallakhidma.shared.generated.resources.discovery_demo_booking_disabled
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.yallakhedma.app.domain.model.Provider
@@ -64,6 +65,11 @@ class BookingRequestScreenModel(
         val price = s.price.toDoubleOrNull()
         if (price == null || price <= 0.0) {
             _state.update { it.copy(error = UiText.of(Res.string.error_price_invalid)) }
+            return
+        }
+        // Demo listings are fictional: never create a real request for them.
+        if (service.isDemo || com.yallakhedma.app.data.demo.DemoDiscoveryCatalog.isDemoId(service.providerId)) {
+            _state.update { it.copy(error = UiText.of(Res.string.discovery_demo_booking_disabled)) }
             return
         }
         screenModelScope.launch {
