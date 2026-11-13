@@ -72,6 +72,7 @@ import yallakhidma.shared.generated.resources.bookings_service_fallback
 import yallakhidma.shared.generated.resources.cd_back
 import yallakhidma.shared.generated.resources.service_details
 import yallakhidma.shared.generated.resources.service_provider
+import yallakhidma.shared.generated.resources.bdet_message_pro
 
 data class BookingDetailsScreen(
     private val booking: ServiceRequest,
@@ -182,11 +183,30 @@ data class BookingDetailsScreen(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                             ) {
                                 Avatar(providerName, providerPhoto, 48.dp)
-                                Column {
+                                Column(Modifier.weight(1f)) {
                                     Text(providerName, style = MaterialTheme.typography.titleMedium, color = Yk.Ink)
                                     if (providerProfession.isNotBlank()) {
                                         Text(providerProfession, style = MaterialTheme.typography.bodySmall, color = Yk.Ink2)
                                     }
+                                }
+                                if (booking.providerId.isNotBlank()) {
+                                    com.yallakhedma.app.presentation.components.YkIconButton(
+                                        icon = YkIcons.Message,
+                                        contentDescription = stringResource(Res.string.bdet_message_pro),
+                                        onClick = {
+                                            navigator.push(
+                                                com.yallakhedma.app.presentation.screens.chats.ChatScreen(
+                                                    com.yallakhedma.app.presentation.screens.chats.chatSeed(
+                                                        clientId = booking.clientId, clientName = booking.clientName, clientPhoto = booking.clientPhotoUrl,
+                                                        providerId = booking.providerId, providerName = providerName,
+                                                        providerPhoto = providerPhoto, providerProfession = providerProfession,
+                                                    ),
+                                                ),
+                                            )
+                                        },
+                                        tint = Yk.Orange,
+                                        background = Yk.OrangeSoft,
+                                    )
                                 }
                             }
                         }

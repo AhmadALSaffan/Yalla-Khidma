@@ -138,8 +138,14 @@ object ProviderDashboardScreen : Screen {
                 Text(stringResource(Res.string.dash_online), style = MaterialTheme.typography.labelLarge, color = Yk.Success)
             }
 
-            // Stats
+            // Subscription
             Spacer(Modifier.height(20.dp))
+            com.yallakhedma.app.presentation.screens.subscription.SubscriptionStatusCard(
+                onClick = { navigator.push(com.yallakhedma.app.presentation.screens.subscription.SubscriptionPlansScreen) },
+            )
+
+            // Stats
+            Spacer(Modifier.height(16.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 StatTile(
                     YkIcons.Clipboard, Yk.Orange, stringResource(Res.string.dash_stat_pending),

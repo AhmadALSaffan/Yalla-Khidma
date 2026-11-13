@@ -69,6 +69,9 @@ val appModule: Module = module {
     single { RequestsFirestoreDataSource() }
     single { PaymentMethodsFirestoreDataSource() }
     single { PaymentCardCrypto() }
+    single { com.yallakhedma.app.data.datasource.ChatsFirestoreDataSource() }
+    single { com.yallakhedma.app.data.datasource.SubscriptionsFirestoreDataSource() }
+    single { com.yallakhedma.app.data.datasource.OpenRequestsFirestoreDataSource() }
     single { com.yallakhedma.app.util.ClientLocationHolder() }
     single { com.yallakhedma.app.data.local.AppPreferences(get()) }
     single { com.yallakhedma.app.presentation.i18n.LanguageManager(get()) }
@@ -76,12 +79,16 @@ val appModule: Module = module {
     // Repositories
     single<AuthRepository> { AuthRepositoryImpl(get(), get(), get()) }
     single<VerificationRepository> { VerificationRepositoryImpl(get(), get()) }
-    single<ProviderRepository> { ProviderRepositoryImpl(get()) }
-    single<ServiceRepository> { ServiceRepositoryImpl(get()) }
+    // Demo-aware wrappers: "demo-" ids resolve to the bundled discovery fixtures.
+    single<ProviderRepository> { com.yallakhedma.app.data.demo.DemoAwareProviderRepository(ProviderRepositoryImpl(get())) }
+    single<ServiceRepository> { com.yallakhedma.app.data.demo.DemoAwareServiceRepository(ServiceRepositoryImpl(get())) }
     single<CategoryRepository> { CategoryRepositoryImpl(get()) }
     single<CouponRepository> { CouponRepositoryImpl(get()) }
     single<RequestRepository> { RequestRepositoryImpl(get()) }
     single<PaymentMethodRepository> { PaymentMethodRepositoryImpl(get()) }
+    single<com.yallakhedma.app.domain.repository.ChatRepository> { com.yallakhedma.app.data.repository.ChatRepositoryImpl(get()) }
+    single<com.yallakhedma.app.domain.repository.SubscriptionRepository> { com.yallakhedma.app.data.repository.SubscriptionRepositoryImpl(get()) }
+    single<com.yallakhedma.app.domain.repository.OpenRequestRepository> { com.yallakhedma.app.data.repository.OpenRequestRepositoryImpl(get()) }
 
     // ScreenModels (factory: new instance per screen)
     factory { LoginScreenModel(get()) }
@@ -93,6 +100,7 @@ val appModule: Module = module {
     factory { IdVerificationScreenModel(get(), get()) }
     factory { ClientHomeScreenModel(get(), get(), get()) }
     factory { com.yallakhedma.app.presentation.screens.explore.ExploreScreenModel(get(), get(), get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.discovery.DiscoveryScreenModel(get(), get()) }
     factory { AllCategoriesScreenModel(get()) }
     factory { ServiceDetailsScreenModel(get(), get(), get()) }
     factory { ProviderDetailsScreenModel(get(), get()) }
@@ -114,6 +122,14 @@ val appModule: Module = module {
     factory { ProviderBookingsScreenModel(get(), get()) }
     factory { ProviderCouponsScreenModel(get(), get()) }
     factory { AddCouponScreenModel(get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.chats.ChatsScreenModel(get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.chats.ChatScreenModel(get(), get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.subscription.SubscriptionCheckoutScreenModel(get(), get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.requests.NewRequestScreenModel(get(), get(), get(), get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.requests.MyRequestsScreenModel(get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.requests.OpenRequestDetailsScreenModel(get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.requests.OpenJobsScreenModel(get(), get(), get()) }
+    factory { com.yallakhedma.app.presentation.screens.requests.OpenJobDetailsScreenModel(get(), get(), get()) }
 }
 
 expect val platformModule: Module

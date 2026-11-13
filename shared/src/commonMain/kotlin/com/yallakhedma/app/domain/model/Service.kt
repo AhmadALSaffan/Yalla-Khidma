@@ -29,4 +29,11 @@ data class Service(
     // Coordinates of the service location (0.0 = unset), for distance sorting later.
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
+
+    // Service area radius around (latitude, longitude) in km. 0.0 = not provided.
+    val serviceRadiusKm: Double = 0.0,
+    // Structured schedule. null = availability unknown (shown as such in the UI).
+    val availability: ServiceAvailability? = null,
+    // True for the fictional listings bundled for the discovery demo.
+    val isDemo: Boolean = false,
 )

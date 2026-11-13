@@ -60,6 +60,12 @@ import yallakhidma.shared.generated.resources.service_details
 import yallakhidma.shared.generated.resources.service_duration
 import yallakhidma.shared.generated.resources.service_price_from
 import yallakhidma.shared.generated.resources.service_provider
+import yallakhidma.shared.generated.resources.discovery_demo_tag
+import yallakhidma.shared.generated.resources.service_availability
+import yallakhidma.shared.generated.resources.service_availability_unknown
+import yallakhidma.shared.generated.resources.service_days_all
+import yallakhidma.shared.generated.resources.service_days_count
+import yallakhidma.shared.generated.resources.service_hours_24
 
 class ServiceDetailsScreen(private val service: Service) : Screen {
 
@@ -111,6 +117,7 @@ class ServiceDetailsScreen(private val service: Service) : Screen {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         if (service.categoryTag.isNotBlank()) TagChip(service.categoryTag)
                         if (service.rating > 0.0) RatingPill(service.rating)
+                        if (service.isDemo) TagChip(stringResource(Res.string.discovery_demo_tag))
                     }
                     Text(service.title, style = MaterialTheme.typography.headlineLarge, color = Yk.Ink)
 
@@ -123,6 +130,8 @@ class ServiceDetailsScreen(private val service: Service) : Screen {
                             Fact(YkIcons.MapPin, "", service.distance, Modifier.weight(1f))
                         }
                     }
+                    // Hours come only from the listing's structured schedule; otherwise say "not listed".
+                    Fact(YkIcons.Clock, stringResource(Res.string.service_availability), hoursText(service), Modifier.fillMaxWidth())
 
                     if (service.description.isNotBlank()) {
                         Text(stringResource(Res.string.service_details), style = MaterialTheme.typography.headlineSmall, color = Yk.Ink)
@@ -202,4 +211,17 @@ private fun Fact(icon: ImageVector, label: String, value: String, modifier: Modi
             Text(value, style = MaterialTheme.typography.titleSmall, color = Yk.Ink, maxLines = 1)
         }
     }
+}
+
+@Composable
+private fun hoursText(service: Service): String {
+    val a = service.availability
+    if (a == null || a.days.isEmpty() || a.endMinute <= a.startMinute) {
+        return stringResource(Res.string.service_availability_unknown)
+    }
+    val days = a.days.distinct().size
+    val dayText = if (days >= 7) stringResource(Res.string.service_days_all) else stringResource(Res.string.service_days_count, days)
+    val hours = if (a.isAroundTheClock) stringResource(Res.string.service_hours_24)
+    else com.yallakhedma.app.presentation.screens.discovery.hoursRange(a.startMinute, a.endMinute)
+    return "$dayText · $hours"
 }

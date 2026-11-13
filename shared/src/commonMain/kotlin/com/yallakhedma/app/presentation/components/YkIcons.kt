@@ -275,6 +275,12 @@ object YkIcons {
             "M9.5 2h5A2.5 2.5 0 0 1 17 4.5V6h2.5A2.5 2.5 0 0 1 22 8.5v3.2H2V8.5A2.5 2.5 0 0 1 4.5 6H7V4.5A2.5 2.5 0 0 1 9.5 2zm0 2a.5.5 0 0 0-.5.5V6h6V4.5a.5.5 0 0 0-.5-.5zM2 13.7h8.5v1.1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.1H22v4.8A2.5 2.5 0 0 1 19.5 21h-15A2.5 2.5 0 0 1 2 18.5z",
         )
     }
+    val MessageFilled by lazy {
+        fill(
+            "message_filled",
+            "M12 2.5a9.5 9.5 0 1 1-4.4 17.9l-4.95 1.4a.6.6 0 0 1-.75-.75l1.4-4.95A9.5 9.5 0 0 1 12 2.5z",
+        )
+    }
 
     /** Filled star (rating). */
     val StarFilled by lazy {

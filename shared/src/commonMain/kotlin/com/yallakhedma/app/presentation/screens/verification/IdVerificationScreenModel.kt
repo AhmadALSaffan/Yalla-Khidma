@@ -65,7 +65,7 @@ class IdVerificationScreenModel(
                 is DataResult.Error -> _state.update {
                     it.copy(
                         isUploading = false,
-                        error = UiText.of(if (result.message.contains("5")) Res.string.error_doc_too_big else Res.string.error_doc_upload),
+                        error = UiText.of(if (result.message == com.yallakhedma.app.data.repository.VerificationRepositoryImpl.DOC_TOO_BIG) Res.string.error_doc_too_big else Res.string.error_doc_upload),
                     )
                 }
                 DataResult.Loading -> Unit

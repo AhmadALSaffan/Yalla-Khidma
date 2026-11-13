@@ -187,6 +187,11 @@ object ClientHomeScreen : Screen {
                 elevated = true,
                 modifier = Modifier.padding(horizontal = 20.dp),
             )
+            Spacer(Modifier.height(10.dp))
+            com.yallakhedma.app.presentation.screens.explore.DescribeEntry(
+                onClick = { navigator.push(com.yallakhedma.app.presentation.screens.discovery.DiscoveryScreen()) },
+                modifier = Modifier.padding(horizontal = 20.dp),
+            )
 
             Spacer(Modifier.height(22.dp))
             PromoBanner(onClick = openExplore, modifier = Modifier.padding(horizontal = 20.dp))
@@ -221,6 +226,13 @@ object ClientHomeScreen : Screen {
                     }
                 }
             }
+
+            // ── Post a request ───────────────────────────────────────────
+            Spacer(Modifier.height(24.dp))
+            com.yallakhedma.app.presentation.screens.requests.PostRequestCard(
+                onClick = { navigator.push(com.yallakhedma.app.presentation.screens.requests.NewRequestScreen()) },
+                modifier = Modifier.padding(horizontal = 20.dp),
+            )
 
             // ── Top rated pros ────────────────────────────────────────────
             Spacer(Modifier.height(28.dp))

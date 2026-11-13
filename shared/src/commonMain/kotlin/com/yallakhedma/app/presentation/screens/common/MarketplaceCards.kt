@@ -166,57 +166,64 @@ fun ServiceListCard(
     modifier: Modifier = Modifier,
     distanceKm: Double? = null,
     compact: Boolean = false,
+    /** Optional content under the card body (e.g. the discovery match reason). */
+    footer: (@Composable () -> Unit)? = null,
 ) {
-    Row(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .pressable(onClick)
             .ykCard()
             .padding(10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        RemoteImage(
-            service.imageUrl,
-            service.title,
-            Modifier.size(if (compact) 64.dp else 96.dp).clip(YkRadius.button),
-        ) { Icon(YkIcons.Wrench, null, tint = Yk.Orange.copy(alpha = 0.5f), modifier = Modifier.size(28.dp)) }
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (!compact && service.categoryTag.isNotBlank()) TagChip(service.categoryTag)
-            Text(
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            RemoteImage(
+                service.imageUrl,
                 service.title,
-                style = MaterialTheme.typography.titleMedium,
-                color = Yk.Ink,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (!compact && service.providerName.isNotBlank()) {
-                Text(service.providerName, style = MaterialTheme.typography.bodySmall, color = Yk.Ink2, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
+                Modifier.size(if (compact) 64.dp else 96.dp).clip(YkRadius.button),
+            ) { Icon(YkIcons.Wrench, null, tint = Yk.Orange.copy(alpha = 0.5f), modifier = Modifier.size(28.dp)) }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                if (!compact && service.categoryTag.isNotBlank()) TagChip(service.categoryTag)
                 Text(
-                    service.priceFrom,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = Yk.OrangeDeep,
-                    maxLines = 1,
+                    service.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Yk.Ink,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(Modifier.weight(1f))
-                // Firestore sometimes stores a pin emoji in the label — we draw our own icon.
-                val distance = distanceKm?.let { distanceLabel(it) }
-                    ?: service.distance.replace("📍", "").trim().takeIf { it.isNotBlank() }
-                if (distance != null) {
-                    Spacer(Modifier.width(8.dp))
-                    Row(
-                        Modifier.weight(1f, fill = false),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(3.dp),
-                    ) {
-                        Icon(YkIcons.MapPin, null, tint = Yk.Ink3, modifier = Modifier.size(12.dp))
-                        Text(distance, style = MaterialTheme.typography.labelMedium, color = Yk.Ink3, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (!compact && service.providerName.isNotBlank()) {
+                    Text(service.providerName, style = MaterialTheme.typography.bodySmall, color = Yk.Ink2, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        service.priceFrom,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Yk.OrangeDeep,
+                        maxLines = 1,
+                    )
+                    Spacer(Modifier.weight(1f))
+                    // Firestore sometimes stores a pin emoji in the label — we draw our own icon.
+                    val distance = distanceKm?.let { distanceLabel(it) }
+                        ?: service.distance.replace("📍", "").trim().takeIf { it.isNotBlank() }
+                    if (distance != null) {
+                        Spacer(Modifier.width(8.dp))
+                        Row(
+                            Modifier.weight(1f, fill = false),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp),
+                        ) {
+                            Icon(YkIcons.MapPin, null, tint = Yk.Ink3, modifier = Modifier.size(12.dp))
+                            Text(distance, style = MaterialTheme.typography.labelMedium, color = Yk.Ink3, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
                     }
                 }
             }
         }
+        if (footer != null) footer()
     }
 }
 

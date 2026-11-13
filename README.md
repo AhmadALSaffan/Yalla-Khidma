@@ -12,6 +12,7 @@
   <img src="https://img.shields.io/badge/Images-Openinary-FF6B35?style=flat-square" alt="Openinary" />
   <img src="https://img.shields.io/badge/Languages-Arabic%20%C2%B7%20English-121418?style=flat-square" alt="AR / EN" />
   <img src="https://img.shields.io/badge/Architecture-Clean%20%C2%B7%20MVI-FF8B9B?style=flat-square" alt="Clean Architecture" />
+  <img src="https://img.shields.io/badge/Search-RAG%20%C2%B7%20Grounded-8A2BE2?style=flat-square" alt="RAG search" />
   <img src="https://img.shields.io/badge/Status-In%20Development-orange?style=flat-square" alt="Status" />
 </div>
 
@@ -93,6 +94,7 @@ Clients use the app for free; providers pay a monthly subscription to be listed.
 ### For clients
 - **Home** — greeting, location chip, search entry, promo banner, categories from Firestore, top-rated pros, services near you
 - **Explore** — search plus category filter over services and pros, with a Services / Pros toggle
+- **Describe your problem (RAG search)** — type a request in any Arabic dialect or English (*«عندي مي عم تنزل من تحت المجلى وبدي حدا اليوم»*) and get ranked services. Service area and "today" availability are hard filters, and each result carries a short reason built only from the listing's own data → [how it works + eval](docs/discovery/README.md)
 - **GPS distance sorting** — Haversine distance with a permission-aware location picker
 - **Provider & service pages** — stats, specialties, services offered, call / WhatsApp, sticky "Book" bar
 - **Booking with price negotiation**, saved cards (AES-256-GCM, brand auto-detect) and coupons
@@ -150,6 +152,11 @@ Clients use the app for free; providers pay a monthly subscription to be listed.
 
 #### Storage
 - [x] Image uploads to Openinary (profile photos, service images, ID documents)
+
+#### Smart discovery
+- [x] Natural-language service discovery (retrieval + grounded explanations, AR dialects + EN)
+- [x] Service-area + availability hard filters, time-zone-aware "today"
+- [x] 30-listing labeled demo + keyword-vs-semantic eval ([results](docs/discovery/eval-results.md))
 
 ### 🚧 In progress
 - [ ] Move banner and category images from Firebase Storage to Openinary
@@ -216,6 +223,7 @@ yalla-khedma/
 │       │       │   ├── local/              AppPreferences
 │       │       │   └── repository/         *RepositoryImpl
 │       │       ├── domain/                 models · repository interfaces · DataResult
+│       │       │   └── discovery/          NL search: normalizer, lexicon, retrievers, filters, reasons
 │       │       ├── presentation/
 │       │       │   ├── components/         Yk* design-system components, YkIcons, YkBottomBar
 │       │       │   ├── i18n/               AppLanguage, LanguageManager, UiText, locale override
@@ -317,7 +325,8 @@ providers/{providerId}          (doc id == userId)
 
 services/{serviceId}
   title · description · categoryTag · priceFrom · durationText · imageUrl ·
-  providerId · providerName · rating · latitude · longitude
+  providerId · providerName · rating · latitude · longitude ·
+  serviceRadiusKm · availability{timeZone, days, startMinute, endMinute, bookedDates} · isDemo
 
 requests/{requestId}
   serviceId · providerId · clientId · status · proposedPrice · currency ·

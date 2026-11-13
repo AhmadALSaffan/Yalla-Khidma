@@ -38,6 +38,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import com.yallakhedma.app.presentation.screens.requests.SegmentedTabs
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -64,6 +67,8 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.seg_bookings
+import yallakhidma.shared.generated.resources.seg_my_requests
 import yallakhidma.shared.generated.resources.bookings_empty_body
 import yallakhidma.shared.generated.resources.bookings_empty_cta
 import yallakhidma.shared.generated.resources.bookings_empty_title
@@ -102,6 +107,9 @@ object MyBookingsScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val model = koinScreenModel<MyBookingsScreenModel>()
         val state by model.state.collectAsState()
+        val reqModel = koinScreenModel<com.yallakhedma.app.presentation.screens.requests.MyRequestsScreenModel>()
+        val reqState by reqModel.state.collectAsState()
+        var segment by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableIntStateOf(0) }
         val inTabs = LocalInTabs.current
         val tabs = LocalTabController.current
         val bottomInset = LocalBottomBarInset.current
@@ -116,6 +124,13 @@ object MyBookingsScreen : Screen {
                 Spacer(Modifier.height(4.dp))
                 Text(stringResource(Res.string.bookings_subtitle), style = MaterialTheme.typography.bodyLarge, color = Yk.Ink2)
             }
+            SegmentedTabs(
+                labels = listOf(stringResource(Res.string.seg_bookings), stringResource(Res.string.seg_my_requests)),
+                selected = segment,
+                onSelect = { segment = it },
+                modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp),
+            )
+            if (segment == 0) {
             Row(
                 Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -169,6 +184,15 @@ object MyBookingsScreen : Screen {
                         }
                     }
                 }
+            }
+            } else {
+                com.yallakhedma.app.presentation.screens.requests.MyRequestsList(
+                    state = reqState,
+                    onOpen = { navigator.push(com.yallakhedma.app.presentation.screens.requests.OpenRequestDetailsScreen(it.id)) },
+                    onNew = { navigator.push(com.yallakhedma.app.presentation.screens.requests.NewRequestScreen()) },
+                    bottomPadding = bottomInset + 24.dp,
+                    modifier = Modifier.weight(1f).padding(top = 16.dp),
+                )
             }
         }
     }

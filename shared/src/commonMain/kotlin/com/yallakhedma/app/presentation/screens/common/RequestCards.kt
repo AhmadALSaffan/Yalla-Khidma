@@ -31,6 +31,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import yallakhidma.shared.generated.resources.Res
+import yallakhidma.shared.generated.resources.req_message_client
 import yallakhidma.shared.generated.resources.action_accept
 import yallakhidma.shared.generated.resources.action_reject
 import yallakhidma.shared.generated.resources.bookings_service_fallback
@@ -83,6 +84,7 @@ fun ProviderRequestCard(
     onReject: () -> Unit,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
+    onMessage: (() -> Unit)? = null,
 ) {
     val pending = request.status == ServiceRequest.STATUS_PENDING
     Column(
@@ -149,7 +151,17 @@ fun ProviderRequestCard(
         }
 
         if (pending) {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                if (onMessage != null) {
+                    com.yallakhedma.app.presentation.components.YkIconButton(
+                        icon = YkIcons.Message,
+                        contentDescription = stringResource(Res.string.req_message_client),
+                        onClick = onMessage,
+                        bordered = true,
+                        size = 44.dp,
+                        iconSize = 18.dp,
+                    )
+                }
                 YkButton(
                     text = stringResource(Res.string.action_reject),
                     onClick = onReject,
@@ -165,6 +177,14 @@ fun ProviderRequestCard(
                     modifier = Modifier.weight(1f),
                 )
             }
+        } else if (onMessage != null) {
+            YkButton(
+                text = stringResource(Res.string.req_message_client),
+                onClick = onMessage,
+                style = YkButtonStyle.Outline,
+                height = 44.dp,
+                leading = { Icon(YkIcons.Message, null, tint = Yk.Ink, modifier = Modifier.size(16.dp)) },
+            )
         }
     }
 }

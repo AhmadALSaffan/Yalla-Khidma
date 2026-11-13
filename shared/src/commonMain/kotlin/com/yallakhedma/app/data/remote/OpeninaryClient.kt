@@ -1,5 +1,8 @@
 package com.yallakhedma.app.data.remote
 
+import com.yallakhedma.app.util.compressImage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.yallakhedma.app.config.OpeninaryKeys
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.MultiPartFormDataContent
@@ -46,7 +49,11 @@ class OpeninaryClient(private val http: HttpClient) {
      * absolute public URL of the original image.
      */
     suspend fun uploadImage(bytes: ByteArray, folder: String, mimeType: String = "image/jpeg"): String =
-        runCatching { upload(bytes, folder, mimeType) }
+        runCatching {
+            // Never upload more than MAX_UPLOAD_BYTES (500 KB): storage is billed.
+            val image = withContext(Dispatchers.Default) { compressImage(bytes, mimeType) }
+            upload(image.bytes, folder, image.mimeType)
+        }
             .onFailure { println("[YallaKhedma][Openinary] upload failed: ${it::class.simpleName}: ${it.message}") }
             .getOrThrow()
 
